@@ -21,7 +21,7 @@ model User {
 }
 
 // トークユーザー識別
-enum UserStatus {
+enum TalkSender {
   USER
   CHEF
 }
@@ -31,7 +31,7 @@ model Talk {
   id         Int        @id @default(autoincrement())
   content    String
   imageKey   String?
-  userStatus UserStatus
+  sender     TalkSender
   isReciped  Boolean
   deleted    Boolean
   createdAt  DateTime   @default(now())
