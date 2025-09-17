@@ -6,21 +6,27 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "lint:raw": "eslint . --ext .ts,.tsx",
+    "lint:off": "echo 'lint無効化中'"
   },
   "dependencies": {
     "@prisma/client": "^6.4.1",
+    "@supabase/supabase-js": "^2.55.0",
     "next": "14.2.16",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "zod": "^4.0.17"
   },
   "devDependencies": {
+    "@next/eslint-plugin-next": "^15.5.3",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",
     "eslint-config-next": "14.2.16",
     "postcss": "^8",
+    "prettier": "^3.6.2",
     "prisma": "^6.4.1",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
