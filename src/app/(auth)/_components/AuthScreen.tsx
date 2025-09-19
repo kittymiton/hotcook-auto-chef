@@ -17,11 +17,10 @@ import Link from 'next/link';
  * @param AuthType 'signin' | 'login'
  * @returns {JSX.Element}（ログインまたはサインアップ画面全体）
  */
-
 const COPY: Record<AuthType, Copy> = {
   login: {
     title: 'ログイン',
-    buttonLabel: 'ログイン',
+    buttonLabel: (sending) => (sending ? 'ログイン中' : 'ログイン'),
     footer: (
       <>
         {/* <p>
@@ -37,7 +36,7 @@ const COPY: Record<AuthType, Copy> = {
   },
   signup: {
     title: '会員登録',
-    buttonLabel: '登録',
+    buttonLabel: (sending) => (sending ? '登録中' : '登録'),
     footer: (
       <>
         <p>
@@ -58,6 +57,7 @@ export const AuthScreen = ({ type }: { type: AuthType }) => {
     setPassword,
     handleSubmit,
     emailChangedAfterError,
+    sending,
     resendControls,
   } = useAuthForm(type);
 
@@ -69,6 +69,7 @@ export const AuthScreen = ({ type }: { type: AuthType }) => {
     errorInfo,
     setEmail,
     setPassword,
+    sending,
     resendControls,
   };
 
@@ -78,6 +79,8 @@ export const AuthScreen = ({ type }: { type: AuthType }) => {
       handleSubmit={handleSubmit}
       errorInfo={errorInfo}
       emailChangedAfterError={emailChangedAfterError}
+      sending={sending}
+      buttonLabel={COPY[type].buttonLabel}
     >
       <AuthFields {...fieldProps} />
     </AuthFormBase>

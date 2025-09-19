@@ -12,9 +12,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { z } from 'zod';
 
 /**
- * 認証フロー制御するフック
+ * 認証フローを制御するフック
  *
- * 認証に係るすべてのロジックを持つ
+ * ログイン認証に係るロジックを持つ
  *  初回マウントでクリア
  *  フォーム検証（Zod）
  *  signIn/signUp/resend実行と生エラー収集（rawError）
@@ -48,13 +48,14 @@ export const useAuthForm = (
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [sending, setSending] = useState<boolean>(false);
 
   const [formErrors, setFormErrors] = useState<FormError>({});
   // Authの生エラー（API/SDK/ハッシュ加工後自作固定メッセージ）を一元的に内部で保管
   const [rawError, setRawError] = useState<RawError>(null);
 
   // 再送ボタンローディング
-  const [sending, setSending] = useState<boolean>(false);
+  const [reSending, setReSending] = useState<boolean>(false);
   // ログイン試行メール対象（未認証ログインの再送）
   const [lastInputEmail, setLastInputEmail] = useState<string>('');
   // 有効期限管理（値と時刻）
@@ -108,7 +109,7 @@ export const useAuthForm = (
 
   // 再送ボタンが押されたときの処理
   const onResend = useCallback(async () => {
-    if (sending) return;
+    if (reSending) return;
 
     // バリデーション対象選定
     const targetEmail = requireEmail ? email : lastInputEmail;
@@ -126,10 +127,10 @@ export const useAuthForm = (
     setFormErrors({});
 
     // 再送リクエスト中連打防止＆処理中表示
-    setSending(true);
+    setReSending(true);
 
     const { error } = await resend(targetEmail);
-    setSending(false);
+    setReSending(false);
 
     // useMemo再評価のトリガー
     if (error) {
@@ -140,7 +141,7 @@ export const useAuthForm = (
     setEmail('');
 
     router.push(SIGNUP_SEND_PATH);
-  }, [email, sending, requireEmail, lastInputEmail, router]);
+  }, [email, reSending, requireEmail, lastInputEmail, router]);
 
   // 送信ボタンクリック時の処理
   const handleSubmit = useCallback(
@@ -162,10 +163,15 @@ export const useAuthForm = (
       setLastInputEmail(email.trim());
       lastInputRef.current = Date.now();
 
+      // 連打防止＆処理中表示
+      setSending(true);
+
       const { error } =
         type === 'signup'
           ? await signUp(email, password)
           : await signIn(email, password);
+
+      setSending(false);
 
       // useMemo再評価のトリガー
       if (error) {
@@ -188,7 +194,7 @@ export const useAuthForm = (
         router.replace(AUTH_CALLBACK_PATH);
       }
     },
-    [email, password, type, router]
+    [email, password, type, router, sending]
   );
 
   // 409時のemail入力ハンドラ
@@ -212,10 +218,11 @@ export const useAuthForm = (
     setPassword,
     handleSubmit,
     emailChangedAfterError,
+    sending,
     resendControls: {
       requireEmail,
       showResend,
-      sending,
+      reSending,
       onResend,
     },
   };

@@ -5,7 +5,7 @@ import { AuthErrorBanner } from '@auth/components//AuthErrorBanner';
 
 /**
  * フォーム入力・表示
- * 内部にAuthErrorBannerにerrorInfo、onResend、sendingを渡す
+ * 内部にAuthErrorBannerにerrorInfo、onResend、reSendingを渡す
  *
  * @param props フォームの入力状態と検証・エラー表示に必要な情報
  *   - email, password: 入力中の値
@@ -24,6 +24,7 @@ type AuthFieldProps = Pick<
   | 'errorInfo'
   | 'setEmail'
   | 'setPassword'
+  | 'sending'
   | 'resendControls'
 >;
 
@@ -34,6 +35,7 @@ export const AuthFields = ({
   setEmail,
   setPassword,
   errorInfo,
+  sending,
   resendControls,
 }: AuthFieldProps) => {
   return (
@@ -47,6 +49,8 @@ export const AuthFields = ({
           required
           onChange={(e) => setEmail(e.target.value)}
           value={email}
+          aria-disabled={sending}
+          readOnly={sending}
         />
         {formErrors.email && <p>※{formErrors.email}</p>}
       </div>
@@ -60,6 +64,8 @@ export const AuthFields = ({
           required
           onChange={(e) => setPassword(e.target.value)}
           value={password}
+          aria-disabled={sending}
+          readOnly={sending}
         />
         {formErrors.password && <p>※{formErrors.password}</p>}
       </div>

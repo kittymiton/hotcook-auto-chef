@@ -16,6 +16,7 @@ type AuthFormBaseProps = Copy & {
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   errorInfo?: AuthErrorInfo | null;
   emailChangedAfterError: boolean;
+  sending: boolean;
   children: ReactNode;
 };
 export const AuthFormBase = ({
@@ -25,18 +26,21 @@ export const AuthFormBase = ({
   errorInfo,
   children,
   emailChangedAfterError,
+  sending,
   footer,
 }: AuthFormBaseProps) => {
   return (
     <div>
       <h1>{title}</h1>
-      <form noValidate onSubmit={handleSubmit}>
+      <form noValidate onSubmit={handleSubmit} aria-busy={sending}>
         {children}
         <button
           type="submit"
-          disabled={errorInfo?.status === 409 && !emailChangedAfterError}
+          disabled={
+            (errorInfo?.status === 409 && !emailChangedAfterError) || sending
+          }
         >
-          {buttonLabel}
+          {buttonLabel(sending)}
         </button>
         <div>{footer}</div>
       </form>

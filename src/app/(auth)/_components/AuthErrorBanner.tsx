@@ -15,7 +15,7 @@ import Link from 'next/link';
  *
  * @param props.errorInfo - エラー情報のオブジェクト。errorInfo.messageがそのまま表示（nullの場合は非表示）
  * @param props.onResend - 未認証メール時の再送ハンドラー（任意）
- * @param props.sending - 再送中フラグ（任意）
+ * @param props.reSending - 再送中フラグ（任意）
  * @returns 認証エラーがある場合はエラーメッセージを含むJSX。ない場合はnullを返し、UIに何も描画しない
  */
 type AuthErrorBannerProps = Partial<UseAuthForm> & {
@@ -30,13 +30,13 @@ export const AuthErrorBanner = ({
   resendControls = {
     showResend: false,
     requireEmail: false,
-    sending: false,
+    reSending: false,
     onResend: undefined,
   },
 }: AuthErrorBannerProps): JSX.Element | null => {
   // なにもエラーがない初回はバナーを出さない
   if (!errorInfo) return null;
-  const { requireEmail, sending, onResend, showResend } = resendControls;
+  const { requireEmail, reSending, onResend, showResend } = resendControls;
 
   switch (errorInfo.status) {
     // メール認証未完了（ユーザー列挙防止の為返答は常に同じメッセージ）
@@ -72,10 +72,10 @@ export const AuthErrorBanner = ({
                 <button
                   type="button"
                   onClick={() => email && onResend?.()}
-                  aria-busy={!!sending}
-                  aria-disabled={!!sending}
+                  aria-busy={!!reSending}
+                  aria-disabled={!!reSending}
                 >
-                  {sending ? '再送中' : 'メール再送信'}
+                  {reSending ? '再送中' : 'メール再送信'}
                 </button>
               )}
             </>

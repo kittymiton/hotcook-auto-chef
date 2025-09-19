@@ -31,7 +31,7 @@ export type AuthErrorInfo = {
 export type ResendControls = {
   requireEmail: boolean; // メールアドレス入力欄
   showResend: boolean; // UI分岐
-  sending: boolean;
+  reSending: boolean;
   onResend?: () => Promise<void>;
 };
 
@@ -50,6 +50,7 @@ export type UseAuthForm = {
   setPassword: (password: string) => void;
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>;
   emailChangedAfterError: boolean;
+  sending: boolean;
   resendControls: ResendControls;
 };
 
@@ -58,4 +59,8 @@ export type UseAuthForm = {
  * - AuthScreen
  * - AuthFormBase
  */
-export type Copy = { title: string; buttonLabel: string; footer: ReactNode };
+export type Copy = {
+  title: string;
+  buttonLabel: (sending: boolean) => string;
+  footer: ReactNode;
+};
