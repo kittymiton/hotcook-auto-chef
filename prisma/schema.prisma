@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ユーザーテーブル
@@ -14,7 +15,7 @@ model User {
   supabaseUserId String     @unique
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
-  talkRooms      TalkRoom[]
+  talkRoom       TalkRoom?
   talkKeywords   TalkKeyword[]
   recipes        Recipe[]
   favorites      UserFavoriteRecipe[]
@@ -32,8 +33,8 @@ model Talk {
   content    String
   imageKey   String?
   sender     TalkSender
-  isReciped  Boolean
-  deleted    Boolean
+  isReciped  Boolean    @default(false)
+  deleted    Boolean    @default(false)
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
   talkRoomId Int
@@ -47,10 +48,10 @@ model TalkRoom {
   talks     Talk[]
   isReciped Boolean
   deleted   Boolean
-  userId    Int
+  userId    Int      @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // チャット入力補助ワードテーブル
