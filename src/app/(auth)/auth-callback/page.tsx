@@ -1,11 +1,16 @@
 'use client';
 
-import { LOGIN_ERROR_PATH, LOGIN_PATH } from '@/constants/index';
+import {
+  LOGIN_ERROR_PATH,
+  LOGIN_PATH,
+  UPDATE_PASSWORD_PATH,
+} from '@/constants/index';
 import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
 import { upsertUserRoom } from '@auth/lib/upsertUserRoom';
+import { getAuthTypeHash } from '@auth/lib/utils/getAuthTypeHash';
 import { hasAuthErrorInUrl } from '@auth/lib/utils/hasAuthErrorInurl';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 /**
  * Supabaseのセッションを確認して必ず遷移する認証CBページ
@@ -23,6 +28,7 @@ import { useEffect } from 'react';
 export default function AuthCallbackPage() {
   const router = useRouter();
   const { session, isLoading } = useSupabaseSession();
+  const type = useMemo(() => getAuthTypeHash(), []);
 
   // あらゆるケースでisLoading=falseかつsessionが取得済みまで動かさない
   useEffect(() => {
@@ -32,27 +38,34 @@ export default function AuthCallbackPage() {
       return;
     }
 
+    if (type === 'recovery') {
+      router.replace(UPDATE_PASSWORD_PATH);
+      return;
+    }
+
     // セッションが確定していない場合は抜ける
-    const init = async (): Promise<void> => {
-      if (isLoading || !session) return;
+    if (isLoading || !session) return;
 
-      // URLに認証エラーの痕跡があるかだけチェック
-      if (hasAuthErrorInUrl()) {
-        router.replace(LOGIN_ERROR_PATH);
-        return;
-      }
-
-      try {
-        if (session) {
-          const talkRoom = await upsertUserRoom(session);
-          router.replace(`/talkRoom/${talkRoom.id}`);
+    if (type !== 'recovery') {
+      const init = async (): Promise<void> => {
+        // URLに認証エラーの痕跡があるかだけチェック
+        if (hasAuthErrorInUrl()) {
+          router.replace(LOGIN_ERROR_PATH);
+          return;
         }
-      } catch (error) {
-        router.replace(LOGIN_PATH);
-        console.error('upsertUserRoomエラー:', error);
-      }
-    };
-    init();
+        try {
+          if (session) {
+            const talkRoom = await upsertUserRoom(session);
+            router.replace(`/talkRoom/${talkRoom.id}`);
+          }
+        } catch (error) {
+          router.replace(LOGIN_PATH);
+          console.error('upsertUserRoomエラー:', error);
+        }
+      };
+
+      init();
+    }
 
     // URLの認証エラーに変更がないか念の為監視
     const hashListener = () => {
@@ -65,5 +78,5 @@ export default function AuthCallbackPage() {
     return () => {
       window.removeEventListener('hashchange', hashListener);
     };
-  }, [session, isLoading, router]);
+  }, [session, isLoading, router, type]);
 }

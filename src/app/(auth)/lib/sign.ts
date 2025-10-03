@@ -71,23 +71,35 @@ export const signIn = async (
   }
 };
 
-// export const resetPassword = async (
-//   email: string
-// ): Promise<AuthResult> => {
-//   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-//     redirectTo: getRedirectUrl(UPDATE_PASSWORD_PATH),
-//   });
-//   return { error };
-// };
+export const resetPassword = async (email: string): Promise<AuthResult> => {
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: getRedirectUrl(AUTH_CALLBACK_PATH),
+    });
+    return { error };
+  } catch (e) {
+    if (e instanceof Error) {
+      console.error('詳細エラー:', e.message);
+    }
+    return { error: { message: '' } };
+  }
+};
 
-// export const updateUser = async (
-//   password: string
-// ): Promise<AuthResult> => {
-//   const { error } = await supabase.auth.updateUser({
-//     password,
-//   });
-//   return { error };
-// };
+export const updateUserPassword = async (
+  password: string
+): Promise<AuthResult> => {
+  try {
+    const { error } = await supabase.auth.updateUser({
+      password,
+    });
+    return { error };
+  } catch (e) {
+    if (e instanceof Error) {
+      console.error('詳細エラー:', e.message);
+    }
+    return { error: { message: '' } };
+  }
+};
 
 export const signOut = async (): Promise<AuthResult> => {
   try {

@@ -49,21 +49,19 @@ export const useAuthForm = (
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [sending, setSending] = useState<boolean>(false);
-
   const [formErrors, setFormErrors] = useState<FormError>({});
+
   // Authの生エラー（API/SDK/ハッシュ加工後自作固定メッセージ）を一元的に内部で保管
   const [rawError, setRawError] = useState<RawError>(null);
-
   // 再送ボタンローディング
   const [reSending, setReSending] = useState<boolean>(false);
   // ログイン試行メール対象（未認証ログインの再送）
   const [lastInputEmail, setLastInputEmail] = useState<string>('');
   // 有効期限管理（値と時刻）
   const lastInputRef = useRef<number>(0);
-
-  // 409時にメール変更があったかどうかの確認フラグ
+  // 409(ユーザー既登録)時にメール変更があったかどうかの確認フラグ
   const [emailChangedAfterError, setEmailChangedAfterError] = useState(false);
-  // 409時にのみセット
+  // 409(ユーザー既登録)時にのみセット
   const lastErrorEmailRef = useRef<string | null>(null);
 
   // 初回マウントで全クリア（共有PC/タブ持ち越し対策）
@@ -88,7 +86,7 @@ export const useAuthForm = (
     [rawError, type]
   );
 
-  // 409エラー時に別のアドレスに切り替えたかどうかの判定フラグ（UX向上のための比較基準）
+  // 409(ユーザー既登録)時に別のアドレスに切り替えたかどうかの判定フラグ（UX向上のための比較基準）
   useEffect(() => {
     if (errorInfo?.status === 409) {
       setEmailChangedAfterError(false);
@@ -96,7 +94,7 @@ export const useAuthForm = (
     }
   }, [errorInfo]);
 
-  // UI判定のためエラーメッセージをキーに変換
+  // 403(メール認証未完了)時にUI判定のためエラーメッセージをキーに変換
   const MSG_VERIFY_EXPIRED = 'リンクの有効期限が過ぎています';
   const MSG_NOT_CONFIRMED = 'メール認証が未完了です';
 
@@ -197,7 +195,7 @@ export const useAuthForm = (
     [email, password, type, router, sending]
   );
 
-  // 409時のemail入力ハンドラ
+  // 409(ユーザー既登録)時のemail入力ハンドラ
   const handleEmailChange = (email: string) => {
     setEmail(email);
 

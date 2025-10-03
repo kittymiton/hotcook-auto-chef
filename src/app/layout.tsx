@@ -6,9 +6,9 @@ import {
   LOGIN_PATH,
   SIGNUP_PATH,
 } from '@/constants/index';
-import { GuestMenu } from '@auth/components/GuestMenu';
-import { LoginHeader } from '@auth/components/LoginHeader';
-import { SignupHeader } from '@auth/components/SignupHeader';
+import { GuestMenu } from '@auth/components/header/GuestMenu';
+import { LoginHeader } from '@auth/components/header/LoginHeader';
+import { SignupHeader } from '@auth/components/header/SignupHeader';
 import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
 import { usePathname } from 'next/navigation';
 
@@ -29,7 +29,8 @@ export default function RootLayout({
       <head />
       <body>
         <header>
-          {!session && !isLoading && (
+          {/* {!session && !isLoading && ( */}
+          {!isLoading && (
             <>
               {pathname === HOME_PATH && <GuestMenu />}
               {pathname === SIGNUP_PATH && <LoginHeader />}
