@@ -17,6 +17,7 @@ type AuthFormBaseProps = Copy & {
   errorInfo?: AuthErrorInfo | null;
   emailChangedAfterError: boolean;
   sending: boolean;
+  redirecting: boolean;
   children: ReactNode;
 };
 export const AuthFormBase = ({
@@ -27,6 +28,7 @@ export const AuthFormBase = ({
   children,
   emailChangedAfterError,
   sending,
+  redirecting,
   footer,
 }: AuthFormBaseProps) => {
   return (
@@ -37,10 +39,12 @@ export const AuthFormBase = ({
         <button
           type="submit"
           disabled={
-            (errorInfo?.status === 409 && !emailChangedAfterError) || sending
+            (errorInfo?.status === 409 && !emailChangedAfterError) ||
+            sending ||
+            redirecting
           }
         >
-          {buttonLabel(sending)}
+          {buttonLabel(sending || redirecting)}
         </button>
         <div>{footer}</div>
       </form>

@@ -50,7 +50,8 @@ export type UseAuthForm = {
   setPassword: (password: string) => void;
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>;
   emailChangedAfterError: boolean;
-  sending: boolean;
+  sending: boolean; // API呼び出し中
+  redirecting: boolean; // ページ遷移中
   resendControls: ResendControls;
 };
 
@@ -61,6 +62,6 @@ export type UseAuthForm = {
  */
 export type Copy = {
   title: string;
-  buttonLabel: (sending: boolean) => string;
+  buttonLabel: (working: boolean) => string; // sending || redirectingをまとめてworkingにして渡す
   footer: ReactNode;
 };

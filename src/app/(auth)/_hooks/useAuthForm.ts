@@ -48,21 +48,23 @@ export const useAuthForm = (
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [sending, setSending] = useState<boolean>(false);
+  const [sending, setSending] = useState(false);
   const [formErrors, setFormErrors] = useState<FormError>({});
 
   // Authの生エラー（API/SDK/ハッシュ加工後自作固定メッセージ）を一元的に内部で保管
   const [rawError, setRawError] = useState<RawError>(null);
   // 再送ボタンローディング
-  const [reSending, setReSending] = useState<boolean>(false);
+  const [reSending, setReSending] = useState(false);
   // ログイン試行メール対象（未認証ログインの再送）
-  const [lastInputEmail, setLastInputEmail] = useState<string>('');
+  const [lastInputEmail, setLastInputEmail] = useState('');
   // 有効期限管理（値と時刻）
   const lastInputRef = useRef<number>(0);
   // 409(ユーザー既登録)時にメール変更があったかどうかの確認フラグ
   const [emailChangedAfterError, setEmailChangedAfterError] = useState(false);
   // 409(ユーザー既登録)時にのみセット
   const lastErrorEmailRef = useRef<string | null>(null);
+  // 遷移前のボタン切り替わり防止
+  const [redirecting, setRedirecting] = useState(false);
 
   // 初回マウントで全クリア（共有PC/タブ持ち越し対策）
   useEffect(() => {
@@ -174,8 +176,11 @@ export const useAuthForm = (
       // useMemo再評価のトリガー
       if (error) {
         setRawError(error);
+        setRedirecting(false);
         return;
       }
+
+      setRedirecting(true);
 
       // 登録成功でフォーム送信完了後に入力フィールドをクリア
       if (type === 'signup') {
@@ -217,6 +222,7 @@ export const useAuthForm = (
     handleSubmit,
     emailChangedAfterError,
     sending,
+    redirecting,
     resendControls: {
       requireEmail,
       showResend,
