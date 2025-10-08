@@ -66,6 +66,7 @@ export const POST = async (
     });
   } catch (e) {
     if (e instanceof Error) {
+      console.error(e);
       return NextResponse.json({ message: e.message }, { status: 400 });
     }
     return NextResponse.json({ message: '予期しないエラー' }, { status: 500 });

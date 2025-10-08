@@ -1,6 +1,10 @@
 'use Client';
 
-import { LOGIN_PATH, SIGNUP_PATH } from '@/constants/index';
+import {
+  LOGIN_PATH,
+  RESET_PASSWORD_PATH,
+  SIGNUP_PATH,
+} from '@/constants/index';
 import type { AuthType, Copy } from '@/types/auth';
 import { AuthFields } from '@auth/components/AuthFields';
 import { AuthFormBase } from '@auth/components/AuthFormBase';
@@ -20,13 +24,13 @@ import Link from 'next/link';
 const COPY: Record<AuthType, Copy> = {
   login: {
     title: 'ログイン',
-    buttonLabel: (sending) => (sending ? 'ログイン中' : 'ログイン'),
+    buttonLabel: (working) => (working ? 'ログイン中' : 'ログイン'),
     footer: (
       <>
-        {/* <p>
-          パスワードを忘れた方は
-          <Link href="/reset-password">こちら</Link>
-        </p> */}
+        <p>
+          パスワードをお忘れの方は
+          <Link href={RESET_PASSWORD_PATH}>こちら</Link>
+        </p>
         <p>
           アカウントをお持ちでない方は
           <Link href={SIGNUP_PATH}>こちら</Link>
@@ -36,7 +40,7 @@ const COPY: Record<AuthType, Copy> = {
   },
   signup: {
     title: '会員登録',
-    buttonLabel: (sending) => (sending ? '登録中' : '登録'),
+    buttonLabel: (working) => (working ? '登録中' : '登録'),
     footer: (
       <>
         <p>
@@ -58,6 +62,7 @@ export const AuthScreen = ({ type }: { type: AuthType }) => {
     handleSubmit,
     emailChangedAfterError,
     sending,
+    redirecting,
     resendControls,
   } = useAuthForm(type);
 
@@ -70,6 +75,7 @@ export const AuthScreen = ({ type }: { type: AuthType }) => {
     setEmail,
     setPassword,
     sending,
+    redirecting,
     resendControls,
   };
 
@@ -80,6 +86,7 @@ export const AuthScreen = ({ type }: { type: AuthType }) => {
       errorInfo={errorInfo}
       emailChangedAfterError={emailChangedAfterError}
       sending={sending}
+      redirecting={redirecting}
       buttonLabel={COPY[type].buttonLabel}
     >
       <AuthFields {...fieldProps} />

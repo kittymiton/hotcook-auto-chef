@@ -30,7 +30,13 @@
       "@authenticated/components/*": [
         "./src/app/(authenticated)/_components/*"
       ],
-      "@authenticated/hooks/*": ["./src/app/(authenticated)/_hooks/*"]
+      "@authenticated/hooks/*": ["./src/app/(authenticated)/_hooks/*"],
+      "@authenticated/profile/components/*": [
+        "./src/app/(authenticated)/mypage/profile/_components/*"
+      ],
+      "@authenticated/profile/hooks/*": [
+        "./src/app/(authenticated)/mypage/profile/_hooks/*"
+      ]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
