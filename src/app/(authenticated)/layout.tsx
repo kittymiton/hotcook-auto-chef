@@ -5,14 +5,13 @@ import { UserMenu } from '@authenticated/components/UserMenu';
 import { useRouteGuard } from '@authenticated/hooks/useRouteGuard';
 
 /**
- * ログイン済みユーザ向けページのレイアウト
- * /authenticated以下（children）にレイアウトを提供
- *
- * ページ初回マウント、ページ遷移で再評価
- * useRouteGuard() - ログイン限定エリア（認可）
- * @param children - このレイアウトに挟まれるページ内容（JSX）
- * @returns {JSX.Element}（ヘッダー,{children}）
- **/
+ * ログイン済みユーザー向けのレイアウトを提供
+ * - authenticated配下のページに共通レイアウト（ヘッダー+コンテンツ領域）を適用
+ * - ページ初回マウント・ルート遷移時にuseRouteGuard()を実行し、未ログインユーザーを保護
+ * - 認可チェック後、childrenがレイアウトに挟み込まれて描画
+ * @param children - このレイアウトに包み込まれるページ内容（JSX）
+ * @returns レイアウト済みのUI（ヘッダー+children）
+ */
 export default function AuthenticatedLayout({
   children,
 }: {
