@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/utils/env';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/utils/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
@@ -12,8 +12,6 @@ import { NextRequest, NextResponse } from 'next/server';
  * 5最終的にトークルームIDを返す
  * @return {Promise<NextResponse<any>>} - レスポンスオブジェクト
  **/
-const prisma = new PrismaClient();
-
 export const POST = async (
   request: NextRequest
 ): Promise<NextResponse<any>> => {
