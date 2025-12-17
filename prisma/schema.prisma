@@ -6,6 +6,7 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
+  connection_timeout = 10000 // DBが5秒かかる間Prismaが500を返さず10秒待つ
 }
 
 // ユーザーテーブル
@@ -49,6 +50,7 @@ model TalkRoom {
   isReciped Boolean
   deleted   Boolean
   userId    Int      @unique
+  // TODO: LINE連携実装時に roomId String @unique を追加予定
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
