@@ -26,6 +26,7 @@ export default function TalkRoomIdPage() {
   const from = params.id; // クエリで使用
   const talkRoomId = Number(from);
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const { token } = useSupabaseSession();
 
   const url_main = talkRoomId ? `/api/talks?talkRoomId=${talkRoomId}` : null;
   const url_aside = `/api/recipes?take=5`;
