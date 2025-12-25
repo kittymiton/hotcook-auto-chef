@@ -44,3 +44,11 @@ export type RecipeDetail = RecipeBase & {
   instructions: string; // JSON文字列
   imageKey?: string;
 };
+
+/**
+ * レシピブロックを取得
+ */
+export type ExtractedJson = {
+  full: string;
+  inner: string;
+};

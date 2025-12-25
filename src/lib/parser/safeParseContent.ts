@@ -1,5 +1,5 @@
 import { extractJsonBlock } from '@/lib/parser/extractJsonBlock';
-import type { ParsedContent } from '@/types/ai';
+import type { ParsedContent } from '@/types/talk';
 
 /**
  * UI用に文字列を解析し、JSONコードブロックを抽出しprefix/suffixに分離する

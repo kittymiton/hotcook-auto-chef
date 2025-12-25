@@ -1,4 +1,4 @@
-import type { ChatMessage, HotcookResult } from '@/types/ai';
+import type { ChatMessage, OpenAIResult } from '@/types/api';
 import OpenAI from 'openai';
 
 const openai = new OpenAI({
@@ -10,7 +10,7 @@ const openai = new OpenAI({
  * null/undefinedを完全に排除
  * @param {string} content - ユーザーメッセージ
  * @param {ChatMessage[]} recentMessages - 直近の会話履歴
- * @return {Promise<HotcookResult>} - OpenAI APIからの応答メッセージ
+ * @return {Promise<OpenAIResult>} - OpenAI APIからの応答メッセージ
  * **/
 export async function createHotcookRecipe({
   content,
@@ -18,7 +18,7 @@ export async function createHotcookRecipe({
 }: {
   content: string;
   recentMessages: ChatMessage[]; // 全てstring配列で渡す
-}): Promise<HotcookResult> {
+}): Promise<OpenAIResult> {
   try {
     // OpenAIを呼び出し、ホットクックレシピを生成
     const response = await openai.chat.completions.create({

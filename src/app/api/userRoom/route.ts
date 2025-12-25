@@ -1,6 +1,7 @@
-import { supabase } from '@/lib/utils/env';
 import { prisma } from '@/lib/utils/prisma';
+import type { InitUserContextRequest } from '@/types/auth';
 import { NextRequest, NextResponse } from 'next/server';
+import { supabase } from './../../../lib/utils/env';
 
 /**
  * ユーザー登録＋トークルーム取得を1つのAPIで処理するAPIエンドポイント
@@ -23,7 +24,13 @@ export const POST = async (
   }
 
   try {
-    const { supabaseUserId, email } = await request.json();
+    const raw = await request.json();
+    const body: InitUserContextRequest = {
+      supabaseUserId: raw.supabaseUserId,
+      email: raw.email,
+    };
+    const { supabaseUserId, email } = body;
+
     if (!supabaseUserId || !email) {
       return NextResponse.json(
         { error: 'データが存在しません' },
