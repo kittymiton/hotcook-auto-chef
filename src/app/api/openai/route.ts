@@ -37,13 +37,13 @@ export async function POST(
     const { content, talkRoomId }: OpenAIRequest = await request.json();
 
     // --- 3. 過去ログ取得と整形 ---
-    const pastTalks: Talk[] = await prisma.talk.findMany({
+    const pastTalks = await prisma.talk.findMany({
       where: { talkRoomId },
       orderBy: { createdAt: 'desc' },
       take: 3,
     });
 
-    const recentMessages: ChatMessage[] = pastTalks
+    const recentMessages: ChatMessage[] = [...pastTalks]
       .reverse() // 新しい順(desc)で取得したので、古い順に戻す
       .map((talk) => ({
         role: talk.sender === TalkSender.CHEF ? 'assistant' : 'user',
