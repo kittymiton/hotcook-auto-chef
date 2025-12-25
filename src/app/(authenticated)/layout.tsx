@@ -5,12 +5,10 @@ import { UserMenu } from '@authenticated/components/UserMenu';
 import { useRouteGuard } from '@authenticated/hooks/useRouteGuard';
 
 /**
- * ログイン済みユーザー向けのレイアウトを提供
- * - authenticated配下のページに共通レイアウト（ヘッダー+コンテンツ領域）を適用
- * - ページ初回マウント・ルート遷移時にuseRouteGuard()を実行し、未ログインユーザーを保護
- * - 認可チェック後、childrenがレイアウトに挟み込まれて描画
+ * ログイン済みユーザー専用の共通レイアウト
+ * - 認証ガード（useRouteGuard）を内包し、未ログイン時の不正アクセスを防止
+ * - 共通ヘッダーの表示と、子要素（children）のコンテンツ領域への配置を担当
  * @param children - このレイアウトに包み込まれるページ内容（JSX）
- * @returns レイアウト済みのUI（ヘッダー+children）
  */
 export default function AuthenticatedLayout({
   children,
@@ -18,6 +16,7 @@ export default function AuthenticatedLayout({
   children: React.ReactNode;
 }) {
   useRouteGuard();
+  // ページ全体の表示/非表示を切り替え
   const { session, isLoading } = useSupabaseSession();
 
   // セッション確定前に無駄な描画を防ぐ
