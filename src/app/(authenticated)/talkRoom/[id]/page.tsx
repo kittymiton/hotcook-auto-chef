@@ -26,6 +26,7 @@ export default function TalkRoomIdPage() {
   const from = params.id; // クエリで使用
   const talkRoomId = Number(from);
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [sending, setSending] = useState(false);
   const { token } = useSupabaseSession();
 
   const url_main = talkRoomId ? `/api/talks?talkRoomId=${talkRoomId}` : null;
@@ -78,7 +79,14 @@ export default function TalkRoomIdPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token || !content.trim()) return;
+    if (!token || !content.trim() || sending) return;
+
+    setSending(true);
+
+    const currentContent = content;
+    setContent('');
+    setErrorMsg(null);
+
     try {
       const res = await fetch('/api/openai', {
         method: 'POST',
@@ -270,15 +278,17 @@ export default function TalkRoomIdPage() {
               type="text"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="画像やメッセージを送信"
+              disabled={sending}
+              placeholder={sending ? '送信中...' : '画像やメッセージを送信'}
               size={32}
               className="border rounded p-2 flex-grow focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
             <button
               type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+              disabled={sending || !content.trim()}
+              className={`${sending || !content.trim() ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'} text-white px-4 py-2 rounded  transition`}
             >
-              送信
+              {sending ? '送信中' : '送信'}
             </button>
           </form>
         </main>
