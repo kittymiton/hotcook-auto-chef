@@ -121,7 +121,7 @@ export async function POST(
         },
       });
 
-      savedTalk = chefTalkRecord as unknown as Talk;
+      savedTalk = chefTalkRecord;
 
       // (3) レシピがあれば保存
       if (isReciped && recipeObj) {
