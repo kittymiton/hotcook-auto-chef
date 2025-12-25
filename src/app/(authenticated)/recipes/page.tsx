@@ -1,35 +1,29 @@
 'use client';
 
-import { useAuthedSWR } from '@/lib/apiClient/useAuthedSWR';
 import type { RecipeSummary } from '@/types/recipe';
-import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
+import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
 /**
- * レシピ一覧を表示
- *
+ * レシピ一覧
  * - /api/recipesからレシピ情報（RecipeSummary[]）を取得
- * - useSWRを使用して/api/recipesをフェッチ
+ * - useSWRを使用して/api/recipesをfetch
  * - UI用のデータはAPIが返す構造をそのまま利用
  */
 export default function RecipeListPage() {
-  const { token } = useSupabaseSession();
   const searchParams = useSearchParams();
   const from = searchParams.get('from');
-
-  const url = token ? `/api/recipes` : null;
-  const shouldFetch = !!token; // データ取得を行ってよい条件（token有無）
 
   const {
     data: recipes,
     error,
     isLoading,
-  } = useAuthedSWR<RecipeSummary[]>(shouldFetch ? url : null, token);
+  } = useAuthedSWR<RecipeSummary[]>(`/api/recipes`);
 
-  if (isLoading) return <p>読み込み中...</p>;
+  if (isLoading || !recipes) return <p>読み込み中...</p>;
   if (error) return <p>エラー: {String(error)}</p>;
-  if (!recipes) return <p>レシピがありません</p>;
+  if (recipes.length === 0) return <p>レシピがありません</p>;
 
   return (
     <>

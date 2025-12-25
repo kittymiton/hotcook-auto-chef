@@ -1,35 +1,29 @@
 'use client';
 
-import { useAuthedSWR } from '@/lib/apiClient/useAuthedSWR';
 import type { RecipeDetail } from '@/types/recipe';
-import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
+import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
 import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
 
 /**
- * 指定されたレシピIDの詳細情報を表示
- *
- * - /api/recipes/[recipeId]からレシピ詳細（RecipeDetail）を取得
+ * レシピ詳細ページ
  * - ingredientsとinstructionsはDBではJSON文字列のため、UIではJSON.parseして配列として扱う
  * - useSWRを使用して/api/recipes/${recipeId}をフェッチ
  * - DB/API層では文字列だが、UI層では配列として扱う型変換が発生
- * @param params.recipeId - DBレシピIDそのもの（URLから文字列として渡される）
+ * - recipeId: DBのレシピID（URLパス）
+ * - useParams()でパス取得、useSearchParams()でクエリ取得
  */
 export default function RecipeDetailPage() {
-  const { token } = useSupabaseSession();
   const params = useParams();
   const recipeId = Number(params.recipeId);
   const searchParams = useSearchParams();
   const from = searchParams.get('from');
 
-  const url = token ? `/api/recipes/${recipeId}` : null;
-  const shouldFetch = !!token; // データ取得を行ってよい条件（token有無）
-
   const {
     data: recipe,
     error,
     isLoading,
-  } = useAuthedSWR<RecipeDetail>(shouldFetch ? url : null, token);
+  } = useAuthedSWR<RecipeDetail>(`/api/recipes/${recipeId}`);
 
   if (isLoading) return <p>読み込み中...</p>;
   if (error) return <p>エラー: {String(error)}</p>;
