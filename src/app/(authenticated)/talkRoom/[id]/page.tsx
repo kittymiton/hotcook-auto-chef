@@ -108,8 +108,6 @@ export default function TalkRoomIdPage() {
         return;
       }
 
-      await res.json();
-
       if (url_main) mutate(url_main);
       if (url_aside) mutate(url_aside);
     } catch (err) {
