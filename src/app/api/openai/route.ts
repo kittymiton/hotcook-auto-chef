@@ -2,24 +2,17 @@ import { getDbUserIdFromToken } from '@/lib/apiServer/auth';
 import { createHotcookRecipe } from '@/lib/apiServer/createHotCookRecipe';
 import { extractJsonBlock } from '@/lib/parser/extractJsonBlock';
 import { prisma } from '@/lib/utils/prisma';
-import { filterInput } from '@/lib/validators/filterInput';
-import type { ChatMessage, OpenAIRequest, OpenAIResponse } from '@/types/api';
+import { normalizeForAI } from '@/lib/validators/normalizeForAI';
+import { openAIRequestSchema } from '@/lib/validators/openAIRequestSchema';
+import type { OpenAIChatRequest, OpenAISuccessResponse } from '@/types/api';
 import type { ParsedRecipe } from '@/types/recipe';
 import { Prisma, Talk, TalkSender } from '@prisma/client';
 import { NextResponse } from 'next/server';
+import { ZodError } from 'zod';
 
-/**
- * OpenAIへのリクエストを仲介するPOST APIエンドポイント
- * - 入力のバリデーション後OpenAI APIへ送信
- * - 応答をパースして正規化（マッピング）し、DB保存とフロントへの返却を行う
- * @param request - NextのRequestオブジェクト
- * @returns {Promise<NextResponse>} OpenAI応答を含むレスポンス
- */
-export async function POST(
-  request: Request
-): Promise<NextResponse<OpenAIResponse | { error: string }>> {
+export async function POST(request: Request) {
   try {
-    // --- 1. 認証とユーザー特定 ---
+    // --- 1. 認証とユーザー特定 ---共通関数にする
     const token = request.headers.get('Authorization') ?? '';
     if (!token) {
       return NextResponse.json({ error: '認証エラー' }, { status: 401 });
@@ -34,35 +27,38 @@ export async function POST(
     }
 
     // --- 2. Request Body抽出 ---
-    const { content, talkRoomId }: OpenAIRequest = await request.json();
+    const body = await request.json();
+    const parsed = openAIRequestSchema.parse(body);
+    const { talkRoomId } = parsed;
+    const userInput = normalizeForAI(parsed.content);
+    // TODO: 画像入力対応時はcontentがnullになる可能性あり。
+    // Zod / Request型 / OpenAI送信ロジックを見直す（imageKey等）
 
-    // --- 3. 過去ログ取得と整形 ---
+    // --- 3. 過去ログ取得 ---
     const pastTalks = await prisma.talk.findMany({
       where: { talkRoomId },
       orderBy: { createdAt: 'desc' },
       take: 3,
     });
 
-    const recentMessages: ChatMessage[] = [...pastTalks]
-      .reverse() // 新しい順(desc)で取得したので、古い順に戻す
-      .map((talk) => ({
-        role: talk.sender === TalkSender.CHEF ? 'assistant' : 'user',
-        content: String(talk.content),
-      }));
+    // --- 4. コンテキスト生成（DB → OpenAIのmessages形式） ---
+    const recentMessages: OpenAIChatRequest[] = [...pastTalks]
+      .reverse()
+      .map((talk) => {
+        const role = talk.sender === TalkSender.CHEF ? 'assistant' : 'user';
+        return {
+          role,
+          content: talk.content,
+        };
+      });
 
-    // ユーザー入力のみ安全チェック
-    const inputError = filterInput(content);
-    if (inputError) {
-      return NextResponse.json({ error: inputError }, { status: 400 });
-    }
-
-    // --- 4. OpenAI呼び出し ---
+    // --- 5. OpenAI呼び出し ---
     const { content: chefContent } = await createHotcookRecipe({
-      content,
+      content: userInput,
       recentMessages,
     });
 
-    // --- 5. パースとレシピ判定---
+    // --- 6. パースとレシピ判定---
     let isReciped = false;
     let recipeObj: ParsedRecipe | null = null;
     const block = extractJsonBlock(chefContent);
@@ -97,13 +93,13 @@ export async function POST(
     let savedTalk: Talk;
     let savedRecipeId: number | undefined;
 
-    // --- 6. トランザクションで一括保存 ---
+    // --- 7. トランザクションで一括保存 ---
     await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // (1) ユーザーの発言を保存
       await tx.talk.create({
         data: {
           talkRoomId,
-          content: content,
+          content: userInput,
           sender: TalkSender.USER,
           isReciped: false,
           deleted: false,
@@ -140,17 +136,20 @@ export async function POST(
       }
     });
 
-    // --- 7. フロントエンドへのResponse ---
-    const responseBody: OpenAIResponse = {
+    // --- 8. フロントエンドへのResponse ---
+    const successData: OpenAISuccessResponse = {
       talk: savedTalk!,
-      recipeId: savedRecipeId, // なければundefined
+      recipeId: savedRecipeId,
     };
-    return NextResponse.json(responseBody);
+
+    return NextResponse.json<OpenAISuccessResponse>(successData);
   } catch (err) {
-    console.error('通信エラー:', err);
-    return NextResponse.json(
-      { error: 'AIからの応答が空です' },
-      { status: 500 }
-    );
+    if (err instanceof ZodError) {
+      return NextResponse.json(
+        { error: 'リクエストが不正です', details: err.issues },
+        { status: 400 }
+      );
+    }
+    return NextResponse.json({ error: 'サーバーエラー' }, { status: 500 });
   }
 }
