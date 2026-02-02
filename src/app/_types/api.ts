@@ -1,5 +1,4 @@
 import { RecipeSummary } from '@/types/recipe';
-import { Talk } from '@/types/talk';
 
 // POST UI→API
 export type OpenAIRequest = {
@@ -16,12 +15,6 @@ export type OpenAIChatRequest = {
 // 外部API→API（成功）
 export type OpenAIChatResponse = {
   content: string;
-};
-
-// API→UI（成功）
-export type OpenAISuccessResponse = {
-  talk: Talk;
-  recipeId?: number;
 };
 
 /**

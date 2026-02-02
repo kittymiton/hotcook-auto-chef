@@ -2,7 +2,7 @@
 
 import { safeParseContent } from '@/lib/parser/safeParseContent';
 import { OpenAIRequest } from '@/types/api';
-import { RecipeBase } from '@/types/recipe';
+import type { RecipeBase } from '@/types/recipe';
 import type { Talk } from '@/types/talk';
 import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
 import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
@@ -11,14 +11,6 @@ import { useParams } from 'next/navigation';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { mutate } from 'swr';
 
-/**
- * 指定されたtalkRoomIdの会話ログを取得し、ユーザー入力とAI応答を表示
- * - ユーザー入力を/api/openaiへ送信し、AI応答を表示
- * - サイドバーで最新のレシピ（最新5件）を一覧表示
- * - SWRで会話データ・レシピデータを自動取得・更新
- * - スクロール位置を最新メッセージへ自動調整
- * - talkRoomId: useParams()でパス取得（URLから文字列として渡される）
- */
 export default function TalkRoomIdPage() {
   const [content, setContent] = useState<string>('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -87,6 +79,11 @@ export default function TalkRoomIdPage() {
     setContent('');
     setErrorMsg(null);
 
+    const req: OpenAIRequest = {
+      content: currentContent,
+      talkRoomId,
+    };
+
     try {
       const res = await fetch('/api/openai', {
         method: 'POST',
@@ -94,10 +91,7 @@ export default function TalkRoomIdPage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          content: currentContent,
-          talkRoomId,
-        } satisfies OpenAIRequest),
+        body: JSON.stringify(req),
       });
 
       if (!res.ok) {
@@ -219,19 +213,19 @@ export default function TalkRoomIdPage() {
                           )}
 
                           {recipe['ポイント'] && (
-                            <p className="text-sm mb-2">
+                            <p className="text-sm mb-2 text-gray-700">
                               <strong>ポイント:</strong> {recipe['ポイント']}
                             </p>
                           )}
 
                           {recipe['調理時間'] && (
-                            <p className="text-sm mb-2">
+                            <p className="text-sm mb-2 text-gray-700">
                               <strong>調理時間:</strong> {recipe['調理時間']}
                             </p>
                           )}
 
                           {Array.isArray(recipe['材料（2人分）']) && (
-                            <div className="mb-2">
+                            <div className="mb-2 text-gray-700">
                               <strong>材料（2人分）:</strong>
                               <ul className="list-disc list-inside text-sm">
                                 {recipe['材料（2人分）'].map(
@@ -246,7 +240,7 @@ export default function TalkRoomIdPage() {
                           {Array.isArray(recipe['作り方']) && (
                             <div>
                               <strong>作り方:</strong>
-                              <ol className="list-decimal list-inside text-sm">
+                              <ol className="list-decimal list-inside text-sm text-gray-700">
                                 {recipe['作り方'].map(
                                   (step: string, i: number) => (
                                     <li key={i}>
