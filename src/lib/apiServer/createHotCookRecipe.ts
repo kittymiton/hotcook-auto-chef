@@ -1,4 +1,5 @@
-import type { OpenAIChatRequest, OpenAIChatResponse } from '@/types/api';
+import { openAIChatResponseSchema } from '@/lib/validators/openAISchema';
+import type { OpenAIChatRequest } from '@/types/api';
 import OpenAI from 'openai';
 
 const openai = new OpenAI({
@@ -11,13 +12,14 @@ export async function createHotcookRecipe({
 }: {
   content: string;
   recentMessages: OpenAIChatRequest[];
-}): Promise<OpenAIChatResponse> {
-  const response = await openai.chat.completions.create({
-    model: 'gpt-4o',
-    messages: [
-      {
-        role: 'system',
-        content: `あなたはホットクックKN-HW16E専用のレシピ変換AIです。直前の会話やユーザーの希望に出てきた食材・味付け・特徴、会話の文脈を読み取り、レシピを提案します。ジャンルが特に決まっていないレシピを要求されたときのみ、和洋中どのジャンルで提案したら良いかを聞いて下さい。画像の場合は「これですべてですか？」と聞いて下さい。ユーザーの質問の意味が曖昧であれば必ず確認してください。以下の基本法則と手動調理のポイントに従って一般レシピをホットクック専用レシピに変換し、指定されたJSON形式で出力してください。JSON形式という言葉は会話に出す必要はありません。各ステップで、必要な材料、調理時間、温度設定、まぜ技ユニットの使用有無を明確に指示してください。レシピ提示後、提案に応じた会話を続けてみてください。絵文字も使って料理のワクワク感を演出しながら会話してください。
+}) {
+  try {
+    const res = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        {
+          role: 'system',
+          content: `あなたはホットクックKN-HW16E専用のレシピ変換AIです。直前の会話やユーザーの希望に出てきた食材・味付け・特徴、会話の文脈を読み取り、レシピを提案します。ジャンルが特に決まっていないレシピを要求されたときのみ、和洋中どのジャンルで提案したら良いかを聞いて下さい。画像の場合は「これですべてですか？」と聞いて下さい。ユーザーの質問の意味が曖昧であれば必ず確認してください。以下の基本法則と手動調理のポイントに従って一般レシピをホットクック専用レシピに変換し、指定されたJSON形式で出力してください。JSON形式という言葉は会話に出す必要はありません。各ステップで、必要な材料、調理時間、温度設定、まぜ技ユニットの使用有無を明確に指示してください。レシピ提示後、提案に応じた会話を続けてみてください。絵文字も使って料理のワクワク感を演出しながら会話してください。
 【ホットクック専用】一般レシピをホットクック用にアレンジする基本法則：
 1. 水分量の調整（無水調理）: 普通鍋の1/3の水分量に減らし、食材の水分を活用
 2. まぜ技ユニットの活用: かき混ぜが必要なレシピでは、まぜ技ユニットを使用
@@ -59,16 +61,19 @@ export async function createHotcookRecipe({
 - JSONコードブロックの外に{ }を含むJSONを書かないでください。
 - 自然文（説明）はJSONコードブロックの前、質問は後に分けて書いてください。
 - JSONコードブロックはレシピ情報のみを含め、補足説明を書かないでください。`,
-      },
-      ...recentMessages,
-      { role: 'user', content },
-    ],
-    temperature: 0.7,
-    max_completion_tokens: 1000,
-  });
-  const aiContent = response.choices[0].message.content;
-  if (!aiContent) {
-    throw new Error('AIのレスポンスがありません');
+        },
+        ...recentMessages,
+        { role: 'user', content },
+      ],
+      temperature: 0.7,
+      max_completion_tokens: 1000,
+    });
+
+    const aiContent = res.choices?.[0]?.message?.content;
+    const chatObj = { content: aiContent };
+    const parsedData = openAIChatResponseSchema.parse(chatObj);
+    return parsedData;
+  } catch (err) {
+    throw err;
   }
-  return { content: aiContent };
 }
