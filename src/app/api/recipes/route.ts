@@ -1,48 +1,39 @@
-import { getDbUserIdFromToken } from '@/lib/apiServer/auth';
+import { requireUserId } from '@/lib/apiServer/requireUserId';
 import { prisma } from '@/lib/utils/prisma';
+import { numberSchema } from '@/lib/validators/numberSchema';
 import { NextRequest, NextResponse } from 'next/server';
+import { ZodError } from 'zod';
 
-/**
- * レシピ一覧（aside用）を取得するAPIハンドラー
- * 指定されたクエリパラメータ（?take=5）に応じて、レシピのサマリー一覧を返す
- * @param request - Next.jsのリクエストオブジェクト
- * @returns {Promise<NextResponse<any>>} レシピ一覧を含むJSONレスポンス
- */
-export const GET = async (request: NextRequest) => {
+export async function GET(request: NextRequest) {
   try {
-    const userId = await getDbUserIdFromToken(request);
-
+    const userId = await requireUserId(request);
     if (!userId) {
-      return NextResponse.json(
-        { error: '認証に失敗しました' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
     const takeParam = searchParams.get('take');
-    const take = takeParam ? Number(takeParam) : undefined; // 全件取得はtakeパラメータを送らない
+    const take = takeParam ? numberSchema.parse(takeParam) : undefined;
 
     const recipes = await prisma.recipe.findMany({
-      where: {
-        createdByUser: userId,
-      },
+      where: { createdByUser: userId },
       select: {
         id: true,
         title: true,
         cookingTime: true,
       },
-      orderBy: {
-        createdAt: 'desc', // 降順
-      },
+      orderBy: { createdAt: 'desc' },
       take,
     });
+
     return NextResponse.json(recipes);
   } catch (err) {
-    console.error('レシピ一覧取得エラー:', err);
+    if (err instanceof ZodError) {
+      return NextResponse.json({ error: 'Bad Request' }, { status: 400 });
+    }
     return NextResponse.json(
-      { message: 'サーバーの応答がありません' },
+      { error: 'Internal Server Error' },
       { status: 500 }
     );
   }
-};
+}
