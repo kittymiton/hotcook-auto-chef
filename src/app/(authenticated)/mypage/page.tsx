@@ -9,7 +9,7 @@ import Link from 'next/link';
  *
  * @returns {JSX.Element}
  */
-export default function Mypage() {
+export default function MyPage() {
   const { session } = useSupabaseSession();
   if (!session) {
     return;

@@ -65,3 +65,13 @@ export type Copy = {
   buttonLabel: (working: boolean) => string; // sending || redirectingをまとめてworkingにして渡す
   footer: ReactNode;
 };
+
+/**
+ * 初期化APIのリクエスト
+ * - /api/userRoom
+ * - /(auth)/lib/upsertUserRoom
+ */
+export type InitUserContextRequest = {
+  supabaseUserId: string;
+  email: string;
+};

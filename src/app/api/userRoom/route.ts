@@ -1,37 +1,32 @@
 import { supabase } from '@/lib/utils/env';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/utils/prisma';
+import type { InitUserContextRequest } from '@/types/auth';
 import { NextRequest, NextResponse } from 'next/server';
 
-/**
- * ユーザー登録＋トークルーム取得を1つのAPIで処理するAPIエンドポイント
- * POST - ユーザー登録/取得、ルーム登録/取得
- * 1.セッションのuser.idを元にユーザーを検索
- * 2.なければ登録
- * 3.トークルームを検索
- * 4.なければ作成
- * 5最終的にトークルームIDを返す
- * @return {Promise<NextResponse<any>>} - レスポンスオブジェクト
- **/
-const prisma = new PrismaClient();
+export const POST = async (request: NextRequest) => {
+  const authHeader = request.headers.get('Authorization') ?? '';
+  if (!authHeader.startsWith('Bearer ')) {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+  const token = authHeader.replace('Bearer ', '');
 
-export const POST = async (
-  request: NextRequest
-): Promise<NextResponse<any>> => {
-  const access_token = request.headers.get('Authorization') ?? '';
-
-  const { error } = await supabase.auth.getUser(access_token);
+  const { error } = await supabase.auth.getUser(token);
   if (error) {
     return NextResponse.json({ message: error }, { status: 400 });
   }
 
   try {
-    const { supabaseUserId, email } = await request.json();
+    const raw = await request.json();
+    const body: InitUserContextRequest = {
+      supabaseUserId: raw.supabaseUserId,
+      email: raw.email,
+    };
+    const { supabaseUserId, email } = body;
+
     if (!supabaseUserId || !email) {
-      return NextResponse.json(
-        { error: 'データが存在しません' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Bad Request' }, { status: 400 });
     }
+    // TODO: リファクタでZod検証
 
     const user =
       (await prisma.user.findUnique({
@@ -66,9 +61,11 @@ export const POST = async (
     });
   } catch (e) {
     if (e instanceof Error) {
-      console.error(e);
       return NextResponse.json({ message: e.message }, { status: 400 });
     }
-    return NextResponse.json({ message: '予期しないエラー' }, { status: 500 });
+    return NextResponse.json(
+      { message: 'Internal Server Error' },
+      { status: 500 }
+    );
   }
 };

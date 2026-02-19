@@ -11,12 +11,14 @@ import { LoginHeader } from '@auth/components/header/LoginHeader';
 import { SignupHeader } from '@auth/components/header/SignupHeader';
 import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
 import { usePathname } from 'next/navigation';
+import { useEffect } from 'react';
+import './globals.css';
 
 /**
- * ルートレイアウトコンポーネント
- * サイト全体の構造・共通関数を定義
+ * アプリ全体のルートレイアウト
+ * - ページ初回ロード時に/api/warmupを呼び出し、SupabaseDBのコールドスタートを防ぐ。
+ * - すべてのページで共通となるHTML構造とメタデータを提供
  * @param props - childrenを受け取りアプリ全体のラッパーとして表示
- * @returns {JSX.Element}アプリ全体のHTMLレイアウト
  */
 // TODO: フロント実装のブランチでヘッダー切替をGuestHeaderSwitcherに集約したコンポーネント化→useclientをはずす、usePathnameでエラーになるのでコンポーネントに処理を分離してサーバーコンポーネント化する
 export default function RootLayout({
@@ -24,10 +26,15 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   const { session, isLoading } = useSupabaseSession();
   const pathname = usePathname();
+
+  useEffect(() => {
+    fetch('/api/warmup');
+  }, []);
+
   return (
-    <html>
+    <html lang="ja" className="h-full">
       <head />
-      <body>
+      <body className="h-full">
         <header>
           {/* {!session && !isLoading && ( */}
           {!isLoading && (

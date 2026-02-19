@@ -41,3 +41,8 @@ next-env.d.ts
 
 # localDocment
 /docs/
+
+# comment
+**/*.learning.ts
+**/*.learning.tsx
+_learning/
