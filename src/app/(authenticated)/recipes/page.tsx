@@ -1,16 +1,10 @@
 'use client';
 
-import type { RecipeSummary } from '@/types/recipe';
+import { recipeSummaryListSchema } from '@/lib/validators/recipeSchema';
 import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
-/**
- * レシピ一覧
- * - /api/recipesからレシピ情報（RecipeSummary[]）を取得
- * - useSWRを使用して/api/recipesをfetch
- * - UI用のデータはAPIが返す構造をそのまま利用
- */
 export default function RecipeListPage() {
   const searchParams = useSearchParams();
   const from = searchParams.get('from');
@@ -19,7 +13,7 @@ export default function RecipeListPage() {
     data: recipes,
     error,
     isLoading,
-  } = useAuthedSWR<RecipeSummary[]>(`/api/recipes`);
+  } = useAuthedSWR(`/api/recipes`, recipeSummaryListSchema);
 
   if (isLoading || !recipes) return <p>読み込み中...</p>;
   if (error) return <p>エラー: {String(error)}</p>;
@@ -41,13 +35,6 @@ export default function RecipeListPage() {
                   href={`/recipes/${recipe.id}?from=${from}`}
                   prefetch={false}
                 >
-                  {recipe.imageKey && (
-                    <img
-                      src={`/images/${recipe.imageKey}`}
-                      alt={recipe.title}
-                      className="w-24 h-24 object-cover rounded mt-2 sm:mt-0"
-                    />
-                  )}
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <h2 className="text-lg font-semibold text-blue-600 hover:underline">

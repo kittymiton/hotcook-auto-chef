@@ -1,21 +1,6 @@
-import {
-  CONTENT_TYPE_JSON,
-  HEADER_AUTHORIZATION,
-  HEADER_CONTENT_TYPE,
-  HttpMethod,
-} from '@/constants/index';
+import { HttpMethod } from '@/constants/index';
 
-/**
- * 全API共通の通信Wrapper
- * APIエンドポイントにリクエストを送信、レスポンス(JSON)を返す関数
- * @param {string} url - 通信先URL
- * @param {Object} options - 通信オプション
- * @param {'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'} options.method - HTTPメソッド
- * @param {string} [options.token] - 認証トークン
- * @param {any} [options.body] - JSON形式のリクエストボディ
- * @returns {Promise<any>} - APIレスポンス
- **/
-export const fetcher = async (
+export async function fetcher(
   url: string,
   {
     method,
@@ -24,25 +9,27 @@ export const fetcher = async (
   }: {
     method: HttpMethod;
     token?: string;
-    body?: any;
+    body?: unknown;
   }
-): Promise<any> => {
+): Promise<unknown> {
   const headers: Record<string, string> = {
-    [HEADER_CONTENT_TYPE]: CONTENT_TYPE_JSON,
+    'Content-Type': 'application/json',
   };
-  if (token) headers[HEADER_AUTHORIZATION] = token;
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
 
   const options: RequestInit = {
     method,
     headers,
-    // body不要時にプロパティを完全に省略
-    ...(body && { body: JSON.stringify(body) }),
+    body: body !== undefined ? JSON.stringify(body) : undefined,
   };
 
   const res = await fetch(url, options);
+
   if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data.error || `HTTP ${res.status} ${res.statusText}`);
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || `HTTP ${res.status} ${res.statusText}`);
   }
   return await res.json();
-};
+}

@@ -1,21 +1,18 @@
 'use client';
 
-import type { RecipeDetail } from '@/types/recipe';
+import { stepsItemForParse } from '@/lib/parser/stepsItemForParse';
+import { numberSchema } from '@/lib/validators/numberSchema';
+import { recipeDetailSchema } from '@/lib/validators/recipeSchema';
 import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
 import Link from 'next/link';
-import { useParams, useSearchParams } from 'next/navigation';
+import { notFound, useParams, useSearchParams } from 'next/navigation';
 
-/**
- * レシピ詳細ページ
- * - ingredientsとinstructionsはDBではJSON文字列のため、UIではJSON.parseして配列として扱う
- * - useSWRを使用して/api/recipes/${recipeId}をフェッチ
- * - DB/API層では文字列だが、UI層では配列として扱う型変換が発生
- * - recipeId: DBのレシピID（URLパス）
- * - useParams()でパス取得、useSearchParams()でクエリ取得
- */
 export default function RecipeDetailPage() {
   const params = useParams();
-  const recipeId = Number(params.recipeId);
+  const result = numberSchema.safeParse(params.recipeId);
+  if (!result.success) notFound();
+  const recipeId = result.data;
+
   const searchParams = useSearchParams();
   const from = searchParams.get('from');
 
@@ -23,14 +20,13 @@ export default function RecipeDetailPage() {
     data: recipe,
     error,
     isLoading,
-  } = useAuthedSWR<RecipeDetail>(`/api/recipes/${recipeId}`);
+  } = useAuthedSWR(`/api/recipes/${recipeId}`, recipeDetailSchema);
 
   if (isLoading) return <p>読み込み中...</p>;
   if (error) return <p>エラー: {String(error)}</p>;
   if (!recipe) return <p>レシピがありません</p>;
 
-  const ingredientsArray = JSON.parse(recipe.ingredients);
-  const instructionsArray = JSON.parse(recipe.instructions);
+  const itemsBlock = stepsItemForParse(recipe.ingredients, recipe.instructions);
 
   return (
     <main className="p-6">
@@ -49,20 +45,18 @@ export default function RecipeDetailPage() {
       <section>
         <h2 className="text-lg font-semibold mb-1">材料（2人分）</h2>
         <ul className="list-disc list-inside mb-4">
-          {Array.isArray(ingredientsArray) &&
-            ingredientsArray.map((item: string, i: number) => (
-              <li key={i}>{item}</li>
-            ))}
+          {itemsBlock.ingredients.map((item: string, i: number) => (
+            <li key={i}>{item}</li>
+          ))}
         </ul>
 
         <h2 className="text-lg font-semibold mb-1">作り方</h2>
         <ol className="list-decimal list-inside">
-          {Array.isArray(instructionsArray) &&
-            instructionsArray.map((step: string, i: number) => (
-              <li key={i} className="mb-1">
-                {step.replace(/^\d+[:：]\s*/, '').trim()}
-              </li>
-            ))}
+          {itemsBlock.instructions.map((step: string, i: number) => (
+            <li key={i} className="mb-1">
+              {step.replace(/^\d+[:：]\s*/, '').trim()}
+            </li>
+          ))}
         </ol>
       </section>
       {recipe && (

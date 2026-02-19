@@ -1,42 +1,42 @@
 'use client';
 
-import { safeParseContent } from '@/lib/parser/safeParseContent';
-import { OpenAIRequest } from '@/types/api';
-import type { RecipeBase } from '@/types/recipe';
-import type { Talk } from '@/types/talk';
+import { fetcher } from '@/lib/apiClient/fetcher';
+import { splitChefContent } from '@/lib/parser/splitChefContent';
+import { chatSchema } from '@/lib/validators/chatSchema';
+import { numberSchema } from '@/lib/validators/numberSchema';
+import { recipeSchema } from '@/lib/validators/recipeSchema';
 import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
 import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { mutate } from 'swr';
 
 export default function TalkRoomIdPage() {
   const [content, setContent] = useState<string>('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const params = useParams();
-  const from = params.id; // クエリで使用
-  const talkRoomId = Number(from);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [sending, setSending] = useState(false);
   const { token } = useSupabaseSession();
+  const params = useParams();
+  const result = numberSchema.safeParse(params.id);
+  if (!result.success) notFound();
+  const talkRoomId = result.data;
 
-  const url_main = talkRoomId ? `/api/talks?talkRoomId=${talkRoomId}` : null;
+  const url_main = `/api/talks?talkRoomId=${talkRoomId}`;
   const url_aside = `/api/recipes?take=5`;
 
-  // ==== 会話データ ====
   const {
-    data: talked,
+    data: talks,
     error: url_mainError,
-    isLoading: isTalkLoading, // フックで定義した状態
-  } = useAuthedSWR<Talk[]>(url_main);
+    isLoading: isTalkLoading,
+  } = useAuthedSWR(url_main, chatSchema);
 
-  // ==== サイドレシピ ====
   const {
     data: recipes,
     error: url_asideError,
     isLoading: isRecipeLoading,
-  } = useAuthedSWR<RecipeBase[]>(url_aside);
+  } = useAuthedSWR(url_aside, recipeSchema);
 
   const isLoading = isTalkLoading || isRecipeLoading;
   const isFirstScroll = useRef(true);
@@ -44,7 +44,7 @@ export default function TalkRoomIdPage() {
   useLayoutEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    if (!talked || talked.length === 0) return;
+    if (!talks || talks.length === 0) return;
 
     requestAnimationFrame(() => {
       const max = el.scrollHeight - el.clientHeight;
@@ -67,7 +67,7 @@ export default function TalkRoomIdPage() {
 
       isFirstScroll.current = false;
     });
-  }, [talked]);
+  }, [talks]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,28 +79,17 @@ export default function TalkRoomIdPage() {
     setContent('');
     setErrorMsg(null);
 
-    const req: OpenAIRequest = {
+    const body = {
       content: currentContent,
       talkRoomId,
     };
 
     try {
-      const res = await fetch('/api/openai', {
+      await fetcher('/api/talks', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(req),
+        token,
+        body,
       });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        console.error('サーバーエラー:', errorData.error);
-        setContent(currentContent);
-        setErrorMsg(errorData.error || '送信に失敗しました');
-        return;
-      }
 
       if (url_main) mutate(url_main);
       if (url_aside) mutate(url_aside);
@@ -113,7 +102,6 @@ export default function TalkRoomIdPage() {
     }
   };
 
-  // === Safe Guards ===
   if (!token) return <p>ログイン確認中...</p>;
   if (isLoading) return <p>ローディング中...</p>;
 
@@ -130,7 +118,6 @@ export default function TalkRoomIdPage() {
       <h1 className="text-lg font-bold mb-4">今日は何にしましょうか？</h1>
       {errorMsg && <p className="text-red-500 mb-2">{errorMsg}</p>}
       <div className="flex h-[90vh]">
-        {/* ==== サイド（レシピ一覧から最新５件） ==== */}
         <aside className="w-64 flex-shrink-0 border-r p-4">
           {!recipes ? (
             <p>読み込み中...</p>
@@ -140,25 +127,21 @@ export default function TalkRoomIdPage() {
               <ul className="mb-2 space-y-1">
                 {recipes.map((recipe) => (
                   <li key={recipe.id}>
-                    {from && (
-                      <Link
-                        href={`/recipes/${recipe.id}?from=${from}`}
-                        className="text-blue-600 hover:underline"
-                      >
-                        {recipe.title}
-                      </Link>
-                    )}
+                    <Link
+                      href={`/recipes/${recipe.id}?from=${talkRoomId}`}
+                      className="text-blue-600 hover:underline"
+                    >
+                      {recipe.title}
+                    </Link>
                   </li>
                 ))}
               </ul>
-              {from && (
-                <Link
-                  href={`/recipes?from=${from}`}
-                  className="text-sm underline text-blue-600"
-                >
-                  すべてのレシピを見る
-                </Link>
-              )}
+              <Link
+                href={`/recipes?from=${talkRoomId}`}
+                className="text-sm underline text-blue-600"
+              >
+                すべてのレシピを見る
+              </Link>
             </>
           )}
         </aside>
@@ -168,18 +151,17 @@ export default function TalkRoomIdPage() {
             className="flex flex-col overflow-y-auto flex-1 max-h-full p-4"
             ref={scrollRef}
           >
-            {!talked ? (
+            {!talks ? (
               <p>読み込み中...</p>
-            ) : talked.length === 0 ? (
+            ) : talks.length === 0 ? (
               <p>会話がまだありません</p>
             ) : (
-              talked
+              talks
                 .slice()
                 .reverse()
                 .map((talk) => {
                   const isChef = talk.sender === 'CHEF';
 
-                  // === ユーザー側 ===
                   if (!isChef) {
                     return (
                       <p
@@ -191,8 +173,7 @@ export default function TalkRoomIdPage() {
                     );
                   }
 
-                  // === シェフ側 ===
-                  const { prefix, recipe, suffix } = safeParseContent(
+                  const { prefix, recipe, suffix } = splitChefContent(
                     talk.content
                   );
 
@@ -224,7 +205,7 @@ export default function TalkRoomIdPage() {
                             </p>
                           )}
 
-                          {Array.isArray(recipe['材料（2人分）']) && (
+                          {recipe['材料（2人分）'] && (
                             <div className="mb-2 text-gray-700">
                               <strong>材料（2人分）:</strong>
                               <ul className="list-disc list-inside text-sm">
@@ -237,7 +218,7 @@ export default function TalkRoomIdPage() {
                             </div>
                           )}
 
-                          {Array.isArray(recipe['作り方']) && (
+                          {recipe['作り方'] && (
                             <div>
                               <strong>作り方:</strong>
                               <ol className="list-decimal list-inside text-sm text-gray-700">
