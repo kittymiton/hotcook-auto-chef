@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 
-// 開発中のにNode再起動でできるインスタンスを抑制
+// 開発中のNode再起動でできるインスタンスを抑制
 const globalPrisma = global as unknown as {
   prisma: PrismaClient | undefined;
 };
