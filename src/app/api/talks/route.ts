@@ -14,8 +14,10 @@ export async function POST(request: NextRequest) {
   try {
     const userId = await requireUserId(request);
     if (!userId) {
+      console.error('POST /api/talk auth failed - userId missing');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
     const body = await request.json();
     const parsed = openAIRequestSchema.parse(body);
     const { talkRoomId } = parsed;
@@ -84,8 +86,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({}, { status: 200 });
   } catch (e) {
     if (e instanceof ZodError) {
+      console.error('POST /api/talk validation failed', e);
       return NextResponse.json({ error: 'Bad Request' }, { status: 400 });
     }
+
+    console.error('POST /api/talk unexpected error', e);
     return NextResponse.json(
       { error: 'Internal Server Error' },
       { status: 500 }
@@ -120,8 +125,8 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(talks);
-  } catch (err) {
-    if (err instanceof ZodError) {
+  } catch (e) {
+    if (e instanceof ZodError) {
       return NextResponse.json({ error: 'Bad Request' }, { status: 400 });
     }
     return NextResponse.json(
