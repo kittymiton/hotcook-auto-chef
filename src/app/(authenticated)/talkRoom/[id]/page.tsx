@@ -2,6 +2,7 @@
 
 import { fetcher } from '@/lib/apiClient/fetcher';
 import { splitChefContent } from '@/lib/parser/splitChefContent';
+import { suggestSchema } from '@/lib/schema/suggestSchema';
 import { chatSchema } from '@/lib/validators/chatSchema';
 import { numberSchema } from '@/lib/validators/numberSchema';
 import { recipeSchema } from '@/lib/validators/recipeSchema';
@@ -9,14 +10,19 @@ import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
 import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
 import Link from 'next/link';
 import { notFound, useParams } from 'next/navigation';
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { mutate } from 'swr';
 
 export default function TalkRoomIdPage() {
   const [content, setContent] = useState<string>('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [shouldFetchSuggest, setShouldFetchSuggest] = useState(false);
+  const [focused, setFocused] = useState(false);
   const [sending, setSending] = useState(false);
+
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
   const { token } = useSupabaseSession();
   const params = useParams();
   const result = numberSchema.safeParse(params.id);
@@ -25,6 +31,7 @@ export default function TalkRoomIdPage() {
 
   const url_main = `/api/talks?talkRoomId=${talkRoomId}`;
   const url_aside = `/api/recipes?take=5`;
+  const url_suggest = `/api/suggest`;
 
   const {
     data: talks,
@@ -38,8 +45,36 @@ export default function TalkRoomIdPage() {
     isLoading: isRecipeLoading,
   } = useAuthedSWR(url_aside, recipeSchema);
 
+  const { data: suggest } = useAuthedSWR(
+    shouldFetchSuggest ? url_suggest : null,
+    suggestSchema
+  );
+
   const isLoading = isTalkLoading || isRecipeLoading;
   const isFirstScroll = useRef(true);
+
+  const errorText: Record<string, string> = {
+    INVALID_FORMAT: '料理名や食材を教えてください',
+    UNAUTHORIZED: 'ログインが必要です',
+    NETWORK_ERROR: '通信エラーが発生しました。ネット接続を確認してください',
+    DEFAULT: 'システムエラーが発生しました。時間を置いてお試しください',
+  };
+
+  useEffect(() => {
+    if (!focused) return;
+
+    const outsideClick = (e: PointerEvent) => {
+      if (wrapperRef.current && wrapperRef.current.contains(e.target as Node)) {
+        return;
+      }
+      setFocused(false);
+    };
+
+    document.addEventListener('pointerdown', outsideClick);
+    return () => {
+      document.removeEventListener('pointerdown', outsideClick);
+    };
+  }, [focused]);
 
   useLayoutEffect(() => {
     const el = scrollRef.current;
@@ -71,6 +106,7 @@ export default function TalkRoomIdPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!token || !content.trim() || sending) return;
 
     setSending(true);
@@ -78,6 +114,7 @@ export default function TalkRoomIdPage() {
     const currentContent = content;
     setContent('');
     setErrorMsg(null);
+    setFocused(false);
 
     const body = {
       content: currentContent,
@@ -93,13 +130,35 @@ export default function TalkRoomIdPage() {
 
       if (url_main) mutate(url_main);
       if (url_aside) mutate(url_aside);
+      if (url_suggest) mutate(url_suggest);
     } catch (err) {
-      console.error('ネットワークエラー:', err);
+      console.error(err);
+
+      const remind =
+        err instanceof Error
+          ? (errorText[err.message] ?? errorText.DEFAULT)
+          : errorText.DEFAULT;
+
       setContent(currentContent);
-      setErrorMsg('通信エラーが発生しました');
+      setErrorMsg(remind);
     } finally {
       setSending(false);
     }
+  };
+
+  const handleFocus = () => {
+    setFocused(true);
+    setShouldFetchSuggest(true);
+  };
+
+  const handleSelectKeyword = (input: string) => {
+    setContent((prev) => {
+      const cleanKeywords = prev ? prev.split(' ').filter(Boolean) : [];
+
+      if (cleanKeywords.includes(input)) return prev;
+
+      return prev ? prev + ' ' + input : input;
+    });
   };
 
   if (!token) return <p>ログイン確認中...</p>;
@@ -247,22 +306,57 @@ export default function TalkRoomIdPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="mt-3 flex gap-2">
-            <input
-              type="text"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              disabled={sending}
-              placeholder={sending ? '送信中...' : '画像やメッセージを送信'}
-              size={32}
-              className="border rounded p-2 flex-grow focus:outline-none focus:ring-2 focus:ring-blue-300"
-            />
-            <button
-              type="submit"
-              disabled={sending || !content.trim()}
-              className={`${sending || !content.trim() ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'} text-white px-4 py-2 rounded  transition`}
-            >
-              {sending ? '送信中' : '送信'}
-            </button>
+            <div ref={wrapperRef}>
+              <input
+                type="text"
+                value={content}
+                onFocus={handleFocus}
+                onChange={(e) => setContent(e.target.value)}
+                disabled={sending}
+                placeholder={sending ? '送信中...' : '画像やメッセージを送信'}
+                size={32}
+                className="border rounded p-2 flex-grow focus:outline-none focus:ring-2 focus:ring-blue-300"
+              />
+              {focused && (
+                <>
+                  {suggest?.seed.map((item) => (
+                    <button
+                      type="button"
+                      key={item.keyword}
+                      onPointerDown={() => handleSelectKeyword(item.keyword)}
+                    >
+                      {item.keyword}
+                    </button>
+                  ))}
+                  {suggest?.popular.map((item) => (
+                    <button
+                      type="button"
+                      key={item.keyword}
+                      onPointerDown={() => handleSelectKeyword(item.keyword)}
+                    >
+                      {item.keyword}
+                    </button>
+                  ))}
+                  {suggest?.recent.map((item) => (
+                    <button
+                      type="button"
+                      key={item.keyword}
+                      onPointerDown={() => handleSelectKeyword(item.keyword)}
+                    >
+                      {item.keyword}
+                    </button>
+                  ))}
+                </>
+              )}
+
+              <button
+                type="submit"
+                disabled={sending || !content.trim()}
+                className={`${sending || !content.trim() ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'} text-white px-4 py-2 rounded  transition`}
+              >
+                {sending ? '送信中' : '送信'}
+              </button>
+            </div>
           </form>
         </main>
       </div>
