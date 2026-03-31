@@ -1,8 +1,9 @@
 import { createHotcookRecipe } from '@/lib/apiServer/createHotCookRecipe';
 import { requireUserId } from '@/lib/apiServer/requireUserId';
 import { recipeBlockForParse } from '@/lib/parser/recipeBlockForParse';
+import { updateTalkKeyword } from '@/lib/services/updateTalkKeyword';
 import { prisma } from '@/lib/utils/prisma';
-import { normalizeForAI } from '@/lib/validators/normalizeForAI';
+import { sanitize, substantial } from '@/lib/validators/contentProcessor';
 import { numberSchema } from '@/lib/validators/numberSchema';
 import { openAIRequestSchema } from '@/lib/validators/openAISchema';
 import { OpenAIChatRequest } from '@/types/api';
@@ -14,16 +15,21 @@ export async function POST(request: NextRequest) {
   try {
     const userId = await requireUserId(request);
     if (!userId) {
-      console.error('POST /api/talk auth failed - userId missing');
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'UNAUTHORIZED' }, { status: 401 });
     }
 
     const body = await request.json();
+
     const parsed = openAIRequestSchema.parse(body);
-    const { talkRoomId } = parsed;
-    const userInput = normalizeForAI(parsed.content);
+    const { talkRoomId, content } = parsed;
     // TODO: 画像入力対応時はcontentがnullになる可能性あり。
     // Zod / Request型 / OpenAI送信ロジックを見直す（imageKey等）
+
+    const sanitizedInput = sanitize(content);
+
+    if (!substantial(sanitizedInput)) {
+      return NextResponse.json({ error: 'INVALID_FORMAT' }, { status: 400 });
+    }
 
     const pastTalks = await prisma.talk.findMany({
       where: { talkRoomId },
@@ -42,7 +48,7 @@ export async function POST(request: NextRequest) {
       });
 
     const { content: chefContent } = await createHotcookRecipe({
-      content: userInput,
+      content: sanitizedInput,
       recentMessages,
     });
 
@@ -52,7 +58,7 @@ export async function POST(request: NextRequest) {
       await tx.talk.create({
         data: {
           talkRoomId,
-          content: userInput,
+          content,
           sender: TalkSender.USER,
           isReciped: false,
           deleted: false,
@@ -83,16 +89,24 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    if (recipeObj) {
+      const { keywords, normalizedKeywords } = recipeObj;
+
+      updateTalkKeyword(userId, keywords, normalizedKeywords).catch((err) =>
+        console.error('keyword update error', err)
+      );
+    }
+
     return NextResponse.json({}, { status: 200 });
   } catch (e) {
     if (e instanceof ZodError) {
-      console.error('POST /api/talk validation failed', e);
-      return NextResponse.json({ error: 'Bad Request' }, { status: 400 });
+      console.error('[Talk API] POST Validation failed', e);
+      return NextResponse.json({ error: 'INVALID_REQUEST' }, { status: 400 });
     }
 
-    console.error('POST /api/talk unexpected error', e);
+    console.error('[Talk API] POST Unexpected error', e);
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      { error: 'INTERNAL_SERVER_ERROR' },
       { status: 500 }
     );
   }
@@ -102,7 +116,7 @@ export async function GET(request: NextRequest) {
   try {
     const userId = await requireUserId(request);
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'UNAUTHORIZED' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -115,7 +129,7 @@ export async function GET(request: NextRequest) {
       },
     });
     if (!talkRoom) {
-      return NextResponse.json({ error: 'Not Found' }, { status: 404 });
+      return NextResponse.json({ error: 'NOT_FOUND' }, { status: 404 });
     }
 
     const talks = await prisma.talk.findMany({
@@ -127,7 +141,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(talks);
   } catch (e) {
     if (e instanceof ZodError) {
-      return NextResponse.json({ error: 'Bad Request' }, { status: 400 });
+      return NextResponse.json({ error: 'INVALID_REQUEST' }, { status: 400 });
     }
     return NextResponse.json(
       { error: 'Internal Server Error' },
