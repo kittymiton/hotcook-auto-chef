@@ -2,30 +2,32 @@ import { prisma } from '@/lib/utils/prisma';
 
 export async function updateTalkKeyword(
   userId: number,
-  keywords: string[],
-  normalizedKeywords: string[]
+  keywords: { keyword: string; normalizedKeyword: string }[]
 ): Promise<void> {
   if (!keywords.length) {
-    console.warn('[Talk API] No keywords provided for update', { userId });
+    console.warn('[Talk API] POST No keywords provided for update', {
+      userId,
+    });
     return;
   }
 
-  const talkKeyword = keywords
-    .map((keyword, index) => {
-      const cleanKeyword = keyword?.normalize('NFKC').trim() ?? '';
-      const cleanNormalized =
-        normalizedKeywords[index]?.normalize('NFKC').trim() ?? '';
-      return { keyword: cleanKeyword, normalizedKeyword: cleanNormalized };
-    })
-    .filter((word) => {
-      word.keyword && word.normalizedKeyword;
+  const keywordPairs = keywords
+    .map((word) => ({
+      keyword: word.keyword?.normalize('NFKC').trim() ?? '',
+      normalizedKeyword: word.normalizedKeyword?.normalize('NFKC').trim() ?? '',
+    }))
+    .filter((word) => word.keyword && word.normalizedKeyword);
+
+  if (!keywordPairs.length)
+    console.warn('[Talk API] POST KeywordPairs empty', {
+      keywords,
     });
 
   const now = new Date();
 
   try {
     await Promise.all(
-      talkKeyword.map((word) => {
+      keywordPairs.map((word) => {
         return prisma.talkKeyword.upsert({
           where: {
             userId_normalizedKeyword: {
@@ -49,7 +51,7 @@ export async function updateTalkKeyword(
       })
     );
   } catch (e) {
-    console.error('[Talk API] Critical keywords update failure', {
+    console.error('[Talk API] POST Critical keywords update failure', {
       error: e instanceof Error ? e.stack : e,
       userId,
       keywords,
