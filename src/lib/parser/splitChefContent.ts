@@ -1,5 +1,5 @@
 import { extractedRecipeBlock } from '@/lib/parser/extractedRecipeBlock';
-import { recipeBlockSchema } from '@/lib/validators/recipeBlockSchema';
+import { recipeBlockSchema } from '@/lib/schema/recipeBlockSchema';
 import { type ParsedContent } from '@/types/talk';
 
 export function splitChefContent(chefContent: string): ParsedContent {

@@ -46,10 +46,10 @@ export async function fetcher(
       throw new Error(errorCode);
     }
     return await res.json();
-  } catch (err) {
-    if (err instanceof Error && err.message === 'Failed to fetch') {
+  } catch (e) {
+    if (e instanceof Error && e.message === 'Failed to fetch') {
       throw new Error('NETWORK_ERROR');
     }
-    throw err;
+    throw e;
   }
 }

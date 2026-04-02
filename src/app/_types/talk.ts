@@ -1,4 +1,4 @@
-import { RecipeObj } from '@/lib/validators/recipeBlockSchema';
+import { RecipeObj } from '@/lib/schema/recipeBlockSchema';
 
 export type ParsedContent = {
   prefix: string;
