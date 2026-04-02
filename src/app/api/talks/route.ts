@@ -1,11 +1,12 @@
 import { createHotcookRecipe } from '@/lib/apiServer/createHotCookRecipe';
 import { requireUserId } from '@/lib/apiServer/requireUserId';
+import { extractedRecipeBlock } from '@/lib/parser/extractedRecipeBlock';
 import { recipeBlockForParse } from '@/lib/parser/recipeBlockForParse';
+import { openAIRequestSchema } from '@/lib/schema/openAISchema';
 import { updateTalkKeyword } from '@/lib/services/updateTalkKeyword';
 import { prisma } from '@/lib/utils/prisma';
 import { sanitize, substantial } from '@/lib/validators/contentProcessor';
 import { numberSchema } from '@/lib/validators/numberSchema';
-import { openAIRequestSchema } from '@/lib/validators/openAISchema';
 import { OpenAIChatRequest } from '@/types/api';
 import { Prisma, TalkSender } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
@@ -37,13 +38,21 @@ export async function POST(request: NextRequest) {
       take: 3,
     });
 
+    const skipRecipeJson = (content: string) => {
+      const extracted = extractedRecipeBlock(content);
+      if (!extracted) return content;
+      return content.replace(extracted.block, '').trim();
+    };
+    // TODO: 要約処理対応
+
     const recentMessages: OpenAIChatRequest[] = [...pastTalks]
       .reverse()
       .map((talk) => {
         const role = talk.sender === TalkSender.CHEF ? 'assistant' : 'user';
         return {
           role,
-          content: talk.content,
+          content:
+            role === 'assistant' ? skipRecipeJson(talk.content) : talk.content,
         };
       });
 
@@ -90,10 +99,10 @@ export async function POST(request: NextRequest) {
     });
 
     if (recipeObj) {
-      const { keywords, normalizedKeywords } = recipeObj;
+      const { keywords } = recipeObj;
 
-      updateTalkKeyword(userId, keywords, normalizedKeywords).catch((err) =>
-        console.error('keyword update error', err)
+      updateTalkKeyword(userId, keywords).catch((err) =>
+        console.error('[Talk API] POST keyword update error', err)
       );
     }
 
@@ -104,7 +113,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'INVALID_REQUEST' }, { status: 400 });
     }
 
+    if (e instanceof Error) {
+      if (e.message === 'QUOTA_EXCEEDED') {
+        return NextResponse.json({ error: 'QUOTA_EXCEEDED' }, { status: 429 });
+      }
+      if (e.message === 'FORBIDDEN') {
+        return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
+      }
+      if (e.message === 'AI_ERROR') {
+        console.error('[Talk API] POST AI error', e);
+        return NextResponse.json({ error: 'AI_ERROR' }, { status: 500 });
+      }
+    }
     console.error('[Talk API] POST Unexpected error', e);
+
     return NextResponse.json(
       { error: 'INTERNAL_SERVER_ERROR' },
       { status: 500 }
@@ -144,7 +166,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'INVALID_REQUEST' }, { status: 400 });
     }
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      { error: 'INTERNAL_SERVER_ERROR' },
       { status: 500 }
     );
   }
