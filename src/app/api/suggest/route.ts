@@ -1,10 +1,11 @@
 import { requireUserId } from '@/lib/apiServer/requireUserId';
-import type {
-  SuggestCollection,
-  SuggestItem,
-  SuggestLabel,
+import {
+  type SuggestCollection,
+  type SuggestItem,
+  type SuggestLabel,
+  suggestLabelSchema,
 } from '@/lib/schema/suggestItemSchema';
-import { suggestLabelSchema } from '@/lib/schema/suggestItemSchema';
+import { suggestSchema } from '@/lib/schema/suggestSchema';
 import { prisma } from '@/lib/utils/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { ZodError } from 'zod';
@@ -93,7 +94,8 @@ export async function GET(request: NextRequest) {
       { seed: [], popular: [], recent: [] }
     );
 
-    const { seed, popular, recent } = classLabel;
+    const parsed = suggestSchema.parse(classLabel);
+    const { seed, popular, recent } = parsed;
 
     return NextResponse.json({
       seed,
@@ -101,12 +103,11 @@ export async function GET(request: NextRequest) {
       recent,
     });
   } catch (e) {
-    console.error('[Suggest API] GET validation failed', e);
-
     if (e instanceof ZodError) {
+      console.error('[Suggest API] GET Validation failed', e);
       return NextResponse.json({ error: 'INVALID_REQUEST' }, { status: 400 });
     }
-    console.error('[Suggest API] GET unexpected error', e);
+    console.error('[Suggest API] GET Unexpected error', e);
 
     return NextResponse.json(
       { error: 'INTERNAL_SERVER_ERROR' },
