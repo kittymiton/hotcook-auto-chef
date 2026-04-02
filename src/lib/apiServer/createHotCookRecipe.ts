@@ -115,10 +115,11 @@ JSONの前後に他の文章を挿入してはいけません
     const parsedData = openAIChatResponseSchema.parse(chatObj);
     return parsedData;
   } catch (e) {
-    if ((e as any)?.error?.type === 'insufficient_quota') {
+    const err = e as Partial<{ error: { type: string }; status: number }>;
+    if (err.error?.type === 'insufficient_quota') {
       throw new Error('QUOTA_EXCEEDED');
     }
-    if ((e as any)?.status === 403) {
+    if (err.status === 403) {
       throw new Error('FORBIDDEN');
     }
 
