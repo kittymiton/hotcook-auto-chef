@@ -1,4 +1,5 @@
 import { HttpMethod } from '@/constants/index';
+import { errorResponseSchema } from '@/lib/schema/errorResponseSchema';
 
 export async function fetcher(
   url: string,
@@ -25,11 +26,30 @@ export async function fetcher(
     body: body !== undefined ? JSON.stringify(body) : undefined,
   };
 
-  const res = await fetch(url, options);
+  try {
+    const res = await fetch(url, options);
 
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.error || `HTTP ${res.status} ${res.statusText}`);
+    if (!res.ok) {
+      const raw = await res.json().catch(() => ({}));
+      const parsed = errorResponseSchema.safeParse(raw);
+
+      const errorCode =
+        parsed.success && parsed.data.error
+          ? parsed.data.error
+          : 'UNKNOWN_ERROR';
+
+      console.error('[Fetcher]', {
+        status: res.status,
+        statusText: res.statusText,
+        errorCode,
+      });
+      throw new Error(errorCode);
+    }
+    return await res.json();
+  } catch (e) {
+    if (e instanceof Error && e.message === 'Failed to fetch') {
+      throw new Error('NETWORK_ERROR');
+    }
+    throw e;
   }
-  return await res.json();
 }

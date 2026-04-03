@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   try {
     const userId = await requireUserId(request);
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'UNAUTHORIZED' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -29,10 +29,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(recipes);
   } catch (err) {
     if (err instanceof ZodError) {
-      return NextResponse.json({ error: 'Bad Request' }, { status: 400 });
+      return NextResponse.json({ error: 'INVALID_REQUEST' }, { status: 400 });
     }
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      { error: 'INTERNAL_SERVER_ERROR' },
       { status: 500 }
     );
   }

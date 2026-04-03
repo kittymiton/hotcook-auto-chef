@@ -11,7 +11,7 @@ export async function GET(
   try {
     const userId = await requireUserId(request);
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'UNAUTHORIZED' }, { status: 401 });
     }
 
     const recipeId = numberSchema.parse(params.id);
@@ -31,16 +31,16 @@ export async function GET(
     });
 
     if (!recipe) {
-      return NextResponse.json({ error: 'Not Found' }, { status: 404 });
+      return NextResponse.json({ error: 'NOT_FOUND' }, { status: 404 });
     }
 
     return NextResponse.json(recipe);
   } catch (err) {
     if (err instanceof ZodError) {
-      return NextResponse.json({ error: 'Bad Request' }, { status: 400 });
+      return NextResponse.json({ error: 'INVALID_REQUEST' }, { status: 400 });
     }
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      { error: 'INTERNAL_SERVER_ERROR' },
       { status: 500 }
     );
   }

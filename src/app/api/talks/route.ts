@@ -1,10 +1,12 @@
 import { createHotcookRecipe } from '@/lib/apiServer/createHotCookRecipe';
 import { requireUserId } from '@/lib/apiServer/requireUserId';
+import { extractedRecipeBlock } from '@/lib/parser/extractedRecipeBlock';
 import { recipeBlockForParse } from '@/lib/parser/recipeBlockForParse';
+import { openAIRequestSchema } from '@/lib/schema/openAISchema';
+import { updateTalkKeyword } from '@/lib/services/updateTalkKeyword';
 import { prisma } from '@/lib/utils/prisma';
-import { normalizeForAI } from '@/lib/validators/normalizeForAI';
+import { sanitize, substantial } from '@/lib/validators/contentProcessor';
 import { numberSchema } from '@/lib/validators/numberSchema';
-import { openAIRequestSchema } from '@/lib/validators/openAISchema';
 import { OpenAIChatRequest } from '@/types/api';
 import { Prisma, TalkSender } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
@@ -14,14 +16,21 @@ export async function POST(request: NextRequest) {
   try {
     const userId = await requireUserId(request);
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'UNAUTHORIZED' }, { status: 401 });
     }
+
     const body = await request.json();
+
     const parsed = openAIRequestSchema.parse(body);
-    const { talkRoomId } = parsed;
-    const userInput = normalizeForAI(parsed.content);
+    const { talkRoomId, content } = parsed;
     // TODO: 画像入力対応時はcontentがnullになる可能性あり。
     // Zod / Request型 / OpenAI送信ロジックを見直す（imageKey等）
+
+    const sanitizedInput = sanitize(content);
+
+    if (!substantial(sanitizedInput)) {
+      return NextResponse.json({ error: 'INVALID_FORMAT' }, { status: 400 });
+    }
 
     const pastTalks = await prisma.talk.findMany({
       where: { talkRoomId },
@@ -29,18 +38,26 @@ export async function POST(request: NextRequest) {
       take: 3,
     });
 
+    const skipRecipeJson = (content: string) => {
+      const extracted = extractedRecipeBlock(content);
+      if (!extracted) return content;
+      return content.replace(extracted.block, '').trim();
+    };
+    // TODO: 要約処理対応
+
     const recentMessages: OpenAIChatRequest[] = [...pastTalks]
       .reverse()
       .map((talk) => {
         const role = talk.sender === TalkSender.CHEF ? 'assistant' : 'user';
         return {
           role,
-          content: talk.content,
+          content:
+            role === 'assistant' ? skipRecipeJson(talk.content) : talk.content,
         };
       });
 
     const { content: chefContent } = await createHotcookRecipe({
-      content: userInput,
+      content: sanitizedInput,
       recentMessages,
     });
 
@@ -50,7 +67,7 @@ export async function POST(request: NextRequest) {
       await tx.talk.create({
         data: {
           talkRoomId,
-          content: userInput,
+          content,
           sender: TalkSender.USER,
           isReciped: false,
           deleted: false,
@@ -81,13 +98,37 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    if (recipeObj) {
+      const { keywords } = recipeObj;
+
+      updateTalkKeyword(userId, keywords).catch((err) =>
+        console.error('[Talk API] POST keyword update error', err)
+      );
+    }
+
     return NextResponse.json({}, { status: 200 });
   } catch (e) {
     if (e instanceof ZodError) {
-      return NextResponse.json({ error: 'Bad Request' }, { status: 400 });
+      console.error('[Talk API] POST Validation failed', e);
+      return NextResponse.json({ error: 'INVALID_REQUEST' }, { status: 400 });
     }
+
+    if (e instanceof Error) {
+      if (e.message === 'QUOTA_EXCEEDED') {
+        return NextResponse.json({ error: 'QUOTA_EXCEEDED' }, { status: 429 });
+      }
+      if (e.message === 'FORBIDDEN') {
+        return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
+      }
+      if (e.message === 'AI_ERROR') {
+        console.error('[Talk API] POST AI error', e);
+        return NextResponse.json({ error: 'AI_ERROR' }, { status: 500 });
+      }
+    }
+    console.error('[Talk API] POST Unexpected error', e);
+
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      { error: 'INTERNAL_SERVER_ERROR' },
       { status: 500 }
     );
   }
@@ -97,7 +138,7 @@ export async function GET(request: NextRequest) {
   try {
     const userId = await requireUserId(request);
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'UNAUTHORIZED' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -110,7 +151,7 @@ export async function GET(request: NextRequest) {
       },
     });
     if (!talkRoom) {
-      return NextResponse.json({ error: 'Not Found' }, { status: 404 });
+      return NextResponse.json({ error: 'NOT_FOUND' }, { status: 404 });
     }
 
     const talks = await prisma.talk.findMany({
@@ -120,12 +161,12 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(talks);
-  } catch (err) {
-    if (err instanceof ZodError) {
-      return NextResponse.json({ error: 'Bad Request' }, { status: 400 });
+  } catch (e) {
+    if (e instanceof ZodError) {
+      return NextResponse.json({ error: 'INVALID_REQUEST' }, { status: 400 });
     }
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      { error: 'INTERNAL_SERVER_ERROR' },
       { status: 500 }
     );
   }
