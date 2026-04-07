@@ -16,14 +16,15 @@ import { mutate } from 'swr';
 export default function TalkRoomIdPage() {
   const [content, setContent] = useState<string>('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [shouldFetchSuggest, setShouldFetchSuggest] = useState(false);
+  const [fetchSuggest, setFetchSuggest] = useState(false);
   const [focused, setFocused] = useState(false);
   const [sending, setSending] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  const wrapperRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLDivElement | null>(null);
 
   const { token } = useSupabaseSession();
+
   const params = useParams();
   const result = numberSchema.safeParse(params.id);
   if (!result.success) notFound();
@@ -46,13 +47,12 @@ export default function TalkRoomIdPage() {
   } = useAuthedSWR(url_aside, recipeSchema);
 
   const { data: suggest } = useAuthedSWR(
-    shouldFetchSuggest ? url_suggest : null,
+    fetchSuggest ? url_suggest : null,
     suggestSchema
   );
   // TODO: safe.parse対応 / useSuggestフック化
 
   const isLoading = isTalkLoading || isRecipeLoading;
-  const isFirstScroll = useRef(true);
 
   const errorText: Record<string, string> = {
     INVALID_FORMAT: '料理名や食材を教えてください',
@@ -64,61 +64,78 @@ export default function TalkRoomIdPage() {
     DEFAULT: 'システムエラーが発生しました。時間を置いてお試しください',
   };
 
+  const seed = suggest?.seed ?? [];
+  const popular = suggest?.popular ?? [];
+  const recent = suggest?.recent ?? [];
+
+  useLayoutEffect(() => {
+    if (!talks?.length) return;
+
+    let raf1 = 0;
+    let raf2 = 0;
+    let raf3 = 0;
+    let cleanedup = false;
+
+    const scrollToBottom = () => {
+      if (cleanedup) return; // 新しいrafを優先し、前回のrafを止める
+
+      const viewPort = scrollRef.current;
+      if (!viewPort) return;
+      viewPort.scrollTop = viewPort.scrollHeight - viewPort.clientHeight;
+    };
+
+    // レイアウト確定まで3フレーム追従し、スクロールが上に戻るバグを防ぐ
+    raf1 = requestAnimationFrame(() => {
+      scrollToBottom();
+      raf2 = requestAnimationFrame(() => {
+        scrollToBottom();
+        raf3 = requestAnimationFrame(() => {
+          scrollToBottom();
+        });
+      });
+    });
+
+    return () => {
+      // 画像等読み込みの重いレイアウトシフトでrafの遅延実行を止め、干渉を防ぐ
+      cleanedup = true;
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+      cancelAnimationFrame(raf3);
+    };
+  }, [talks]);
+
   useEffect(() => {
     if (!focused) return;
 
     const outsideClick = (e: PointerEvent) => {
-      if (wrapperRef.current && wrapperRef.current.contains(e.target as Node)) {
-        return;
-      }
+      const target = e.target;
+      if (!(target instanceof Node)) return;
+      if (inputRef.current && inputRef.current.contains(target)) return;
       setFocused(false);
     };
 
     document.addEventListener('pointerdown', outsideClick);
+
     return () => {
       document.removeEventListener('pointerdown', outsideClick);
     };
   }, [focused]);
 
-  useLayoutEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    if (!talks || talks.length === 0) return;
-
-    requestAnimationFrame(() => {
-      const max = el.scrollHeight - el.clientHeight;
-
-      // DDM描画待ち：高さが0なら再実行
-      if (max <= 0) {
-        requestAnimationFrame(() => {
-          const el2 = scrollRef.current;
-          if (!el2) return;
-          const max2 = el2.scrollHeight - el2.clientHeight;
-          el2.scrollTo({ top: max2, behavior: 'auto' });
-        });
-        return;
-      }
-
-      el.scrollTo({
-        top: max,
-        behavior: isFirstScroll.current ? 'auto' : 'smooth',
-      });
-
-      isFirstScroll.current = false;
-    });
-  }, [talks]);
+  const handleFocus = () => {
+    setFocused(true);
+    setFetchSuggest(true);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!token || !content.trim() || sending) return;
 
-    setSending(true);
-
     const currentContent = content;
+
+    setSending(true);
+    setFocused(false);
     setContent('');
     setErrorMsg(null);
-    setFocused(false);
 
     const body = {
       content: currentContent,
@@ -135,12 +152,12 @@ export default function TalkRoomIdPage() {
       if (url_main) mutate(url_main);
       if (url_aside) mutate(url_aside);
       if (url_suggest) mutate(url_suggest);
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      console.error(e);
 
       const remind =
-        err instanceof Error
-          ? (errorText[err.message] ?? errorText.DEFAULT)
+        e instanceof Error
+          ? (errorText[e.message] ?? errorText.DEFAULT)
           : errorText.DEFAULT;
 
       setContent(currentContent);
@@ -150,18 +167,11 @@ export default function TalkRoomIdPage() {
     }
   };
 
-  const handleFocus = () => {
-    setFocused(true);
-    setShouldFetchSuggest(true);
-  };
-
-  const handleSelectKeyword = (input: string) => {
+  const handleSelectKeyword = (keyword: string) => {
     setContent((prev) => {
-      const cleanKeywords = prev ? prev.split(' ').filter(Boolean) : [];
-
-      if (cleanKeywords.includes(input)) return prev;
-
-      return prev ? prev + ' ' + input : input;
+      const normalizedKeywords = prev ? prev.split(' ').filter(Boolean) : [];
+      if (normalizedKeywords.includes(keyword)) return prev;
+      return prev ? `${prev} ${keyword}` : keyword;
     });
   };
 
@@ -211,7 +221,7 @@ export default function TalkRoomIdPage() {
 
         <main className="flex-1 flex flex-col">
           <div
-            className="flex flex-col overflow-y-auto flex-1 max-h-full p-4"
+            className="flex flex-col overflow-y-auto flex-1 p-4"
             ref={scrollRef}
           >
             {!talks ? (
@@ -310,7 +320,7 @@ export default function TalkRoomIdPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="mt-3 flex gap-2">
-            <div ref={wrapperRef}>
+            <div ref={inputRef}>
               <input
                 type="text"
                 value={content}
@@ -323,7 +333,7 @@ export default function TalkRoomIdPage() {
               />
               {focused && (
                 <>
-                  {suggest?.seed.map((item) => (
+                  {seed.map((item) => (
                     <button
                       type="button"
                       key={item.keyword}
@@ -332,7 +342,7 @@ export default function TalkRoomIdPage() {
                       {item.keyword}
                     </button>
                   ))}
-                  {suggest?.popular.map((item) => (
+                  {popular.map((item) => (
                     <button
                       type="button"
                       key={item.keyword}
@@ -341,7 +351,7 @@ export default function TalkRoomIdPage() {
                       {item.keyword}
                     </button>
                   ))}
-                  {suggest?.recent.map((item) => (
+                  {recent.map((item) => (
                     <button
                       type="button"
                       key={item.keyword}
