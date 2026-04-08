@@ -7,4 +7,5 @@ const chatItemSchema = z.object({
 });
 export const chatSchema = z.array(chatItemSchema);
 
+export type ChatItem = z.infer<typeof chatItemSchema>;
 export type ChatMessageList = z.infer<typeof chatSchema>;
