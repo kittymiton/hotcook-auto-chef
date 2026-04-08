@@ -1,16 +1,16 @@
 'use client';
 
 import { fetcher } from '@/lib/apiClient/fetcher';
-import { splitChefContent } from '@/lib/parser/splitChefContent';
+import { chatSchema } from '@/lib/schema/chatSchema';
 import { suggestSchema } from '@/lib/schema/suggestSchema';
-import { chatSchema } from '@/lib/validators/chatSchema';
 import { numberSchema } from '@/lib/validators/numberSchema';
 import { recipeSchema } from '@/lib/validators/recipeSchema';
 import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
+import { TalkList } from '@authenticated/components/talk/TalkList';
 import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
 import Link from 'next/link';
 import { notFound, useParams } from 'next/navigation';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { mutate } from 'swr';
 
 export default function TalkRoomIdPage() {
@@ -20,7 +20,6 @@ export default function TalkRoomIdPage() {
   const [focused, setFocused] = useState(false);
   const [sending, setSending] = useState(false);
 
-  const scrollRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLDivElement | null>(null);
 
   const { token } = useSupabaseSession();
@@ -67,42 +66,6 @@ export default function TalkRoomIdPage() {
   const seed = suggest?.seed ?? [];
   const popular = suggest?.popular ?? [];
   const recent = suggest?.recent ?? [];
-
-  useLayoutEffect(() => {
-    if (!talks?.length) return;
-
-    let raf1 = 0;
-    let raf2 = 0;
-    let raf3 = 0;
-    let cleanedup = false;
-
-    const scrollToBottom = () => {
-      if (cleanedup) return; // 新しいrafを優先し、前回のrafを止める
-
-      const viewPort = scrollRef.current;
-      if (!viewPort) return;
-      viewPort.scrollTop = viewPort.scrollHeight - viewPort.clientHeight;
-    };
-
-    // レイアウト確定まで3フレーム追従し、スクロールが上に戻るバグを防ぐ
-    raf1 = requestAnimationFrame(() => {
-      scrollToBottom();
-      raf2 = requestAnimationFrame(() => {
-        scrollToBottom();
-        raf3 = requestAnimationFrame(() => {
-          scrollToBottom();
-        });
-      });
-    });
-
-    return () => {
-      // 画像等読み込みの重いレイアウトシフトでrafの遅延実行を止め、干渉を防ぐ
-      cleanedup = true;
-      cancelAnimationFrame(raf1);
-      cancelAnimationFrame(raf2);
-      cancelAnimationFrame(raf3);
-    };
-  }, [talks]);
 
   useEffect(() => {
     if (!focused) return;
@@ -177,7 +140,7 @@ export default function TalkRoomIdPage() {
 
   if (!token) return <p>ログイン確認中...</p>;
   if (isLoading) return <p>ローディング中...</p>;
-
+  if (!talks) return <p>読み込み中...</p>;
   if (url_mainError || url_asideError) {
     return (
       <p className="p-4 text-red-500">
@@ -185,6 +148,7 @@ export default function TalkRoomIdPage() {
       </p>
     );
   }
+  if (talks.length === 0) return <p>会話がまだありません</p>;
 
   return (
     <>
@@ -220,105 +184,7 @@ export default function TalkRoomIdPage() {
         </aside>
 
         <main className="flex-1 flex flex-col">
-          <div
-            className="flex flex-col overflow-y-auto flex-1 p-4"
-            ref={scrollRef}
-          >
-            {!talks ? (
-              <p>読み込み中...</p>
-            ) : talks.length === 0 ? (
-              <p>会話がまだありません</p>
-            ) : (
-              talks
-                .slice()
-                .reverse()
-                .map((talk) => {
-                  const isChef = talk.sender === 'CHEF';
-
-                  if (!isChef) {
-                    return (
-                      <p
-                        key={talk.id}
-                        className="bg-blue-50 p-2 rounded-lg shadow w-fit ml-auto text-gray-700 mb-4"
-                      >
-                        {talk.content}
-                      </p>
-                    );
-                  }
-
-                  const { prefix, recipe, suffix } = splitChefContent(
-                    talk.content
-                  );
-
-                  return (
-                    <div key={talk.id}>
-                      {prefix && (
-                        <div className="bg-orange-50 p-2 rounded-lg shadow w-fit mr-auto text-gray-700 mb-4">
-                          <p className="whitespace-pre-line">{prefix}</p>
-                        </div>
-                      )}
-
-                      {recipe && (
-                        <div className="bg-orange-50 p-2 rounded shadow mb-4">
-                          {recipe['レシピタイトル'] && (
-                            <h2 className="font-bold text-orange-700 mb-1">
-                              {recipe['レシピタイトル']}
-                            </h2>
-                          )}
-
-                          {recipe['ポイント'] && (
-                            <p className="text-sm mb-2 text-gray-700">
-                              <strong>ポイント:</strong> {recipe['ポイント']}
-                            </p>
-                          )}
-
-                          {recipe['調理時間'] && (
-                            <p className="text-sm mb-2 text-gray-700">
-                              <strong>調理時間:</strong> {recipe['調理時間']}
-                            </p>
-                          )}
-
-                          {recipe['材料（2人分）'] && (
-                            <div className="mb-2 text-gray-700">
-                              <strong>材料（2人分）:</strong>
-                              <ul className="list-disc list-inside text-sm">
-                                {recipe['材料（2人分）'].map(
-                                  (item: string, i: number) => (
-                                    <li key={i}>{item}</li>
-                                  )
-                                )}
-                              </ul>
-                            </div>
-                          )}
-
-                          {recipe['作り方'] && (
-                            <div>
-                              <strong>作り方:</strong>
-                              <ol className="list-decimal list-inside text-sm text-gray-700">
-                                {recipe['作り方'].map(
-                                  (step: string, i: number) => (
-                                    <li key={i}>
-                                      {step.replace(/^\d+[:：]\s*/, '').trim()}
-                                    </li>
-                                  )
-                                )}
-                              </ol>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {suffix && (
-                        <div className="bg-orange-50 p-2 rounded-lg shadow w-fit mr-auto text-gray-700 mb-4">
-                          <p className="whitespace-pre-line">{suffix}</p>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })
-            )}
-          </div>
-
+          <TalkList talks={talks} />
           <form onSubmit={handleSubmit} className="mt-3 flex gap-2">
             <div ref={inputRef}>
               <input
