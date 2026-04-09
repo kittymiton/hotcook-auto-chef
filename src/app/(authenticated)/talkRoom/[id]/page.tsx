@@ -6,6 +6,8 @@ import { suggestSchema } from '@/lib/schema/suggestSchema';
 import { numberSchema } from '@/lib/validators/numberSchema';
 import { recipeSchema } from '@/lib/validators/recipeSchema';
 import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
+import { AsidePanel } from '@authenticated/components/layout/AsidePanel';
+import { RecipeList } from '@authenticated/components/recipe/RecipeList';
 import { TalkList } from '@authenticated/components/talk/TalkList';
 import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
 import Link from 'next/link';
@@ -140,51 +142,49 @@ export default function TalkRoomIdPage() {
 
   if (!token) return <p>ログイン確認中...</p>;
   if (isLoading) return <p>ローディング中...</p>;
-  if (!talks) return <p>読み込み中...</p>;
-  if (url_mainError || url_asideError) {
-    return (
-      <p className="p-4 text-red-500">
-        取得に失敗しました: {url_mainError?.message || url_asideError?.message}
-      </p>
-    );
+
+  let recipeContent;
+  let talkContent;
+
+  if (!recipes) {
+    recipeContent = <p>読み込み中...</p>;
+  } else {
+    recipeContent = <RecipeList recipes={recipes} talkRoomId={talkRoomId} />;
   }
-  if (talks.length === 0) return <p>会話がまだありません</p>;
+
+  if (!talks) {
+    talkContent = <p>読み込み中...</p>;
+  } else if (talks.length === 0) {
+    <p>会話がまだありません</p>;
+  } else {
+    talkContent = <TalkList talks={talks} />;
+  }
 
   return (
     <>
       <h1 className="text-lg font-bold mb-4">今日は何にしましょうか？</h1>
       {errorMsg && <p className="text-red-500 mb-2">{errorMsg}</p>}
       <div className="flex h-[90vh]">
-        <aside className="w-64 flex-shrink-0 border-r p-4">
-          {!recipes ? (
-            <p>読み込み中...</p>
-          ) : (
-            <>
-              <h2 className="font-bold mb-2">最近のレシピ</h2>
-              <ul className="mb-2 space-y-1">
-                {recipes.map((recipe) => (
-                  <li key={recipe.id}>
-                    <Link
-                      href={`/recipes/${recipe.id}?from=${talkRoomId}`}
-                      className="text-blue-600 hover:underline"
-                    >
-                      {recipe.title}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href={`/recipes?from=${talkRoomId}`}
-                className="text-sm underline text-blue-600"
-              >
-                すべてのレシピを見る
-              </Link>
-            </>
-          )}
-        </aside>
+        <AsidePanel>
+          <h2 className="font-bold mb-2">最近のレシピ</h2>
+          <>
+            {recipeContent}
+            {url_asideError && (
+              <p>取得に失敗しました: {url_asideError.message}</p>
+            )}
+            <Link
+              href={`/recipes?from=${talkRoomId}`}
+              className="text-sm underline text-blue-600"
+            >
+              すべてのレシピを見る
+            </Link>
+          </>
+        </AsidePanel>
 
         <main className="flex-1 flex flex-col">
-          <TalkList talks={talks} />
+          {talkContent}
+          {url_mainError && <p>取得に失敗しました: {url_mainError.message}</p>}
+
           <form onSubmit={handleSubmit} className="mt-3 flex gap-2">
             <div ref={inputRef}>
               <input
