@@ -2,12 +2,13 @@
 
 import { fetcher } from '@/lib/apiClient/fetcher';
 import { chatSchema } from '@/lib/schema/chatSchema';
-import { suggestSchema } from '@/lib/schema/suggestSchema';
+import { suggestCollectionSchema } from '@/lib/schema/suggestSchema';
 import { numberSchema } from '@/lib/validators/numberSchema';
 import { recipeSchema } from '@/lib/validators/recipeSchema';
 import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
 import { AsidePanel } from '@authenticated/components/layout/AsidePanel';
 import { RecipeList } from '@authenticated/components/recipe/RecipeList';
+import { Input } from '@authenticated/components/talk/Input';
 import { TalkList } from '@authenticated/components/talk/TalkList';
 import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
 import Link from 'next/link';
@@ -49,11 +50,9 @@ export default function TalkRoomIdPage() {
 
   const { data: suggest } = useAuthedSWR(
     fetchSuggest ? url_suggest : null,
-    suggestSchema
+    suggestCollectionSchema
   );
   // TODO: safe.parse対応 / useSuggestフック化
-
-  const isLoading = isTalkLoading || isRecipeLoading;
 
   const errorText: Record<string, string> = {
     INVALID_FORMAT: '料理名や食材を教えてください',
@@ -68,6 +67,13 @@ export default function TalkRoomIdPage() {
   const seed = suggest?.seed ?? [];
   const popular = suggest?.popular ?? [];
   const recent = suggest?.recent ?? [];
+  const suggestList = [...seed, ...popular, ...recent];
+  console.log(suggestList);
+
+  const ORDER_PRIORITY = ['seed', 'popular', 'recent'];
+  const sortedSuggestList = suggestList.sort(
+    (a, b) => ORDER_PRIORITY.indexOf(a.label) - ORDER_PRIORITY.indexOf(b.label)
+  );
 
   useEffect(() => {
     if (!focused) return;
@@ -141,21 +147,27 @@ export default function TalkRoomIdPage() {
   };
 
   if (!token) return <p>ログイン確認中...</p>;
-  if (isLoading) return <p>ローディング中...</p>;
+
+  const isTalkRoomLoading = !recipes || !talks;
 
   let recipeContent;
+  const recipeIsEmpty = recipes?.length === 0;
+
   let talkContent;
+  const talkIsEmpty = talks?.length === 0;
 
   if (!recipes) {
-    recipeContent = <p>読み込み中...</p>;
+    recipeContent = null;
+  } else if (recipeIsEmpty) {
+    recipeContent = <p>レシピがまだありません</p>;
   } else {
     recipeContent = <RecipeList recipes={recipes} talkRoomId={talkRoomId} />;
   }
 
   if (!talks) {
-    talkContent = <p>読み込み中...</p>;
-  } else if (talks.length === 0) {
-    <p>会話がまだありません</p>;
+    talkContent = null;
+  } else if (talkIsEmpty) {
+    talkContent = <p>会話がまだありません</p>;
   } else {
     talkContent = <TalkList talks={talks} />;
   }
@@ -163,7 +175,9 @@ export default function TalkRoomIdPage() {
   return (
     <>
       <h1 className="text-lg font-bold mb-4">今日は何にしましょうか？</h1>
+      {isTalkRoomLoading && <p>ローディング中...</p>}
       {errorMsg && <p className="text-red-500 mb-2">{errorMsg}</p>}
+
       <div className="flex h-[90vh]">
         <AsidePanel>
           <h2 className="font-bold mb-2">最近のレシピ</h2>
@@ -187,41 +201,22 @@ export default function TalkRoomIdPage() {
 
           <form onSubmit={handleSubmit} className="mt-3 flex gap-2">
             <div ref={inputRef}>
-              <input
-                type="text"
+              <Input
                 value={content}
                 onFocus={handleFocus}
-                onChange={(e) => setContent(e.target.value)}
+                onChange={(value) => setContent(value)}
                 disabled={sending}
                 placeholder={sending ? '送信中...' : '画像やメッセージを送信'}
-                size={32}
-                className="border rounded p-2 flex-grow focus:outline-none focus:ring-2 focus:ring-blue-300"
               />
+
               {focused && (
                 <>
-                  {seed.map((item) => (
+                  {sortedSuggestList.map((item) => (
                     <button
                       type="button"
                       key={item.keyword}
                       onPointerDown={() => handleSelectKeyword(item.keyword)}
-                    >
-                      {item.keyword}
-                    </button>
-                  ))}
-                  {popular.map((item) => (
-                    <button
-                      type="button"
-                      key={item.keyword}
-                      onPointerDown={() => handleSelectKeyword(item.keyword)}
-                    >
-                      {item.keyword}
-                    </button>
-                  ))}
-                  {recent.map((item) => (
-                    <button
-                      type="button"
-                      key={item.keyword}
-                      onPointerDown={() => handleSelectKeyword(item.keyword)}
+                      className={item.label === 'seed' ? 'bg-gray-100' : ''}
                     >
                       {item.keyword}
                     </button>
