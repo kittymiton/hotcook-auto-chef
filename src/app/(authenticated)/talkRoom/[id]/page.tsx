@@ -8,7 +8,9 @@ import { recipeSchema } from '@/lib/validators/recipeSchema';
 import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
 import { AsidePanel } from '@authenticated/components/layout/AsidePanel';
 import { RecipeList } from '@authenticated/components/recipe/RecipeList';
+import { Button } from '@authenticated/components/talk/Button';
 import { Input } from '@authenticated/components/talk/Input';
+import { Suggest } from '@authenticated/components/talk/Suggest';
 import { TalkList } from '@authenticated/components/talk/TalkList';
 import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
 import Link from 'next/link';
@@ -68,12 +70,12 @@ export default function TalkRoomIdPage() {
   const popular = suggest?.popular ?? [];
   const recent = suggest?.recent ?? [];
   const suggestList = [...seed, ...popular, ...recent];
-  console.log(suggestList);
-
   const ORDER_PRIORITY = ['seed', 'popular', 'recent'];
   const sortedSuggestList = suggestList.sort(
     (a, b) => ORDER_PRIORITY.indexOf(a.label) - ORDER_PRIORITY.indexOf(b.label)
   );
+
+  const isDisabled = sending || !content.trim();
 
   useEffect(() => {
     if (!focused) return;
@@ -175,6 +177,7 @@ export default function TalkRoomIdPage() {
   return (
     <>
       <h1 className="text-lg font-bold mb-4">今日は何にしましょうか？</h1>
+
       {isTalkRoomLoading && <p>ローディング中...</p>}
       {errorMsg && <p className="text-red-500 mb-2">{errorMsg}</p>}
 
@@ -203,34 +206,25 @@ export default function TalkRoomIdPage() {
             <div ref={inputRef}>
               <Input
                 value={content}
-                onFocus={handleFocus}
-                onChange={(value) => setContent(value)}
                 disabled={sending}
                 placeholder={sending ? '送信中...' : '画像やメッセージを送信'}
+                onFocus={handleFocus}
+                onChange={(value) => setContent(value)}
               />
 
               {focused && (
                 <>
                   {sortedSuggestList.map((item) => (
-                    <button
-                      type="button"
+                    <Suggest
                       key={item.keyword}
-                      onPointerDown={() => handleSelectKeyword(item.keyword)}
-                      className={item.label === 'seed' ? 'bg-gray-100' : ''}
-                    >
-                      {item.keyword}
-                    </button>
+                      item={item}
+                      onKeywordSelct={handleSelectKeyword}
+                    />
                   ))}
                 </>
               )}
 
-              <button
-                type="submit"
-                disabled={sending || !content.trim()}
-                className={`${sending || !content.trim() ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'} text-white px-4 py-2 rounded  transition`}
-              >
-                {sending ? '送信中' : '送信'}
-              </button>
+              <Button disabled={isDisabled} sending={sending} />
             </div>
           </form>
         </main>
