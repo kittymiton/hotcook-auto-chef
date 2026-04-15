@@ -13,6 +13,7 @@ import { Input } from '@authenticated/components/talk/Input';
 import { Suggest } from '@authenticated/components/talk/Suggest';
 import { TalkList } from '@authenticated/components/talk/TalkList';
 import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
+import { runMutations } from '@authenticated/utils/runMutations';
 import Link from 'next/link';
 import { notFound, useParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -76,6 +77,7 @@ export default function TalkRoomIdPage() {
   );
 
   const isDisabled = sending || !content.trim();
+  const run = runMutations(mutate, url_main, url_aside);
 
   useEffect(() => {
     if (!focused) return;
@@ -122,9 +124,7 @@ export default function TalkRoomIdPage() {
         body,
       });
 
-      if (url_main) mutate(url_main);
-      if (url_aside) mutate(url_aside);
-      if (url_suggest) mutate(url_suggest);
+      await run();
     } catch (e) {
       console.error(e);
 

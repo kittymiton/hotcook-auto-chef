@@ -32,6 +32,7 @@
         "./src/app/(authenticated)/_components/*"
       ],
       "@authenticated/hooks/*": ["./src/app/(authenticated)/_hooks/*"],
+      "@authenticated/utils/*": ["./src/app/(authenticated)/_utils/*"],
       "@authenticated/profile/components/*": [
         "./src/app/(authenticated)/mypage/profile/_components/*"
       ],
