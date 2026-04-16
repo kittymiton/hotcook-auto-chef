@@ -1,6 +1,6 @@
 'use client';
 
-import { fetcher } from '@/lib/apiClient/fetcher';
+import { errorText } from '@/lib/constants/errorText';
 import { chatSchema } from '@/lib/schema/chatSchema';
 import { suggestCollectionSchema } from '@/lib/schema/suggestSchema';
 import { numberSchema } from '@/lib/validators/numberSchema';
@@ -13,6 +13,7 @@ import { Input } from '@authenticated/components/talk/Input';
 import { Suggest } from '@authenticated/components/talk/Suggest';
 import { TalkList } from '@authenticated/components/talk/TalkList';
 import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
+import { useTalkSubmit } from '@authenticated/hooks/useTalkSubmit';
 import { runMutations } from '@authenticated/utils/runMutations';
 import Link from 'next/link';
 import { notFound, useParams } from 'next/navigation';
@@ -21,10 +22,9 @@ import { mutate } from 'swr';
 
 export default function TalkRoomIdPage() {
   const [content, setContent] = useState<string>('');
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
   const [fetchSuggest, setFetchSuggest] = useState(false);
-  const [focused, setFocused] = useState(false);
-  const [sending, setSending] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   const inputRef = useRef<HTMLDivElement | null>(null);
 
@@ -57,36 +57,14 @@ export default function TalkRoomIdPage() {
   );
   // TODO: safe.parse対応 / useSuggestフック化
 
-  const errorText: Record<string, string> = {
-    INVALID_FORMAT: '料理名や食材を教えてください',
-    UNAUTHORIZED: 'ログインが必要です',
-    NETWORK_ERROR: '通信エラーが発生しました。ネット接続を確認してください',
-    QUOTA_EXCEEDED: '利用上限に達しました',
-    FORBIDDEN: '現在この機能は利用できません。設定をご確認ください',
-    AI_ERROR: 'ただいま混み合っています。少し時間をおいて再度お試しください',
-    DEFAULT: 'システムエラーが発生しました。時間を置いてお試しください',
-  };
-
-  const seed = suggest?.seed ?? [];
-  const popular = suggest?.popular ?? [];
-  const recent = suggest?.recent ?? [];
-  const suggestList = [...seed, ...popular, ...recent];
-  const ORDER_PRIORITY = ['seed', 'popular', 'recent'];
-  const sortedSuggestList = suggestList.sort(
-    (a, b) => ORDER_PRIORITY.indexOf(a.label) - ORDER_PRIORITY.indexOf(b.label)
-  );
-
-  const isDisabled = sending || !content.trim();
-  const run = runMutations(mutate, url_main, url_aside);
-
   useEffect(() => {
-    if (!focused) return;
+    if (!isFocused) return;
 
     const outsideClick = (e: PointerEvent) => {
       const target = e.target;
       if (!(target instanceof Node)) return;
       if (inputRef.current && inputRef.current.contains(target)) return;
-      setFocused(false);
+      setIsFocused(false);
     };
 
     document.addEventListener('pointerdown', outsideClick);
@@ -94,50 +72,23 @@ export default function TalkRoomIdPage() {
     return () => {
       document.removeEventListener('pointerdown', outsideClick);
     };
-  }, [focused]);
+  }, [isFocused]);
+
+  const seed = suggest?.seed ?? [];
+  const popular = suggest?.popular ?? [];
+  const recent = suggest?.recent ?? [];
+
+  const suggestList = [...seed, ...popular, ...recent];
+  const ORDER_PRIORITY = ['seed', 'popular', 'recent'];
+  const sortedSuggestList = suggestList.sort(
+    (a, b) => ORDER_PRIORITY.indexOf(a.label) - ORDER_PRIORITY.indexOf(b.label)
+  );
+
+  const run = runMutations(mutate, url_main, url_aside);
 
   const handleFocus = () => {
-    setFocused(true);
+    setIsFocused(true);
     setFetchSuggest(true);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!token || !content.trim() || sending) return;
-
-    const currentContent = content;
-
-    setSending(true);
-    setFocused(false);
-    setContent('');
-    setErrorMsg(null);
-
-    const body = {
-      content: currentContent,
-      talkRoomId,
-    };
-
-    try {
-      await fetcher('/api/talks', {
-        method: 'POST',
-        token,
-        body,
-      });
-
-      await run();
-    } catch (e) {
-      console.error(e);
-
-      const remind =
-        e instanceof Error
-          ? (errorText[e.message] ?? errorText.DEFAULT)
-          : errorText.DEFAULT;
-
-      setContent(currentContent);
-      setErrorMsg(remind);
-    } finally {
-      setSending(false);
-    }
   };
 
   const handleSelectKeyword = (keyword: string) => {
@@ -148,9 +99,19 @@ export default function TalkRoomIdPage() {
     });
   };
 
+  const { handleSubmit, isSending, errorMsg, isDisabled } = useTalkSubmit({
+    token,
+    content,
+    talkRoomId,
+    setIsFocused,
+    setContent,
+    run,
+    errorText,
+  });
+
   if (!token) return <p>ログイン確認中...</p>;
 
-  const isTalkRoomLoading = !recipes || !talks;
+  const isInitialLoading = !recipes || !talks;
 
   let recipeContent;
   const recipeIsEmpty = recipes?.length === 0;
@@ -178,8 +139,8 @@ export default function TalkRoomIdPage() {
     <>
       <h1 className="text-lg font-bold mb-4">今日は何にしましょうか？</h1>
 
-      {isTalkRoomLoading && <p>ローディング中...</p>}
-      {errorMsg && <p className="text-red-500 mb-2">{errorMsg}</p>}
+      {isInitialLoading && <p>ローディング中...</p>}
+      {errorMsg && <p className="text-red-500 mb-2">送信エラー：{errorMsg}</p>}
 
       <div className="flex h-[90vh]">
         <AsidePanel>
@@ -206,13 +167,13 @@ export default function TalkRoomIdPage() {
             <div ref={inputRef}>
               <Input
                 value={content}
-                disabled={sending}
-                placeholder={sending ? '送信中...' : '画像やメッセージを送信'}
+                disabled={isSending}
+                placeholder={isSending ? '送信中...' : '画像やメッセージを送信'}
                 onFocus={handleFocus}
                 onChange={(value) => setContent(value)}
               />
 
-              {focused && (
+              {isFocused && (
                 <>
                   {sortedSuggestList.map((item) => (
                     <Suggest
@@ -224,7 +185,7 @@ export default function TalkRoomIdPage() {
                 </>
               )}
 
-              <Button disabled={isDisabled} sending={sending} />
+              <Button disabled={isDisabled} sending={isSending} />
             </div>
           </form>
         </main>
