@@ -2,7 +2,6 @@
 
 import { errorText } from '@/lib/constants/errorText';
 import { chatSchema } from '@/lib/schema/chatSchema';
-import { suggestCollectionSchema } from '@/lib/schema/suggestSchema';
 import { numberSchema } from '@/lib/validators/numberSchema';
 import { recipeSchema } from '@/lib/validators/recipeSchema';
 import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
@@ -13,7 +12,9 @@ import { Input } from '@authenticated/components/talk/Input';
 import { Suggest } from '@authenticated/components/talk/Suggest';
 import { TalkList } from '@authenticated/components/talk/TalkList';
 import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
+import { useSuggest } from '@authenticated/hooks/useSuggest';
 import { useTalkSubmit } from '@authenticated/hooks/useTalkSubmit';
+import { getSortedSuggestList } from '@authenticated/utils/getSortedSuggestList';
 import { runMutations } from '@authenticated/utils/runMutations';
 import Link from 'next/link';
 import { notFound, useParams } from 'next/navigation';
@@ -23,7 +24,6 @@ import { mutate } from 'swr';
 export default function TalkRoomIdPage() {
   const [content, setContent] = useState<string>('');
 
-  const [fetchSuggest, setFetchSuggest] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
 
   const inputRef = useRef<HTMLDivElement | null>(null);
@@ -39,6 +39,8 @@ export default function TalkRoomIdPage() {
   const url_aside = `/api/recipes?take=5`;
   const url_suggest = `/api/suggest`;
 
+  const run = runMutations(mutate, url_main, url_aside);
+
   const {
     data: talks,
     error: url_mainError,
@@ -51,11 +53,45 @@ export default function TalkRoomIdPage() {
     isLoading: isRecipeLoading,
   } = useAuthedSWR(url_aside, recipeSchema);
 
-  const { data: suggest } = useAuthedSWR(
-    fetchSuggest ? url_suggest : null,
-    suggestCollectionSchema
-  );
-  // TODO: safe.parse対応 / useSuggestフック化
+  const { suggest } = useSuggest({ url_suggest, isFocused });
+
+  const { handleSubmit, isSending, errorMsg, isDisabled } = useTalkSubmit({
+    token,
+    content,
+    talkRoomId,
+    setIsFocused,
+    setContent,
+    run,
+    errorText,
+  });
+
+  const isInitialLoading = !recipes || !talks;
+
+  let recipeContent;
+  const recipeIsEmpty = recipes?.length === 0;
+
+  if (!recipes) {
+    recipeContent = null;
+  } else if (recipeIsEmpty) {
+    recipeContent = <p>レシピがまだありません</p>;
+  } else {
+    recipeContent = <RecipeList recipes={recipes} talkRoomId={talkRoomId} />;
+  }
+
+  let talkContent;
+  const talkIsEmpty = talks?.length === 0;
+
+  if (!talks) {
+    talkContent = null;
+  } else if (talkIsEmpty) {
+    talkContent = <p>会話がまだありません</p>;
+  } else {
+    talkContent = <TalkList talks={talks} />;
+  }
+
+  const handleFocus = () => {
+    setIsFocused(true);
+  };
 
   useEffect(() => {
     if (!isFocused) return;
@@ -74,23 +110,6 @@ export default function TalkRoomIdPage() {
     };
   }, [isFocused]);
 
-  const seed = suggest?.seed ?? [];
-  const popular = suggest?.popular ?? [];
-  const recent = suggest?.recent ?? [];
-
-  const suggestList = [...seed, ...popular, ...recent];
-  const ORDER_PRIORITY = ['seed', 'popular', 'recent'];
-  const sortedSuggestList = suggestList.sort(
-    (a, b) => ORDER_PRIORITY.indexOf(a.label) - ORDER_PRIORITY.indexOf(b.label)
-  );
-
-  const run = runMutations(mutate, url_main, url_aside);
-
-  const handleFocus = () => {
-    setIsFocused(true);
-    setFetchSuggest(true);
-  };
-
   const handleSelectKeyword = (keyword: string) => {
     setContent((prev) => {
       const normalizedKeywords = prev ? prev.split(' ').filter(Boolean) : [];
@@ -99,41 +118,9 @@ export default function TalkRoomIdPage() {
     });
   };
 
-  const { handleSubmit, isSending, errorMsg, isDisabled } = useTalkSubmit({
-    token,
-    content,
-    talkRoomId,
-    setIsFocused,
-    setContent,
-    run,
-    errorText,
-  });
+  const { sortedSuggestList } = getSortedSuggestList(suggest);
 
   if (!token) return <p>ログイン確認中...</p>;
-
-  const isInitialLoading = !recipes || !talks;
-
-  let recipeContent;
-  const recipeIsEmpty = recipes?.length === 0;
-
-  let talkContent;
-  const talkIsEmpty = talks?.length === 0;
-
-  if (!recipes) {
-    recipeContent = null;
-  } else if (recipeIsEmpty) {
-    recipeContent = <p>レシピがまだありません</p>;
-  } else {
-    recipeContent = <RecipeList recipes={recipes} talkRoomId={talkRoomId} />;
-  }
-
-  if (!talks) {
-    talkContent = null;
-  } else if (talkIsEmpty) {
-    talkContent = <p>会話がまだありません</p>;
-  } else {
-    talkContent = <TalkList talks={talks} />;
-  }
 
   return (
     <>
