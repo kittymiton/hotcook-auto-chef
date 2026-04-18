@@ -1,4 +1,4 @@
-import { sendTalkMessage } from '@authenticated/utils/sendTalkMessage';
+import { sendTalkMessage } from '@authenticated/talkRoom/utils/sendTalkMessage';
 import { useState } from 'react';
 
 type UseTalkSubmit = {

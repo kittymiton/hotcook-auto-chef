@@ -1,5 +1,5 @@
 import type { ChatMessageList } from '@/lib/schema/chatSchema';
-import { TalkItem } from '@authenticated/components/talk/TalkItem';
+import { TalkItem } from '@authenticated/talkRoom/components/TalkItem';
 import { useLayoutEffect, useRef } from 'react';
 
 type TalkListProps = {

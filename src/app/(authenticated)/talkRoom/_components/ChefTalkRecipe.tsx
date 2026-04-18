@@ -4,7 +4,7 @@ type RecipeCardProps = {
   recipe: RecipeObj;
 };
 
-export const RecipeCard = ({ recipe }: RecipeCardProps) => {
+export const ChefTalkRecipe = ({ recipe }: RecipeCardProps) => {
   return (
     <div className="bg-orange-50 p-2 rounded shadow mb-4">
       <h2 className="font-bold text-orange-700 mb-1">

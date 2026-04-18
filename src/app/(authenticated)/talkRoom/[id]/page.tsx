@@ -5,17 +5,20 @@ import { chatSchema } from '@/lib/schema/chatSchema';
 import { numberSchema } from '@/lib/validators/numberSchema';
 import { recipeSchema } from '@/lib/validators/recipeSchema';
 import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
-import { AsidePanel } from '@authenticated/components/layout/AsidePanel';
-import { RecipeList } from '@authenticated/components/recipe/RecipeList';
-import { Button } from '@authenticated/components/talk/Button';
-import { Input } from '@authenticated/components/talk/Input';
-import { Suggest } from '@authenticated/components/talk/Suggest';
-import { TalkList } from '@authenticated/components/talk/TalkList';
+
 import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
-import { useSuggest } from '@authenticated/hooks/useSuggest';
-import { useTalkSubmit } from '@authenticated/hooks/useTalkSubmit';
-import { getSortedSuggestList } from '@authenticated/utils/getSortedSuggestList';
-import { runMutations } from '@authenticated/utils/runMutations';
+import { AsidePanel } from '@authenticated/talkRoom/components/AsidePanel';
+import { AsideRecipeList } from '@authenticated/talkRoom/components/AsideRecipeList';
+import { Button } from '@authenticated/talkRoom/components/Button';
+import { Suggest } from '@authenticated/talkRoom/components/Suggest';
+import { TalkInput } from '@authenticated/talkRoom/components/TalkInput';
+
+import { TalkList } from '@authenticated/talkRoom/components/TalkList';
+import { useSuggest } from '@authenticated/talkRoom/hooks/useSuggest';
+import { useTalkSubmit } from '@authenticated/talkRoom/hooks/useTalkSubmit';
+import { getSortedSuggestList } from '@authenticated/talkRoom/utils/getSortedSuggestList';
+import { runMutations } from '@authenticated/talkRoom/utils/runMutations';
+
 import Link from 'next/link';
 import { notFound, useParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -75,7 +78,9 @@ export default function TalkRoomIdPage() {
   } else if (recipeIsEmpty) {
     recipeContent = <p>レシピがまだありません</p>;
   } else {
-    recipeContent = <RecipeList recipes={recipes} talkRoomId={talkRoomId} />;
+    recipeContent = (
+      <AsideRecipeList recipes={recipes} talkRoomId={talkRoomId} />
+    );
   }
 
   let talkContent;
@@ -152,7 +157,7 @@ export default function TalkRoomIdPage() {
 
           <form onSubmit={handleSubmit} className="mt-3 flex gap-2">
             <div ref={inputRef}>
-              <Input
+              <TalkInput
                 value={content}
                 disabled={isSending}
                 placeholder={isSending ? '送信中...' : '画像やメッセージを送信'}

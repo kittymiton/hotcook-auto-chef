@@ -1,4 +1,4 @@
-type InputProps = {
+type TalkInputProps = {
   value: string;
   disabled?: boolean;
   placeholder: string;
@@ -6,13 +6,13 @@ type InputProps = {
   onChange: (value: string) => void;
 };
 
-export const Input = ({
+export const TalkInput = ({
   value,
   disabled,
   placeholder,
   onFocus,
   onChange,
-}: InputProps) => {
+}: TalkInputProps) => {
   return (
     <>
       <input

@@ -6,7 +6,7 @@ type RecipeListProps = {
   talkRoomId: number;
 };
 
-export const RecipeList = ({ recipes, talkRoomId }: RecipeListProps) => {
+export const AsideRecipeList = ({ recipes, talkRoomId }: RecipeListProps) => {
   return (
     <>
       <ul className="mb-2 space-y-1">

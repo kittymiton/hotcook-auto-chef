@@ -1,8 +1,8 @@
 import { splitChefContent } from '@/lib/parser/splitChefContent';
 import type { ChatItem } from '@/lib/schema/chatSchema';
-import { RecipeCard } from '@authenticated/components/recipe/RecipeCard';
-import { ChefTalk } from '@authenticated/components/talk/ChefTalk';
-import { UserTalk } from '@authenticated/components/talk/UserTalk';
+import { ChefTalk } from '@authenticated/talkRoom/components/ChefTalk';
+import { ChefTalkRecipe } from '@authenticated/talkRoom/components/ChefTalkRecipe';
+import { UserTalk } from '@authenticated/talkRoom/components/UserTalk';
 
 type TalkItemProps = {
   talk: ChatItem;
@@ -17,7 +17,7 @@ export const TalkItem = ({ talk }: TalkItemProps) => {
   return (
     <>
       {prefix && <ChefTalk content={prefix} />}
-      {recipe && <RecipeCard recipe={recipe} />}
+      {recipe && <ChefTalkRecipe recipe={recipe} />}
       {suffix && <ChefTalk content={suffix} />}
     </>
   );
