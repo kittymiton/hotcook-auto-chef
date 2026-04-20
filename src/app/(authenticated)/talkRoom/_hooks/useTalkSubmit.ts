@@ -5,7 +5,7 @@ type UseTalkSubmit = {
   token: string | null;
   content: string;
   talkRoomId: number;
-  setIsFocused: (isFocused: boolean) => void;
+  setIsInputFocused: (isFocused: boolean) => void;
   setContent: (newContent: string) => void;
   run: () => Promise<void>;
   errorText: Record<string, string>;
@@ -15,7 +15,7 @@ export const useTalkSubmit = ({
   token,
   content,
   talkRoomId,
-  setIsFocused,
+  setIsInputFocused,
   setContent,
   run,
   errorText,
@@ -33,7 +33,7 @@ export const useTalkSubmit = ({
     const currentContent = content;
 
     setIsSending(true);
-    setIsFocused(false);
+    setIsInputFocused(false);
     setContent('');
     setErrorMsg(null);
 

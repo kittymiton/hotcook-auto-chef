@@ -7,6 +7,7 @@ import { recipeSchema } from '@/lib/validators/recipeSchema';
 import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
 import { Loading } from '@authenticated/components/Loading';
 import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
+import { useClickOutside } from '@authenticated/hooks/useClickOutside';
 import { AsidePanel } from '@authenticated/talkRoom/components/AsidePanel';
 import { AsideRecipeList } from '@authenticated/talkRoom/components/AsideRecipeList';
 import { Button } from '@authenticated/talkRoom/components/Button';
@@ -19,13 +20,13 @@ import { getSortedSuggestList } from '@authenticated/talkRoom/utils/getSortedSug
 import { runMutations } from '@authenticated/talkRoom/utils/runMutations';
 import Link from 'next/link';
 import { notFound, useParams } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { mutate } from 'swr';
 
 export default function TalkRoomIdPage() {
   const [content, setContent] = useState<string>('');
-  const [isFocused, setIsFocused] = useState(false);
-  const inputRef = useRef<HTMLDivElement | null>(null);
+  const [isInputFocused, setIsInputFocused] = useState(false);
+  const inputRef = useRef<HTMLDivElement>(null);
   const { token } = useSupabaseSession();
   const params = useParams();
   const result = numberSchema.safeParse(params.id);
@@ -50,38 +51,31 @@ export default function TalkRoomIdPage() {
     isLoading: isRecipeLoading,
   } = useAuthedSWR(url_aside, recipeSchema);
 
-  const { suggest } = useSuggest({ url_suggest, isFocused });
+  const { suggest } = useSuggest({ url_suggest, isInputFocused });
+
+  const handleInputClose = useCallback(() => {
+    setIsInputFocused(false);
+  }, []);
+
+  const handleInputFocus = () => {
+    setIsInputFocused(true);
+  };
+
+  useClickOutside({
+    ref: inputRef,
+    onClose: handleInputClose,
+    isActive: isInputFocused,
+  });
 
   const { handleSubmit, isSending, errorMsg, isDisabled } = useTalkSubmit({
     token,
     content,
     talkRoomId,
-    setIsFocused,
+    setIsInputFocused,
     setContent,
     run,
     errorText,
   });
-
-  const handleFocus = () => {
-    setIsFocused(true);
-  };
-
-  useEffect(() => {
-    if (!isFocused) return;
-
-    const outsideClick = (e: PointerEvent) => {
-      const target = e.target;
-      if (!(target instanceof Node)) return;
-      if (inputRef.current && inputRef.current.contains(target)) return;
-      setIsFocused(false);
-    };
-
-    document.addEventListener('pointerdown', outsideClick);
-
-    return () => {
-      document.removeEventListener('pointerdown', outsideClick);
-    };
-  }, [isFocused]);
 
   const handleSelectKeyword = (keyword: string) => {
     setContent((prev) => {
@@ -140,11 +134,11 @@ export default function TalkRoomIdPage() {
                 value={content}
                 disabled={isSending}
                 placeholder={isSending ? '送信中...' : '画像やメッセージを送信'}
-                onFocus={handleFocus}
+                onFocus={handleInputFocus}
                 onChange={(value) => setContent(value)}
               />
 
-              {isFocused && (
+              {isInputFocused && (
                 <>
                   {sortedSuggestList.map((item) => (
                     <Suggest

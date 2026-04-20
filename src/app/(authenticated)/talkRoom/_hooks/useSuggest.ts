@@ -3,11 +3,14 @@ import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
 
 type UseSuggestProps = {
   url_suggest: string;
-  isFocused: boolean;
+  isInputFocused: boolean;
 };
 
-export const useSuggest = ({ url_suggest, isFocused }: UseSuggestProps) => {
-  const swrKey = isFocused ? url_suggest : null;
+export const useSuggest = ({
+  url_suggest,
+  isInputFocused,
+}: UseSuggestProps) => {
+  const swrKey = isInputFocused ? url_suggest : null;
   // NOTE: suggestは初回フォーカス時のみ取得、その後はキャッシュ利用
 
   const { data: suggest } = useAuthedSWR(swrKey, suggestCollectionSchema);
