@@ -1,24 +1,48 @@
 'use client';
 
+import { numberSchema } from '@/lib/validators/numberSchema';
 import { recipeSummaryListSchema } from '@/lib/validators/recipeSchema';
 import { Loading } from '@authenticated/components/Loading';
 import { useRecipes } from '@authenticated/hooks/useRecipes';
+import { useTalks } from '@authenticated/hooks/useTalks';
+import { RecipeList } from '@authenticated/recipes/components/RecipeList';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function RecipeListPage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const from = searchParams.get('from');
+  const result = numberSchema.safeParse(from);
+
+  const url = result.success ? `/api/talks?talkRoomId=${result.data}` : null;
+
+  const {
+    data: talks,
+    errorMsg: roomErrorMsg,
+    isLoading: isRoomLoading,
+  } = useTalks(url);
+  // TODO: /api/talksを流用してtalkRoomの認可チェック →
+  // /api/talkRoom/[id] を作成し分離（無駄なtalksデータ取得を防ぐため）
 
   const {
     data: recipeList,
-    errorMsg,
-    isLoading,
+    errorMsg: recipeListErrorMsg,
+    isLoading: isRecipeListLoading,
   } = useRecipes(`/api/recipes`, recipeSummaryListSchema);
 
+  const isInvalid = !result.success || roomErrorMsg;
+
+  useEffect(() => {
+    if (isInvalid) {
+      router.replace('/talkRoom');
+    }
+  }, [isInvalid, router]);
+
   const renderRecipeList = () => {
-    if (errorMsg) {
-      return <p>取得に失敗しました: {errorMsg}</p>;
+    if (recipeListErrorMsg) {
+      return <p>{recipeListErrorMsg}</p>;
     }
     if (!recipeList) {
       return <Loading />;
@@ -27,33 +51,12 @@ export default function RecipeListPage() {
       return <p>レシピがまだありません</p>;
     }
 
-    return (
-      <ul className="space-y-4">
-        {recipeList.map((recipe) => (
-          <li
-            key={recipe.id}
-            className="border rounded-lg p-4 hover:shadow-md transition-shadow"
-          >
-            {from && (
-              <Link
-                href={`/recipes/${recipe.id}?from=${from}`}
-                prefetch={false}
-              >
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <h2 className="text-lg font-semibold text-blue-600 hover:underline">
-                      {recipe.title}
-                    </h2>
-                    <p className="text-sm">調理時間: {recipe.cookingTime}</p>
-                  </div>
-                </div>
-              </Link>
-            )}
-          </li>
-        ))}
-      </ul>
-    );
+    return <RecipeList recipeList={recipeList} from={from} />;
   };
+
+  if (!result.success) return null;
+  if (isRoomLoading) return <p>読み込み中</p>;
+  if (roomErrorMsg) return null;
 
   return (
     <>
