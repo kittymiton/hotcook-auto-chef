@@ -1,13 +1,13 @@
 'use client';
 
 import { errorText } from '@/lib/constants/errorText';
-import { chatSchema } from '@/lib/schema/chatSchema';
 import { numberSchema } from '@/lib/validators/numberSchema';
 import { recipeSchema } from '@/lib/validators/recipeSchema';
 import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
 import { Loading } from '@authenticated/components/Loading';
-import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
 import { useClickOutside } from '@authenticated/hooks/useClickOutside';
+import { useRecipes } from '@authenticated/hooks/useRecipes';
+import { useTalks } from '@authenticated/hooks/useTalks';
 import { AsidePanel } from '@authenticated/talkRoom/components/AsidePanel';
 import { AsideRecipeList } from '@authenticated/talkRoom/components/AsideRecipeList';
 import { Button } from '@authenticated/talkRoom/components/Button';
@@ -41,25 +41,25 @@ export default function TalkRoomIdPage() {
 
   const {
     data: talks,
-    error: url_mainError,
+    errorMsg: talkErrorMsg,
     isLoading: isTalkLoading,
-  } = useAuthedSWR(url_main, chatSchema);
+  } = useTalks(url_main);
 
   const {
     data: recipes,
-    error: url_asideError,
+    errorMsg: recipeErrorMsg,
     isLoading: isRecipeLoading,
-  } = useAuthedSWR(url_aside, recipeSchema);
+  } = useRecipes(url_aside, recipeSchema);
 
   const { suggest } = useSuggest({ url_suggest, isInputFocused });
-
-  const handleInputClose = useCallback(() => {
-    setIsInputFocused(false);
-  }, []);
 
   const handleInputFocus = () => {
     setIsInputFocused(true);
   };
+
+  const handleInputClose = useCallback(() => {
+    setIsInputFocused(false);
+  }, []);
 
   useClickOutside({
     ref: inputRef,
@@ -87,6 +87,34 @@ export default function TalkRoomIdPage() {
 
   const { sortedSuggestList } = getSortedSuggestList(suggest);
 
+  const renderRecipeList = () => {
+    if (recipeErrorMsg) {
+      return <p> {recipeErrorMsg}</p>;
+    }
+    if (!recipes) {
+      return <Loading />;
+    }
+    if (recipes.length === 0) {
+      return <p>レシピがまだありません</p>;
+    }
+
+    return <AsideRecipeList recipes={recipes} talkRoomId={talkRoomId} />;
+  };
+
+  const renderTalks = () => {
+    if (talkErrorMsg) {
+      return <p> {talkErrorMsg}</p>;
+    }
+    if (!talks) {
+      return <Loading />;
+    }
+    if (talks.length === 0) {
+      return <p>会話がまだありません</p>;
+    }
+
+    return <TalkList talks={talks} />;
+  };
+
   if (!token) return <p>ログイン確認中...</p>;
 
   return (
@@ -98,17 +126,7 @@ export default function TalkRoomIdPage() {
         <AsidePanel>
           <h2 className="font-bold mb-2">最近のレシピ</h2>
           <>
-            {!recipes && <Loading />}
-            {recipes &&
-              (recipes.length === 0 ? (
-                <p>レシピがまだありません</p>
-              ) : (
-                <AsideRecipeList recipes={recipes} talkRoomId={talkRoomId} />
-              ))}
-            {url_asideError && (
-              <p>取得に失敗しました: {url_asideError.message}</p>
-            )}
-
+            {renderRecipeList()}
             <Link
               href={`/recipes?from=${talkRoomId}`}
               className="text-sm underline text-blue-600"
@@ -119,14 +137,7 @@ export default function TalkRoomIdPage() {
         </AsidePanel>
 
         <main className="flex-1 flex flex-col">
-          {!talks && <Loading />}
-          {talks &&
-            (talks.length === 0 ? (
-              <p>会話まだがありません</p>
-            ) : (
-              <TalkList talks={talks} />
-            ))}
-          {url_mainError && <p>取得に失敗しました: {url_mainError.message}</p>}
+          {renderTalks()}
 
           <form onSubmit={handleSubmit} className="mt-3 flex gap-2">
             <div ref={inputRef}>

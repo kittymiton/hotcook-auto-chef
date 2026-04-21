@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/lib/utils/getErrorMessage';
 import { sendTalkMessage } from '@authenticated/talkRoom/utils/sendTalkMessage';
 import { useState } from 'react';
 
@@ -47,10 +48,7 @@ export const useTalkSubmit = ({
     } catch (e) {
       console.error(e);
 
-      const remind =
-        e instanceof Error
-          ? (errorText[e.message] ?? errorText.DEFAULT)
-          : errorText.DEFAULT;
+      const remind = getErrorMessage(e);
 
       setContent(currentContent);
       setErrorMsg(remind);
