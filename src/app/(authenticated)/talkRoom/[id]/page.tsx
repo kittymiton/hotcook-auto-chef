@@ -19,7 +19,7 @@ import { useTalkSubmit } from '@authenticated/talkRoom/hooks/useTalkSubmit';
 import { getSortedSuggestList } from '@authenticated/talkRoom/utils/getSortedSuggestList';
 import { runMutations } from '@authenticated/talkRoom/utils/runMutations';
 import Link from 'next/link';
-import { notFound, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useCallback, useRef, useState } from 'react';
 import { mutate } from 'swr';
 
@@ -28,10 +28,12 @@ export default function TalkRoomIdPage() {
   const [isInputFocused, setIsInputFocused] = useState(false);
   const inputRef = useRef<HTMLDivElement>(null);
   const { token } = useSupabaseSession();
+
   const params = useParams();
-  const result = numberSchema.safeParse(params.id);
-  if (!result.success) notFound();
-  const talkRoomId = result.data;
+  const parsedParams = numberSchema.safeParse(params.id);
+  if (!parsedParams.success) return <p>不正なURLです</p>;
+
+  const talkRoomId = parsedParams.data;
 
   const url_main = `/api/talks?talkRoomId=${talkRoomId}`;
   const url_aside = `/api/recipes?take=5`;
@@ -41,6 +43,7 @@ export default function TalkRoomIdPage() {
 
   const {
     data: talks,
+    errorCode: talkErrorCode,
     errorMsg: talkErrorMsg,
     isLoading: isTalkLoading,
   } = useTalks(url_main);
@@ -89,7 +92,7 @@ export default function TalkRoomIdPage() {
 
   const renderRecipeList = () => {
     if (recipeErrorMsg) {
-      return <p> {recipeErrorMsg}</p>;
+      return <p>{recipeErrorMsg}</p>;
     }
     if (!recipes) {
       return <Loading />;
@@ -103,7 +106,7 @@ export default function TalkRoomIdPage() {
 
   const renderTalks = () => {
     if (talkErrorMsg) {
-      return <p> {talkErrorMsg}</p>;
+      return <p>{talkErrorMsg}</p>;
     }
     if (!talks) {
       return <Loading />;
@@ -115,6 +118,13 @@ export default function TalkRoomIdPage() {
     return <TalkList talks={talks} />;
   };
 
+  if (talkErrorCode === 'NOT_FOUND') {
+    return (
+      <div>
+        <p>この会話は存在しません</p>
+      </div>
+    );
+  }
   if (!token) return <p>ログイン確認中...</p>;
 
   return (

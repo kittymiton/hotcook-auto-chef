@@ -43,7 +43,10 @@ export async function fetcher(
         statusText: res.statusText,
         errorCode,
       });
-      throw new Error(errorCode);
+      throw {
+        status: res.status,
+        errorCode,
+      };
     }
     return await res.json();
   } catch (e) {
