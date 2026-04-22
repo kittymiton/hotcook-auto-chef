@@ -5,11 +5,12 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const POST = async (request: NextRequest) => {
   const authHeader = request.headers.get('Authorization') ?? '';
-  if (!authHeader.startsWith('Bearer ')) {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-  }
-  const token = authHeader.replace('Bearer ', '');
 
+  if (!authHeader.startsWith('Bearer ')) {
+    return NextResponse.json({ message: 'UNAUTHORIZED' }, { status: 401 });
+  }
+
+  const token = authHeader.replace('Bearer ', '');
   const { error } = await supabase.auth.getUser(token);
   if (error) {
     return NextResponse.json({ message: error }, { status: 400 });
@@ -63,8 +64,56 @@ export const POST = async (request: NextRequest) => {
     if (e instanceof Error) {
       return NextResponse.json({ message: e.message }, { status: 400 });
     }
+    console.error('[UserRoom API] POST Unexpected error', e);
+
     return NextResponse.json(
-      { message: 'Internal Server Error' },
+      { message: 'INTERNAL_SERVER_ERROR' },
+      { status: 500 }
+    );
+  }
+};
+
+export const GET = async (request: NextRequest) => {
+  const authHeader = request.headers.get('Authorization') ?? '';
+
+  if (!authHeader.startsWith('Bearer ')) {
+    return NextResponse.json({ message: 'UNAUTHORIZED' }, { status: 401 });
+  }
+
+  const token = authHeader.replace('Bearer ', '');
+  const { data, error } = await supabase.auth.getUser(token);
+  if (!data.user || error) {
+    return NextResponse.json({ message: error }, { status: 400 });
+  }
+
+  const supabaseUserId = data.user.id;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { supabaseUserId },
+    });
+
+    if (!user) {
+      return NextResponse.json({ message: 'USER_NOT_FOUND' }, { status: 404 });
+    }
+
+    const talkRoom = await prisma.talkRoom.findUnique({
+      where: { userId: user.id },
+    });
+
+    if (!talkRoom) {
+      return NextResponse.json({ message: 'ROOM_NOT_FOUND' }, { status: 404 });
+    }
+
+    return NextResponse.json({ talkRoom });
+  } catch (e) {
+    if (e instanceof Error) {
+      return NextResponse.json({ message: e.message }, { status: 400 });
+    }
+    console.error('[UserRoom API] GET Unexpected error', e);
+
+    return NextResponse.json(
+      { message: 'INTERNAL_SERVER_ERROR' },
       { status: 500 }
     );
   }
