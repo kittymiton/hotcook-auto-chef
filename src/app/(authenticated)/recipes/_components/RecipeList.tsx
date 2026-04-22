@@ -3,10 +3,10 @@ import Link from 'next/link';
 
 type RecipeListProps = {
   recipeList: RecipeSummaryList;
-  from?: string | null;
+  safeRoomId: string;
 };
 
-export const RecipeList = ({ recipeList, from }: RecipeListProps) => {
+export const RecipeList = ({ recipeList, safeRoomId }: RecipeListProps) => {
   return (
     <ul className="space-y-4">
       {recipeList.map((recipe) => (
@@ -15,11 +15,7 @@ export const RecipeList = ({ recipeList, from }: RecipeListProps) => {
           className="border rounded-lg p-4 hover:shadow-md transition-shadow"
         >
           <Link
-            href={
-              from
-                ? `/recipes/${recipe.id}?from=${from}`
-                : `/recipes/${recipe.id}`
-            }
+            href={`/recipes/${recipe.id}?from=${safeRoomId}`}
             prefetch={false}
           >
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
