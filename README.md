@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Hotcook Auto Chef（開発中）
 
-## Getting Started
+ホットクック用レシピを生成するAIアプリです。
+ユーザーの入力内容からAIがレシピを生成し、
+会話形式で提案・履歴管理ができるアプリです。
 
-First, run the development server:
+## 補足
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+実務を意識した構成で、API設計・認証・状態管理を中心に実装しています。
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 技術スタック
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Next.js（App Router）
+- React
+- TypeScript
+- Supabase（認証）
+- Prisma / PostgreSQL
+- SWR（状態管理）
+- Zod（バリデーション）
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 主な機能
 
-## Learn More
+- ユーザー入力に応じたレシピ生成
+- 会話履歴の管理
+- サジェスト機能（人気・履歴ベース）
+- 認証付きAPIによるデータ管理
 
-To learn more about Next.js, take a look at the following resources:
+## 実装範囲
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- UI実装（状態に応じた表示制御・コンポーネント分割）
+- API連携（データ取得・送信）
+- 認証（Supabase）
+- 状態管理（SWR）
+- バリデーション（Zod）
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 設計のポイント
 
-## Deploy on Vercel
+- API境界・認証・業務ロジックを分離した構成
+- Zodによる入力バリデーションの統一
+- SWRによるデータ取得とキャッシュ管理
+- 認証・所有権チェックをAPI側で担保
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 現在の状態
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+現在開発中のため、UIは簡易実装です。
+コンポーネント分割・UI整理を進めており、順次改善中です。
+
+## 今後の改善予定
+
+- 検索機能の実装
+- 画像入力・保存機能の対応
