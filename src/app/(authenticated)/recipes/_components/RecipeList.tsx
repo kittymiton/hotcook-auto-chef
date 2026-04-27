@@ -1,17 +1,12 @@
-import type { RecipeSummaryList } from '@/lib/validators/recipeSchema';
+import type { RecipeSummaryList } from '@/lib/schema/recipeSchema';
 import Link from 'next/link';
 
-type RecipeListProps = {
+type Props = {
   recipes: RecipeSummaryList;
-  talkRoomId: number;
   cookingTime?: boolean;
 };
 
-export const RecipeList = ({
-  recipes,
-  talkRoomId,
-  cookingTime,
-}: RecipeListProps) => {
+export const RecipeList = ({ recipes, cookingTime }: Props) => {
   return (
     <>
       <ul className="space-y-4">
@@ -20,10 +15,7 @@ export const RecipeList = ({
             key={recipe.id}
             className="border rounded-lg p-4 hover:shadow-md transition-shadow"
           >
-            <Link
-              href={`/recipes/${recipe.id}?from=${talkRoomId}`}
-              prefetch={false}
-            >
+            <Link href={`/recipes/${recipe.id}`}>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="text-lg font-semibold text-blue-600 hover:underline">

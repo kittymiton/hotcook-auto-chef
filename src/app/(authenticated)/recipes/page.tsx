@@ -1,6 +1,6 @@
 'use client';
 
-import { recipeSummaryListSchema } from '@/lib/validators/recipeSchema';
+import { recipeSummaryListSchema } from '@/lib/schema/recipeSchema';
 import { userRoomSchema } from '@auth/lib/validation/userRoomSchema';
 import { Loading } from '@authenticated/components/Loading';
 
@@ -32,14 +32,7 @@ export default function RecipesPage() {
     if (recipes.length === 0) {
       return <p>レシピがまだありません</p>;
     }
-
-    return (
-      <RecipeList
-        recipes={recipes}
-        talkRoomId={talkRoomId}
-        cookingTime={true}
-      />
-    );
+    return <RecipeList recipes={recipes} cookingTime={true} />;
   };
 
   return (

@@ -1,19 +1,18 @@
-import type { RecipeBaseList } from '@/lib/validators/recipeSchema';
+import type { RecipeBaseList } from '@/lib/schema/recipeSchema';
 import Link from 'next/link';
 
-type RecipeListProps = {
+type Props = {
   recipes: RecipeBaseList;
-  talkRoomId: number;
 };
 
-export const AsideRecipeList = ({ recipes, talkRoomId }: RecipeListProps) => {
+export const AsideRecipeList = ({ recipes }: Props) => {
   return (
     <>
       <ul className="mb-2 space-y-1">
         {recipes.map((recipe) => (
           <li key={recipe.id}>
             <Link
-              href={`/recipes/${recipe.id}?from=${talkRoomId}`}
+              href={`/recipes/${recipe.id}`}
               className="text-blue-600 hover:underline"
             >
               {recipe.title}
