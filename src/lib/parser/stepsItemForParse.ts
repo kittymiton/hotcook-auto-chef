@@ -1,7 +1,4 @@
-import {
-  type StepsItemList,
-  stepsItemSchema,
-} from '@/lib/validators/recipeSchema';
+import { type StepsItemList, stepsItemSchema } from '@/lib/schema/recipeSchema';
 
 export function stepsItemForParse(
   ingredients: string,
