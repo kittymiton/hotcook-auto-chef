@@ -1,5 +1,4 @@
-import type { UiError } from '@/lib/schema/errorSchema';
-import { toUiError } from '@/lib/utils/toUiError';
+import { getErrorMessage } from '@/lib/utils/getErrorMessage';
 import { sendTalkMessage } from '@authenticated/talkRoom/utils/sendTalkMessage';
 import { useState } from 'react';
 
@@ -22,7 +21,7 @@ export const useTalkSubmit = ({
   run,
 }: UseTalkSubmitArgs) => {
   const [isSending, setIsSending] = useState(false);
-  const [error, setError] = useState<UiError | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const isDisabled = !token || isSending || !content.trim();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -35,7 +34,7 @@ export const useTalkSubmit = ({
     setIsSending(true);
     setIsInputFocused(false);
     setContent('');
-    setError(null);
+    setErrorMsg(null);
 
     try {
       await sendTalkMessage({
@@ -44,17 +43,15 @@ export const useTalkSubmit = ({
         token,
       });
       await run();
-    } catch (e) {
+    } catch (e: unknown) {
       console.error(e);
 
-      const uiError = toUiError(e);
-
       setContent(currentContent);
-      setError(uiError);
+      setErrorMsg(getErrorMessage(e));
     } finally {
       setIsSending(false);
     }
   };
 
-  return { handleSubmit, isSending, error, isDisabled };
+  return { handleSubmit, isSending, errorMsg, isDisabled };
 };

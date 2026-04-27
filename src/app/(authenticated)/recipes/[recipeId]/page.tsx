@@ -29,8 +29,19 @@ export default function RecipeDetailPage() {
   const talkRoomId = userRoom.talkRoom.id;
 
   if (recipeError) {
-    return <p>{recipeError}</p>;
+    return (
+      <div>
+        <p>{recipeError}</p>
+        <Link href="/recipes" className="text-sm underline">
+          レシピ一覧に戻る
+        </Link>
+        <Link href={`/talkRoom/${talkRoomId}`} className="text-sm underline">
+          会話に戻る
+        </Link>
+      </div>
+    );
   }
+
   if (!recipe) {
     return <Loading />;
   }

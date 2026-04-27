@@ -19,6 +19,7 @@ import { getSortedSuggestList } from '@authenticated/talkRoom/utils/getSortedSug
 import { runMutations } from '@authenticated/talkRoom/utils/runMutations';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import router from 'next/router';
 import { useCallback, useRef, useState } from 'react';
 import { mutate } from 'swr';
 
@@ -68,7 +69,7 @@ export default function TalkRoomIdPage() {
     isActive: isInputFocused,
   });
 
-  const { handleSubmit, isSending, error, isDisabled } = useTalkSubmit({
+  const { handleSubmit, isSending, errorMsg, isDisabled } = useTalkSubmit({
     token,
     content,
     talkRoomId,
@@ -88,10 +89,27 @@ export default function TalkRoomIdPage() {
 
   const { sortedSuggestList } = getSortedSuggestList(suggest);
 
+  if (talkError) {
+    return (
+      <div>
+        <p>{talkError}</p>
+        <button onClick={() => router.back()}>戻る</button>
+        <Link href="/">TOPに戻る</Link>
+      </div>
+    );
+  }
+
+  if (recipeError) {
+    return (
+      <div>
+        <p>{recipeError}</p>
+        <button onClick={() => router.back()}>戻る</button>
+        <Link href="/">TOPに戻る</Link>
+      </div>
+    );
+  }
+
   const renderRecipeList = () => {
-    if (recipeError) {
-      return <p>{recipeError}</p>;
-    }
     if (!recipes) {
       return <Loading />;
     }
@@ -103,9 +121,6 @@ export default function TalkRoomIdPage() {
   };
 
   const renderTalks = () => {
-    if (talkError) {
-      return <p>{talkError.message}</p>;
-    }
     if (!talks) {
       return <Loading />;
     }
@@ -116,24 +131,13 @@ export default function TalkRoomIdPage() {
     return <TalkList talks={talks} />;
   };
 
-  if (talkError?.code === 'NOT_FOUND') {
-    return (
-      <div>
-        <p>この会話は存在しません</p>
-        <Link href="/">戻る</Link>
-      </div>
-    );
-  }
-
   if (!token) return <p>ログイン確認中...</p>;
 
   return (
     <>
       <h1 className="text-lg font-bold mb-4">今日は何にしましょうか？</h1>
 
-      {error && (
-        <p className="text-red-500 mb-2">送信エラー：{error.message}</p>
-      )}
+      {errorMsg && <p className="text-red-500 mb-2">送信エラー：{errorMsg}</p>}
 
       <div className="flex h-[90vh]">
         <AsidePanel>

@@ -8,6 +8,7 @@ import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
 import { useRecipes } from '@authenticated/hooks/useRecipes';
 import { RecipeList } from '@authenticated/recipes/components/RecipeList';
 import Link from 'next/link';
+import router from 'next/router';
 
 export default function RecipesPage() {
   const {
@@ -22,10 +23,15 @@ export default function RecipesPage() {
   const talkRoomId = userRoom.talkRoom.id;
   // TODO: 複数room/共有機能/URL直アクセスに対応する場合、roomIdをURLから取得、API側で認可チェック（/api/talkRoom/[id]）を作成する
 
+  if (recipeError) {
+    <div>
+      <p>{recipeError}</p>
+      <button onClick={() => router.back()}>戻る</button>
+      <Link href="/">TOPに戻る</Link>
+    </div>;
+  }
+
   const renderRecipeList = () => {
-    if (recipeError) {
-      return <p>{recipeError}</p>;
-    }
     if (!recipes) {
       return <Loading />;
     }

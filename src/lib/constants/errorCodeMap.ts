@@ -1,9 +1,11 @@
 import { ErrorCode } from '@/lib/schema/errorSchema';
 
-export const toUiErrorText: Record<ErrorCode, string> = {
+export const errorCodeMap: Record<ErrorCode, string> = {
   INVALID_FORMAT: '料理名や食材を教えてください',
   UNAUTHORIZED: 'ログインが必要です',
   FORBIDDEN: '現在この機能は利用できません。設定をご確認ください',
+  TALK_NOT_FOUND: 'トークが見つかりません',
+  RECIPE_NOT_FOUND: 'レシピが見つかりません',
   NOT_FOUND: '存在しません。',
   QUOTA_EXCEEDED: '利用上限に達しました',
   NETWORK_ERROR: '通信エラーが発生しました。ネット接続を確認してください',
