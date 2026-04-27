@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-type UseClickOutsideProps = {
+type UseClickOutsideArgs = {
   ref: React.RefObject<HTMLElement>;
   onClose: () => void;
   isActive: boolean;
@@ -10,7 +10,7 @@ export const useClickOutside = ({
   ref,
   onClose,
   isActive,
-}: UseClickOutsideProps) => {
+}: UseClickOutsideArgs) => {
   useEffect(() => {
     if (!isActive) return;
 

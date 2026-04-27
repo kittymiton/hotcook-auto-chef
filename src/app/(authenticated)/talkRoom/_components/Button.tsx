@@ -1,9 +1,9 @@
-type ButtonProps = {
+type Props = {
   sending: boolean;
   disabled: boolean;
 };
 
-export const Button = ({ sending, disabled }: ButtonProps) => {
+export const Button = ({ sending, disabled }: Props) => {
   return (
     <button
       type="submit"

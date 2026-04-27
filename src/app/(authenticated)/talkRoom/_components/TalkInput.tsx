@@ -1,4 +1,4 @@
-type TalkInputProps = {
+type Props = {
   value: string;
   disabled?: boolean;
   placeholder: string;
@@ -12,7 +12,7 @@ export const TalkInput = ({
   placeholder,
   onFocus,
   onChange,
-}: TalkInputProps) => {
+}: Props) => {
   return (
     <>
       <input

@@ -1,11 +1,11 @@
 import type { SuggestItem } from '@/lib/schema/suggestSchema';
 
-type SuggestProps = {
+type Props = {
   item: SuggestItem;
   onKeywordSelct: (keyword: string) => void;
 };
 
-export const Suggest = ({ item, onKeywordSelct }: SuggestProps) => {
+export const Suggest = ({ item, onKeywordSelct }: Props) => {
   return (
     <button
       type="button"

@@ -4,11 +4,11 @@ import { ChefTalk } from '@authenticated/talkRoom/components/ChefTalk';
 import { ChefTalkRecipe } from '@authenticated/talkRoom/components/ChefTalkRecipe';
 import { UserTalk } from '@authenticated/talkRoom/components/UserTalk';
 
-type TalkItemProps = {
+type Props = {
   talk: ChatItem;
 };
 
-export const TalkItem = ({ talk }: TalkItemProps) => {
+export const TalkItem = ({ talk }: Props) => {
   const isChef = talk.sender === 'CHEF';
   if (!isChef) return <UserTalk content={talk.content} />;
 

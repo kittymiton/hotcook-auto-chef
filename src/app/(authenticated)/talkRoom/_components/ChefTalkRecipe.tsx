@@ -1,10 +1,10 @@
 import type { RecipeObj } from '@/lib/schema/recipeBlockSchema';
 
-type RecipeCardProps = {
+type Props = {
   recipe: RecipeObj;
 };
 
-export const ChefTalkRecipe = ({ recipe }: RecipeCardProps) => {
+export const ChefTalkRecipe = ({ recipe }: Props) => {
   return (
     <div className="bg-orange-50 p-2 rounded shadow mb-4">
       <h2 className="font-bold text-orange-700 mb-1">

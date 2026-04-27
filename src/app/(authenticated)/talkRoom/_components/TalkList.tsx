@@ -2,11 +2,11 @@ import type { ChatMessageList } from '@/lib/schema/chatSchema';
 import { TalkItem } from '@authenticated/talkRoom/components/TalkItem';
 import { useLayoutEffect, useRef } from 'react';
 
-type TalkListProps = {
+type Props = {
   talks: ChatMessageList;
 };
 
-export const TalkList = ({ talks }: TalkListProps) => {
+export const TalkList = ({ talks }: Props) => {
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   useLayoutEffect(() => {
