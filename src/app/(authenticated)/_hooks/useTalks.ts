@@ -9,8 +9,7 @@ export const useTalks = (url: string | null) => {
 
   return {
     data,
-    errorCode: uiError?.code ?? null,
-    errorMsg: uiError?.message ?? null,
+    error: uiError,
     isLoading,
   };
 };

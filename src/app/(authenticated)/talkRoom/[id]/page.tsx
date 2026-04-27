@@ -42,14 +42,13 @@ export default function TalkRoomIdPage() {
 
   const {
     data: talks,
-    errorCode: talkErrorCode,
-    errorMsg: talkErrorMsg,
+    error: talkError,
     isLoading: isTalkLoading,
   } = useTalks(url_main);
 
   const {
     data: recipes,
-    errorMsg: recipeErrorMsg,
+    error: recipeError,
     isLoading: isRecipeLoading,
   } = useRecipes(url_aside, recipeSchema);
 
@@ -69,7 +68,7 @@ export default function TalkRoomIdPage() {
     isActive: isInputFocused,
   });
 
-  const { handleSubmit, isSending, errorMsg, isDisabled } = useTalkSubmit({
+  const { handleSubmit, isSending, error, isDisabled } = useTalkSubmit({
     token,
     content,
     talkRoomId,
@@ -90,8 +89,8 @@ export default function TalkRoomIdPage() {
   const { sortedSuggestList } = getSortedSuggestList(suggest);
 
   const renderRecipeList = () => {
-    if (recipeErrorMsg) {
-      return <p>{recipeErrorMsg}</p>;
+    if (recipeError) {
+      return <p>{recipeError}</p>;
     }
     if (!recipes) {
       return <Loading />;
@@ -104,8 +103,8 @@ export default function TalkRoomIdPage() {
   };
 
   const renderTalks = () => {
-    if (talkErrorMsg) {
-      return <p>{talkErrorMsg}</p>;
+    if (talkError) {
+      return <p>{talkError.message}</p>;
     }
     if (!talks) {
       return <Loading />;
@@ -117,7 +116,7 @@ export default function TalkRoomIdPage() {
     return <TalkList talks={talks} />;
   };
 
-  if (talkErrorCode === 'NOT_FOUND') {
+  if (talkError?.code === 'NOT_FOUND') {
     return (
       <div>
         <p>この会話は存在しません</p>
@@ -132,7 +131,9 @@ export default function TalkRoomIdPage() {
     <>
       <h1 className="text-lg font-bold mb-4">今日は何にしましょうか？</h1>
 
-      {errorMsg && <p className="text-red-500 mb-2">送信エラー：{errorMsg}</p>}
+      {error && (
+        <p className="text-red-500 mb-2">送信エラー：{error.message}</p>
+      )}
 
       <div className="flex h-[90vh]">
         <AsidePanel>

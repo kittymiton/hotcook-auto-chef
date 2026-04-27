@@ -9,7 +9,7 @@ export const useRecipes = <T>(url: string | null, schema: ZodType<T>) => {
 
   return {
     data,
-    errorMsg: uiError?.message ?? null,
+    error: uiError?.message ?? null,
     isLoading,
   };
 };

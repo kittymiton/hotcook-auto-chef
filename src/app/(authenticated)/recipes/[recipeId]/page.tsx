@@ -19,7 +19,7 @@ export default function RecipeDetailPage() {
 
   const {
     data: recipe,
-    errorMsg: recipeErrorMsg,
+    error: recipeError,
     isLoading: isRecipsLoading,
   } = useRecipes(`/api/recipes/${recipeId}`, recipeDetailSchema);
 
@@ -28,8 +28,8 @@ export default function RecipeDetailPage() {
 
   const talkRoomId = userRoom.talkRoom.id;
 
-  if (recipeErrorMsg) {
-    return <p>{recipeErrorMsg}</p>;
+  if (recipeError) {
+    return <p>{recipeError}</p>;
   }
   if (!recipe) {
     return <Loading />;

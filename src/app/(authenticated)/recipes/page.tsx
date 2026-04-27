@@ -12,7 +12,7 @@ import Link from 'next/link';
 export default function RecipesPage() {
   const {
     data: recipes,
-    errorMsg: recipeErrorMsg,
+    error: recipeError,
     isLoading: isRecipsLoading,
   } = useRecipes(`/api/recipes`, recipeSummaryListSchema);
 
@@ -23,8 +23,8 @@ export default function RecipesPage() {
   // TODO: 複数room/共有機能/URL直アクセスに対応する場合、roomIdをURLから取得、API側で認可チェック（/api/talkRoom/[id]）を作成する
 
   const renderRecipeList = () => {
-    if (recipeErrorMsg) {
-      return <p>{recipeErrorMsg}</p>;
+    if (recipeError) {
+      return <p>{recipeError}</p>;
     }
     if (!recipes) {
       return <Loading />;
