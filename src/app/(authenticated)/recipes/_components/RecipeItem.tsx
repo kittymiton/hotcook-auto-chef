@@ -1,5 +1,6 @@
 import { stepsItemForParse } from '@/lib/parser/stepsItemForParse';
-import { RecipeDetail } from '@/lib/schema/recipeSchema';
+import type { RecipeDetail } from '@/lib/schema/recipeSchema';
+import Image from 'next/image';
 
 type Props = {
   recipe: RecipeDetail;
@@ -11,9 +12,11 @@ export const RecipeItem = ({ recipe }: Props) => {
   return (
     <>
       {recipe.imageKey && (
-        <img
+        <Image
           src={`/images/${recipe.imageKey}`}
           alt={recipe.title}
+          width={240}
+          height={260}
           className="mb-4 rounded-lg shadow"
         />
       )}
