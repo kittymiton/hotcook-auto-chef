@@ -1,12 +1,13 @@
+import { createErrorResponse } from '@/lib/apiServer/createErrorResponse';
 import { createHotcookRecipe } from '@/lib/apiServer/createHotCookRecipe';
 import { requireUserId } from '@/lib/apiServer/requireUserId';
 import { extractedRecipeBlock } from '@/lib/parser/extractedRecipeBlock';
 import { recipeBlockForParse } from '@/lib/parser/recipeBlockForParse';
+import { numberSchema } from '@/lib/schema/numberSchema';
 import { openAIRequestSchema } from '@/lib/schema/openAISchema';
 import { updateTalkKeyword } from '@/lib/services/updateTalkKeyword';
 import { prisma } from '@/lib/utils/prisma';
 import { sanitize, substantial } from '@/lib/validators/contentProcessor';
-import { numberSchema } from '@/lib/validators/numberSchema';
 import { OpenAIChatRequest } from '@/types/api';
 import { Prisma, TalkSender } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest) {
   try {
     const userId = await requireUserId(request);
     if (!userId) {
-      return NextResponse.json({ error: 'UNAUTHORIZED' }, { status: 401 });
+      return createErrorResponse('UNAUTHORIZED', 401);
     }
 
     const body = await request.json();
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
     const sanitizedInput = sanitize(content);
 
     if (!substantial(sanitizedInput)) {
-      return NextResponse.json({ error: 'INVALID_FORMAT' }, { status: 400 });
+      return createErrorResponse('INVALID_FORMAT', 400);
     }
 
     const pastTalks = await prisma.talk.findMany({
@@ -43,7 +44,7 @@ export async function POST(request: NextRequest) {
       if (!extracted) return content;
       return content.replace(extracted.block, '').trim();
     };
-    // TODO: 要約処理対応
+    // TODO: 画像時、要約処理対応
 
     const recentMessages: OpenAIChatRequest[] = [...pastTalks]
       .reverse()
@@ -110,27 +111,23 @@ export async function POST(request: NextRequest) {
   } catch (e) {
     if (e instanceof ZodError) {
       console.error('[Talk API] POST Validation failed', e);
-      return NextResponse.json({ error: 'INVALID_REQUEST' }, { status: 400 });
+      return createErrorResponse('INVALID_FORMAT', 400);
     }
 
     if (e instanceof Error) {
       if (e.message === 'QUOTA_EXCEEDED') {
-        return NextResponse.json({ error: 'QUOTA_EXCEEDED' }, { status: 429 });
+        return createErrorResponse('QUOTA_EXCEEDED', 429);
       }
       if (e.message === 'FORBIDDEN') {
-        return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
+        return createErrorResponse('FORBIDDEN', 403);
       }
       if (e.message === 'AI_ERROR') {
-        console.error('[Talk API] POST AI error', e);
-        return NextResponse.json({ error: 'AI_ERROR' }, { status: 500 });
+        return createErrorResponse('AI_ERROR', 500);
       }
+      console.error('[Talk API] POST AI error', e);
     }
     console.error('[Talk API] POST Unexpected error', e);
-
-    return NextResponse.json(
-      { error: 'INTERNAL_SERVER_ERROR' },
-      { status: 500 }
-    );
+    return createErrorResponse('INTERNAL_SERVER_ERROR', 500);
   }
 }
 
@@ -138,7 +135,7 @@ export async function GET(request: NextRequest) {
   try {
     const userId = await requireUserId(request);
     if (!userId) {
-      return NextResponse.json({ error: 'UNAUTHORIZED' }, { status: 401 });
+      return createErrorResponse('UNAUTHORIZED', 401);
     }
 
     const { searchParams } = new URL(request.url);
@@ -151,7 +148,7 @@ export async function GET(request: NextRequest) {
       },
     });
     if (!talkRoom) {
-      return NextResponse.json({ error: 'NOT_FOUND' }, { status: 404 });
+      return createErrorResponse('NOT_FOUND', 404);
     }
 
     const talks = await prisma.talk.findMany({
@@ -163,11 +160,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(talks);
   } catch (e) {
     if (e instanceof ZodError) {
-      return NextResponse.json({ error: 'INVALID_REQUEST' }, { status: 400 });
+      console.error('[Talk API] GET Validation failed', e);
+      return createErrorResponse('INVALID_FORMAT', 400);
     }
-    return NextResponse.json(
-      { error: 'INTERNAL_SERVER_ERROR' },
-      { status: 500 }
-    );
+    console.error('[Talk API] GET Unexpected error', e);
+    return createErrorResponse('INTERNAL_SERVER_ERROR', 500);
   }
 }

@@ -1,21 +1,16 @@
 import { chatSchema } from '@/lib/schema/chatSchema';
-import { getErrorMessage } from '@/lib/utils/getErrorMessage';
+import { toUiError } from '@/lib/utils/toUiError';
 import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
 
 export const useTalks = (url: string | null) => {
   const { data, error, isLoading } = useAuthedSWR(url, chatSchema);
 
-  const errorCode =
-    error && typeof error === 'object' && 'errorCode' in error
-      ? String(error.errorCode)
-      : null;
-
-  const errorMsg = error ? getErrorMessage(error) : null;
+  const uiError = error ? toUiError(error) : null;
 
   return {
     data,
-    errorCode,
-    errorMsg,
+    errorCode: uiError?.code ?? null,
+    errorMsg: uiError?.message ?? null,
     isLoading,
   };
 };

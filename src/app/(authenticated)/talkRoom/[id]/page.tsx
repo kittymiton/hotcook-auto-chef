@@ -1,8 +1,7 @@
 'use client';
 
-import { errorText } from '@/lib/constants/errorText';
-import { numberSchema } from '@/lib/validators/numberSchema';
-import { recipeSchema } from '@/lib/validators/recipeSchema';
+import { numberSchema } from '@/lib/schema/numberSchema';
+import { recipeSchema } from '@/lib/schema/recipeSchema';
 import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
 import { AsidePanel } from '@authenticated/components/AsidePanel';
 import { Loading } from '@authenticated/components/Loading';
@@ -77,12 +76,12 @@ export default function TalkRoomIdPage() {
     setIsInputFocused,
     setContent,
     run,
-    errorText,
   });
 
   const handleSelectKeyword = (keyword: string) => {
     setContent((prev) => {
       const normalizedKeywords = prev ? prev.split(' ').filter(Boolean) : [];
+
       if (normalizedKeywords.includes(keyword)) return prev;
       return prev ? `${prev} ${keyword}` : keyword;
     });
@@ -101,7 +100,7 @@ export default function TalkRoomIdPage() {
       return <p>レシピがまだありません</p>;
     }
 
-    return <AsideRecipeList recipes={recipes} talkRoomId={talkRoomId} />;
+    return <AsideRecipeList recipes={recipes} />;
   };
 
   const renderTalks = () => {
@@ -122,14 +121,17 @@ export default function TalkRoomIdPage() {
     return (
       <div>
         <p>この会話は存在しません</p>
+        <Link href="/">戻る</Link>
       </div>
     );
   }
+
   if (!token) return <p>ログイン確認中...</p>;
 
   return (
     <>
       <h1 className="text-lg font-bold mb-4">今日は何にしましょうか？</h1>
+
       {errorMsg && <p className="text-red-500 mb-2">送信エラー：{errorMsg}</p>}
 
       <div className="flex h-[90vh]">
@@ -137,10 +139,7 @@ export default function TalkRoomIdPage() {
           <h2 className="font-bold mb-2">最近のレシピ</h2>
           <>
             {renderRecipeList()}
-            <Link
-              href={`/recipes?from=${talkRoomId}`}
-              className="text-sm underline text-blue-600"
-            >
+            <Link href={`/recipes`} className="text-sm underline text-blue-600">
               すべてのレシピを見る
             </Link>
           </>

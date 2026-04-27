@@ -1,3 +1,4 @@
+import { createErrorResponse } from '@/lib/apiServer/createErrorResponse';
 import { requireUserId } from '@/lib/apiServer/requireUserId';
 import {
   type SuggestCollection,
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest) {
   try {
     const userId = await requireUserId(request);
     if (!userId) {
-      return NextResponse.json({ error: 'UNAUTHORIZED' }, { status: 401 });
+      return createErrorResponse('UNAUTHORIZED', 401);
     }
 
     const select = {
@@ -105,13 +106,9 @@ export async function GET(request: NextRequest) {
   } catch (e) {
     if (e instanceof ZodError) {
       console.error('[Suggest API] GET Validation failed', e);
-      return NextResponse.json({ error: 'INVALID_REQUEST' }, { status: 400 });
+      return createErrorResponse('INVALID_FORMAT', 400);
     }
     console.error('[Suggest API] GET Unexpected error', e);
-
-    return NextResponse.json(
-      { error: 'INTERNAL_SERVER_ERROR' },
-      { status: 500 }
-    );
+    return createErrorResponse('INTERNAL_SERVER_ERROR', 500);
   }
 }

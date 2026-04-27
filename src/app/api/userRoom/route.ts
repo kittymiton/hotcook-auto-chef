@@ -1,3 +1,4 @@
+import { createErrorResponse } from '@/lib/apiServer/createErrorResponse';
 import { supabase } from '@/lib/utils/env';
 import { prisma } from '@/lib/utils/prisma';
 import type { InitUserContextRequest } from '@/types/auth';
@@ -7,13 +8,13 @@ export const POST = async (request: NextRequest) => {
   const authHeader = request.headers.get('Authorization') ?? '';
 
   if (!authHeader.startsWith('Bearer ')) {
-    return NextResponse.json({ message: 'UNAUTHORIZED' }, { status: 401 });
+    return createErrorResponse('UNAUTHORIZED', 401);
   }
 
-  const token = authHeader.replace('Bearer ', '');
+  const token = authHeader.replace('Bearer ', '').trim();
   const { error } = await supabase.auth.getUser(token);
   if (error) {
-    return NextResponse.json({ message: error }, { status: 400 });
+    return createErrorResponse('INVALID_FORMAT', 400);
   }
 
   try {
@@ -25,7 +26,7 @@ export const POST = async (request: NextRequest) => {
     const { supabaseUserId, email } = body;
 
     if (!supabaseUserId || !email) {
-      return NextResponse.json({ error: 'Bad Request' }, { status: 400 });
+      return createErrorResponse('INVALID_FORMAT', 400);
     }
     // TODO: リファクタでZod検証
 
@@ -62,14 +63,11 @@ export const POST = async (request: NextRequest) => {
     });
   } catch (e) {
     if (e instanceof Error) {
-      return NextResponse.json({ message: e.message }, { status: 400 });
+      console.error('[UserRoom API] POST Validation failed', e);
+      return createErrorResponse('INVALID_FORMAT', 400);
     }
     console.error('[UserRoom API] POST Unexpected error', e);
-
-    return NextResponse.json(
-      { message: 'INTERNAL_SERVER_ERROR' },
-      { status: 500 }
-    );
+    return createErrorResponse('INTERNAL_SERVER_ERROR', 500);
   }
 };
 
@@ -77,13 +75,13 @@ export const GET = async (request: NextRequest) => {
   const authHeader = request.headers.get('Authorization') ?? '';
 
   if (!authHeader.startsWith('Bearer ')) {
-    return NextResponse.json({ message: 'UNAUTHORIZED' }, { status: 401 });
+    return createErrorResponse('UNAUTHORIZED', 401);
   }
 
-  const token = authHeader.replace('Bearer ', '');
+  const token = authHeader.replace('Bearer ', '').trim();
   const { data, error } = await supabase.auth.getUser(token);
   if (!data.user || error) {
-    return NextResponse.json({ message: error }, { status: 400 });
+    return createErrorResponse('UNAUTHORIZED', 401);
   }
 
   const supabaseUserId = data.user.id;
@@ -94,7 +92,7 @@ export const GET = async (request: NextRequest) => {
     });
 
     if (!user) {
-      return NextResponse.json({ message: 'USER_NOT_FOUND' }, { status: 404 });
+      return createErrorResponse('NOT_FOUND', 404);
     }
 
     const talkRoom = await prisma.talkRoom.findUnique({
@@ -102,19 +100,16 @@ export const GET = async (request: NextRequest) => {
     });
 
     if (!talkRoom) {
-      return NextResponse.json({ message: 'ROOM_NOT_FOUND' }, { status: 404 });
+      return createErrorResponse('NOT_FOUND', 404);
     }
 
     return NextResponse.json({ talkRoom });
   } catch (e) {
     if (e instanceof Error) {
-      return NextResponse.json({ message: e.message }, { status: 400 });
+      console.error('[UserRoom API] GET Validation failed', e);
+      return createErrorResponse('INVALID_FORMAT', 400);
     }
     console.error('[UserRoom API] GET Unexpected error', e);
-
-    return NextResponse.json(
-      { message: 'INTERNAL_SERVER_ERROR' },
-      { status: 500 }
-    );
+    return createErrorResponse('INTERNAL_SERVER_ERROR', 500);
   }
 };

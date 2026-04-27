@@ -1,15 +1,14 @@
-import { getErrorMessage } from '@/lib/utils/getErrorMessage';
+import { toUiError } from '@/lib/utils/toUiError';
 import { sendTalkMessage } from '@authenticated/talkRoom/utils/sendTalkMessage';
 import { useState } from 'react';
 
-type UseTalkSubmit = {
+type UseTalkSubmitArgs = {
   token: string | null;
   content: string;
   talkRoomId: number;
   setIsInputFocused: (isFocused: boolean) => void;
   setContent: (newContent: string) => void;
   run: () => Promise<void>;
-  errorText: Record<string, string>;
 };
 
 export const useTalkSubmit = ({
@@ -19,8 +18,7 @@ export const useTalkSubmit = ({
   setIsInputFocused,
   setContent,
   run,
-  errorText,
-}: UseTalkSubmit) => {
+}: UseTalkSubmitArgs) => {
   const [isSending, setIsSending] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -48,10 +46,10 @@ export const useTalkSubmit = ({
     } catch (e) {
       console.error(e);
 
-      const remind = getErrorMessage(e);
+      const uiError = toUiError(e);
 
       setContent(currentContent);
-      setErrorMsg(remind);
+      setErrorMsg(uiError.message);
     } finally {
       setIsSending(false);
     }
