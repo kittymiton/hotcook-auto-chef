@@ -6,6 +6,7 @@ type UseSuggestArgs = {
   isInputFocused: boolean;
 };
 
+// サジェストデータの取得実行、取得タイミングの制御をするフック
 export const useSuggest = ({ url_suggest, isInputFocused }: UseSuggestArgs) => {
   const swrKey = isInputFocused ? url_suggest : null;
   // NOTE: suggestは初回フォーカス時のみ取得、その後はキャッシュ利用

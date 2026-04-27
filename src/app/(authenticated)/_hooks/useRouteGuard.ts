@@ -5,10 +5,8 @@ import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-/**
- * 認証チェック、未ログインのアクセス制限（認可）を判定するフック
- * 初回レンダリング時に発火、ページ遷移時にも発火してログインを促す
- */
+// 認証チェック、未ログインのアクセス制限（認可）を判定するフック
+// 初回レンダリング時に発火、ページ遷移時にも発火してログインを促す
 export const useRouteGuard = () => {
   const router = useRouter();
   const { session, isLoading } = useSupabaseSession();
