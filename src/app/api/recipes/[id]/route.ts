@@ -32,7 +32,7 @@ export async function GET(
     });
 
     if (!recipe) {
-      return createErrorResponse('NOT_FOUND', 404);
+      return createErrorResponse('RECIPE_NOT_FOUND', 404);
     }
 
     return NextResponse.json(recipe);

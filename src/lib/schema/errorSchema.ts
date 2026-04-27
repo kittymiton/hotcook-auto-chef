@@ -8,6 +8,8 @@ export const errorCodeSchema = z.enum([
   'INVALID_FORMAT',
   'UNAUTHORIZED',
   'FORBIDDEN',
+  'TALK_NOT_FOUND',
+  'RECIPE_NOT_FOUND',
   'NOT_FOUND',
   'QUOTA_EXCEEDED',
   'NETWORK_ERROR',
@@ -26,9 +28,3 @@ export type ApiErrorResponse = z.infer<typeof apiErrorResponseSchema>;
 export const fetcherThrownErrorSchema = z.object({
   errorCode: errorCodeSchema,
 });
-
-export const uiErrorSchema = z.object({
-  code: errorCodeSchema,
-  message: z.string(),
-});
-export type UiError = z.infer<typeof uiErrorSchema>;

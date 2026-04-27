@@ -148,7 +148,7 @@ export async function GET(request: NextRequest) {
       },
     });
     if (!talkRoom) {
-      return createErrorResponse('NOT_FOUND', 404);
+      return createErrorResponse('TALK_NOT_FOUND', 404);
     }
 
     const talks = await prisma.talk.findMany({
