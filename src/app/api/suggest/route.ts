@@ -1,11 +1,12 @@
+import { createErrorResponse } from '@/lib/apiServer/createErrorResponse';
 import { requireUserId } from '@/lib/apiServer/requireUserId';
 import {
   type SuggestCollection,
+  suggestCollectionSchema,
   type SuggestItem,
-  type SuggestLabel,
-  suggestLabelSchema,
-} from '@/lib/schema/suggestItemSchema';
-import { suggestSchema } from '@/lib/schema/suggestSchema';
+  type SuggestType,
+  suggestTypeSchema,
+} from '@/lib/schema/suggestSchema';
 import { prisma } from '@/lib/utils/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { ZodError } from 'zod';
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest) {
   try {
     const userId = await requireUserId(request);
     if (!userId) {
-      return NextResponse.json({ error: 'UNAUTHORIZED' }, { status: 401 });
+      return createErrorResponse('UNAUTHORIZED', 401);
     }
 
     const select = {
@@ -54,16 +55,16 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
-    const priority: Record<SuggestLabel, number> = {
+    const priority: Record<SuggestType, number> = {
       seed: 3,
       popular: 2,
       recent: 1,
     };
 
     const pasteLabel = [
-      { array: seedKeywords, label: suggestLabelSchema.parse('seed') },
-      { array: popularKeywords, label: suggestLabelSchema.parse('popular') },
-      { array: recentKeywords, label: suggestLabelSchema.parse('recent') },
+      { array: seedKeywords, label: suggestTypeSchema.parse('seed') },
+      { array: popularKeywords, label: suggestTypeSchema.parse('popular') },
+      { array: recentKeywords, label: suggestTypeSchema.parse('recent') },
     ];
 
     const pasteLabelItems: SuggestItem[] = pasteLabel.flatMap(
@@ -94,7 +95,7 @@ export async function GET(request: NextRequest) {
       { seed: [], popular: [], recent: [] }
     );
 
-    const parsed = suggestSchema.parse(classLabel);
+    const parsed = suggestCollectionSchema.parse(classLabel);
     const { seed, popular, recent } = parsed;
 
     return NextResponse.json({
@@ -105,13 +106,9 @@ export async function GET(request: NextRequest) {
   } catch (e) {
     if (e instanceof ZodError) {
       console.error('[Suggest API] GET Validation failed', e);
-      return NextResponse.json({ error: 'INVALID_REQUEST' }, { status: 400 });
+      return createErrorResponse('INVALID_FORMAT', 400);
     }
     console.error('[Suggest API] GET Unexpected error', e);
-
-    return NextResponse.json(
-      { error: 'INTERNAL_SERVER_ERROR' },
-      { status: 500 }
-    );
+    return createErrorResponse('INTERNAL_SERVER_ERROR', 500);
   }
 }

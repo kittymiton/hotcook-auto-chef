@@ -1,62 +1,54 @@
 'use client';
 
-import { recipeSummaryListSchema } from '@/lib/validators/recipeSchema';
+import { recipeSummaryListSchema } from '@/lib/schema/recipeSchema';
+import { userRoomSchema } from '@auth/lib/validation/userRoomSchema';
+import { Loading } from '@authenticated/components/Loading';
+
 import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
+import { useRecipes } from '@authenticated/hooks/useRecipes';
+import { RecipeList } from '@authenticated/recipes/components/RecipeList';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import router from 'next/router';
 
-export default function RecipeListPage() {
-  const searchParams = useSearchParams();
-  const from = searchParams.get('from');
-
+export default function RecipesPage() {
   const {
     data: recipes,
-    error,
-    isLoading,
-  } = useAuthedSWR(`/api/recipes`, recipeSummaryListSchema);
+    error: recipeError,
+    isLoading: isRecipsLoading,
+  } = useRecipes(`/api/recipes`, recipeSummaryListSchema);
 
-  if (isLoading || !recipes) return <p>読み込み中...</p>;
-  if (error) return <p>エラー: {String(error)}</p>;
-  if (recipes.length === 0) return <p>レシピがありません</p>;
+  const { data: userRoom } = useAuthedSWR('/api/userRoom', userRoomSchema);
+  if (!userRoom) return <Loading />;
+
+  const talkRoomId = userRoom.talkRoom.id;
+  // TODO: 複数room/共有機能/URL直アクセスに対応する場合、roomIdをURLから取得、API側で認可チェック（/api/talkRoom/[id]）を作成する
+
+  if (recipeError) {
+    <div>
+      <p>{recipeError}</p>
+      <button onClick={() => router.back()}>戻る</button>
+      <Link href="/">TOPに戻る</Link>
+    </div>;
+  }
+
+  const renderRecipeList = () => {
+    if (!recipes) {
+      return <Loading />;
+    }
+    if (recipes.length === 0) {
+      return <p>レシピがまだありません</p>;
+    }
+    return <RecipeList recipes={recipes} cookingTime={true} />;
+  };
 
   return (
     <>
       <main className="p-6 max-w-3xl mx-auto">
         <h1 className="text-2xl font-bold mb-6">あなたのレシピ一覧</h1>
-
-        <ul className="space-y-4">
-          {recipes.map((recipe) => (
-            <li
-              key={recipe.id}
-              className="border rounded-lg p-4 hover:shadow-md transition-shadow"
-            >
-              {from && (
-                <Link
-                  href={`/recipes/${recipe.id}?from=${from}`}
-                  prefetch={false}
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <h2 className="text-lg font-semibold text-blue-600 hover:underline">
-                        {recipe.title}
-                      </h2>
-                      <p className="text-sm">調理時間: {recipe.cookingTime}</p>
-                    </div>
-                  </div>
-                </Link>
-              )}
-            </li>
-          ))}
-        </ul>
-        {from && (
-          <Link
-            href={`/talkRoom/${from}`}
-            prefetch={false}
-            className="text-sm underline"
-          >
-            会話に戻る
-          </Link>
-        )}
+        {renderRecipeList()}
+        <Link href={`/talkRoom/${talkRoomId}`} className="text-sm underline">
+          会話に戻る
+        </Link>
       </main>
     </>
   );

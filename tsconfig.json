@@ -32,11 +32,30 @@
         "./src/app/(authenticated)/_components/*"
       ],
       "@authenticated/hooks/*": ["./src/app/(authenticated)/_hooks/*"],
+      "@authenticated/utils/*": ["./src/app/(authenticated)/_utils/*"],
       "@authenticated/profile/components/*": [
         "./src/app/(authenticated)/mypage/profile/_components/*"
       ],
       "@authenticated/profile/hooks/*": [
         "./src/app/(authenticated)/mypage/profile/_hooks/*"
+      ],
+      "@authenticated/talkRoom/components/*": [
+        "./src/app/(authenticated)/talkRoom/_components/*"
+      ],
+      "@authenticated/talkRoom/hooks/*": [
+        "./src/app/(authenticated)/talkRoom/_hooks/*"
+      ],
+      "@authenticated/talkRoom/utils/*": [
+        "./src/app/(authenticated)/talkRoom/_utils/*"
+      ],
+      "@authenticated/recipes/components/*": [
+        "./src/app/(authenticated)/recipes/_components/*"
+      ],
+      "@authenticated/recipes/hooks/*": [
+        "./src/app/(authenticated)/recipes/_hooks/*"
+      ],
+      "@authenticated/recipes/utils/*": [
+        "./src/app/(authenticated)/recipes/_utils/*"
       ]
     }
   },

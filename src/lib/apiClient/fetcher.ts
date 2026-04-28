@@ -1,5 +1,5 @@
 import { HttpMethod } from '@/constants/index';
-import { errorResponseSchema } from '@/lib/schema/errorResponseSchema';
+import { apiErrorResponseSchema } from '@/lib/schema/errorSchema';
 
 export async function fetcher(
   url: string,
@@ -17,7 +17,7 @@ export async function fetcher(
     'Content-Type': 'application/json',
   };
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+    headers['Authorization'] = `Bearer ${token}`; // クライアント側で生成されたtokenのためそのまま使用
   }
 
   const options: RequestInit = {
@@ -31,7 +31,7 @@ export async function fetcher(
 
     if (!res.ok) {
       const raw = await res.json().catch(() => ({}));
-      const parsed = errorResponseSchema.safeParse(raw);
+      const parsed = apiErrorResponseSchema.safeParse(raw);
 
       const errorCode =
         parsed.success && parsed.data.error
@@ -43,7 +43,7 @@ export async function fetcher(
         statusText: res.statusText,
         errorCode,
       });
-      throw new Error(errorCode);
+      throw { errorCode };
     }
     return await res.json();
   } catch (e) {

@@ -1,6 +1,7 @@
+import { createErrorResponse } from '@/lib/apiServer/createErrorResponse';
 import { requireUserId } from '@/lib/apiServer/requireUserId';
+import { numberSchema } from '@/lib/schema/numberSchema';
 import { prisma } from '@/lib/utils/prisma';
-import { numberSchema } from '@/lib/validators/numberSchema';
 import { NextRequest, NextResponse } from 'next/server';
 import { ZodError } from 'zod';
 
@@ -8,7 +9,7 @@ export async function GET(request: NextRequest) {
   try {
     const userId = await requireUserId(request);
     if (!userId) {
-      return NextResponse.json({ error: 'UNAUTHORIZED' }, { status: 401 });
+      return createErrorResponse('UNAUTHORIZED', 401);
     }
 
     const { searchParams } = new URL(request.url);
@@ -26,14 +27,13 @@ export async function GET(request: NextRequest) {
       take,
     });
 
-    return NextResponse.json(recipes);
-  } catch (err) {
-    if (err instanceof ZodError) {
-      return NextResponse.json({ error: 'INVALID_REQUEST' }, { status: 400 });
+    return NextResponse.json(recipes); // 0件でも正常（空配列で返す）
+  } catch (e) {
+    if (e instanceof ZodError) {
+      console.error('[Recipes API] GET Validation failed', e);
+      return createErrorResponse('INVALID_FORMAT', 400);
     }
-    return NextResponse.json(
-      { error: 'INTERNAL_SERVER_ERROR' },
-      { status: 500 }
-    );
+    console.error('[Recipes API] GET Unexpected error', e);
+    return createErrorResponse('INTERNAL_SERVER_ERROR', 500);
   }
 }

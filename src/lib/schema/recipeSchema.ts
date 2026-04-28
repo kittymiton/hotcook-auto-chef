@@ -1,6 +1,6 @@
 import z from 'zod';
 
-const recipeBaseSchema = z.object({
+export const recipeBaseSchema = z.object({
   id: z.number(),
   title: z.string().min(1),
 });
