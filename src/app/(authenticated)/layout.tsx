@@ -1,8 +1,8 @@
 'use client';
 
 import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
-import { UserMenu } from '@authenticated/components/UserMenu';
 import { useRouteGuard } from '@authenticated/hooks/useRouteGuard';
+import { Header } from '../_components/header/Header';
 
 export default function AuthenticatedLayout({
   children,
@@ -11,19 +11,22 @@ export default function AuthenticatedLayout({
 }) {
   useRouteGuard();
   const { session, isLoading } = useSupabaseSession();
+
   if (isLoading) {
     return <div>処理中です・・・</div>;
   }
+
   if (!session) {
-    return <div>ログインしてください</div>;
+    return <div>ログインが必要です</div>;
   }
 
   return (
-    <div>
-      <header>
-        <UserMenu />
-      </header>
-      <main>{children}</main>
-    </div>
+    <>
+      <Header className="h-[55px] bg-transparent" />
+      <div className="relative">
+        <div className="absolute top-[-55px] inset-0 bg-[url('/images/texture-skin.png')] bg-cover bg-no-repeat opacity-[0.15] pointer-events-none" />
+        {children}
+      </div>
+    </>
   );
 }
