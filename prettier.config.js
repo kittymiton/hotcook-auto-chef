@@ -3,4 +3,6 @@ module.exports = {
   singleQuote: true,
   jsxSingleQuote: false,
   trailingComma: 'es5',
+  plugins: ['prettier-plugin-tailwindcss'],
+  tailwindFunctions: ['cn'],
 };
