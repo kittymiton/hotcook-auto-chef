@@ -1,6 +1,5 @@
 'use client';
 
-import { HOME_PATH } from '@/constants/index';
 import Link from 'next/link';
 
 /**
@@ -15,7 +14,7 @@ export default function ResetPasswordSendPage() {
         <p>メールからリンクをクリックし、パスワード変更ができます。</p>
         <p>※メールが届かない場合は迷惑メールフォルダをご確認ください。</p>
         <p>
-          <Link href={HOME_PATH}>TOP</Link>
+          <Link href="/">TOP</Link>
         </p>
       </div>
     </div>
