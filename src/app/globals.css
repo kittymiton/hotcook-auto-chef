@@ -2,22 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-noto-sans-jp);
 }
 
 @layer utilities {
@@ -25,31 +11,25 @@ body {
     text-wrap: balance;
   }
 }
-h1 {
-  font-size: 1.75rem; /* デフォルト風 */
-  font-weight: bold;
-  margin-bottom: 0.5em;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  min-height: 100%;
+}
+
+ul,
+ol {
+  list-style: none;
 }
 
 a {
-  text-decoration: underline; /* 下線を戻す */
-  color: #2563eb; /* blue-600 相当 */
+  text-decoration: none;
 }
-
-input,
-textarea,
-select {
-  border: 1px solid #ccc; /* 枠線を復活 */
-  border-radius: 4px;
-  padding: 0.5rem;
-}
-
-button {
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 0.5rem 1rem;
-}
-
-/* .scroll-area {
-  overflow-anchor: none; /* ブラウザの自動スクロール補正を無効化
-} */
