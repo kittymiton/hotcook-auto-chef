@@ -19,7 +19,7 @@
       }
     ],
     "paths": {
-      "@/utils/*": ["./src/utils/*"],
+      "@styles/*": ["./src/styles/*"],
       "@/lib/*": ["./src/lib/*"],
       "@auth/components/*": ["./src/app/(auth)/_components/*"],
       "@auth/contexts/*": ["./src/app/(auth)/_contexts/*"],

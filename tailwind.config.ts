@@ -1,34 +1,20 @@
 import type { Config } from 'tailwindcss';
-import { semantics } from './src/styles/semantics';
+import { tailwindColors, tailwindGradients } from './src/styles/tailwindTokens';
 
-const config: Config = {
-  content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/**/*.{js,ts,jsx,tsx,mdx}',
-  ],
+// tailwindは@エイリアスを認識しないため、最後の出力はデフォルトエクスポート
+export const config: Config = {
+  content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
   theme: {
-    //色素材
     extend: {
-      backgroundImage: {
-        ...semantics.panelGradients,
-      },
-      colors: {
-        ...semantics.panelColors,
-        ...semantics.textColors,
-      },
+      // 色素材
+      colors: tailwindColors,
+      backgroundImage: tailwindGradients,
 
-      text: {},
-
-      borderRadius: {},
-
-      //影
+      // 影
       boxShadow: {
-        // 素材 → 表面 → 環境 → 接地
         // 2層：内側ボタンの厚み立体感のベース（押し込み強い硬い系）
         hard: [
-          // .shadow-hardクラス名
+          // ①素材 → ②表面 → ③環境 → ④接地
           'var(--shadow-depth)', // ①内部ベース（素材）
           'var(--shadow-highlight)', // ①内部ベース（素材）
         ].join(', '),
