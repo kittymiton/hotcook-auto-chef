@@ -154,12 +154,12 @@ export const tailwindColors = {
   primary: primitives.charcoal,
 
   'beige-light': primitives.beige.light,
-  cement: primitives.cement,
+  'beige-cement': primitives.beige.cement,
   'gray-dusky': primitives.gray.dusky,
   'beige-pink': primitives.beige.pink,
   'beige-salmon': primitives.beige.salmon,
   'beige-tomato': primitives.beige.tomato,
-  'beige-skin': primitives.beige.skin,
+  'beige-skin': primitives.beige.skin, // アプリ全体
 
   'gray-warm': primitives.gray.warm,
 
@@ -169,6 +169,8 @@ export const tailwindColors = {
 
 export const tailwindGradients = {
   'beige-soft': gradients.beige.soft,
+  'beige-light': gradients.beige.light, // header
+  'beige-dark': gradients.beige.dark, // アプリ背景
   'beige-oyster': gradients.beige.oyster,
   'beige-oyster-active': createActiveColor(gradients.beige.oyster),
   'gray-soft': gradients.gray.soft,
