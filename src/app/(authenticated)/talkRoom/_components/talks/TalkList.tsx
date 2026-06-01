@@ -8,12 +8,9 @@ type Props = {
 export const TalkList = ({ talks }: Props) => {
   return (
     <div className="flex flex-col p-4 lg:p-6">
-      {talks
-        .slice()
-        .reverse()
-        .map((talk) => (
-          <TalkItem key={talk.id} talk={talk} />
-        ))}
+      {talks.map((talk) => (
+        <TalkItem key={talk.id} talk={talk} />
+      ))}
     </div>
   );
 };
