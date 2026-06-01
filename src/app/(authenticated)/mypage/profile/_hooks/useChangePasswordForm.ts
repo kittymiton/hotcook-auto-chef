@@ -1,9 +1,6 @@
 'use client';
 
-import {
-  LOGIN_PATH,
-  MYPAGE__PROFILE__CHANGE_PASSWORD_SEND_PATH,
-} from '@/constants/index';
+import { LOGIN_PATH } from '@/constants/index';
 import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
 import { signIn, updateUserPassword } from '@auth/lib/sign';
 import {
@@ -78,7 +75,7 @@ export const useChangePasswordForm = () => {
     }
 
     setRedirecting(true); // isSubmittingがfalseのため、明示的に遷移中であることを表示
-    router.replace(MYPAGE__PROFILE__CHANGE_PASSWORD_SEND_PATH);
+    router.replace('/mypage/profile/change-password-send');
   };
 
   return {
