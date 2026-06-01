@@ -1,12 +1,15 @@
-import type { ChatMessageList } from '@/lib/schema/chatSchema';
-import { TalkItem } from '@authenticated/talkRoom/components/TalkItem';
+import { ChatMessageList } from '@/lib/schema/chatSchema';
+import { TalkList } from '@authenticated/talkRoom/components/talks/TalkList';
+
 import { useLayoutEffect, useRef } from 'react';
 
 type Props = {
   talks: ChatMessageList;
+  children: React.ReactNode;
 };
 
-export const TalkList = ({ talks }: Props) => {
+// スクロールエリア（TalkPanel全体）配置の設定
+export const TalkPanel = ({ talks, children }: Props) => {
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   useLayoutEffect(() => {
@@ -45,14 +48,15 @@ export const TalkList = ({ talks }: Props) => {
     };
   }, [talks]);
 
+  // Form周辺でもスクロールできるよう、TalkListとFormを同じスクロール領域に置く
   return (
-    <div ref={scrollRef} className="flex flex-col overflow-y-auto flex-1 p-4">
-      {talks
-        .slice()
-        .reverse()
-        .map((talk) => (
-          <TalkItem key={talk.id} talk={talk} />
-        ))}
-    </div>
+    <section
+      ref={scrollRef}
+      className="flex min-h-0 flex-1 flex-col overflow-y-auto rounded-l-3xl bg-gray-steel"
+    >
+      <TalkList talks={talks} />
+
+      <div className="sticky bottom-0 z-10 bg-gray-steel">{children}</div>
+    </section>
   );
 };

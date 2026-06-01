@@ -21,12 +21,11 @@ export default function AuthenticatedLayout({
   }
 
   return (
-    <>
-      <Header className="h-[55px] bg-transparent" />
-      <div className="relative">
-        <div className="absolute top-[-55px] inset-0 bg-[url('/images/texture-skin.png')] bg-cover bg-no-repeat opacity-[0.15] pointer-events-none" />
-        {children}
-      </div>
-    </>
+    <div className="relative min-h-screen bg-beige-skin">
+      <div className="pointer-events-none absolute inset-0 bg-[url('/images/texture-skin.png')] bg-cover bg-no-repeat opacity-[0.15]" />
+
+      <Header className="relative h-[55px] bg-transparent" />
+      {children}
+    </div>
   );
 }
