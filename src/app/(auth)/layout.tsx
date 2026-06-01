@@ -9,7 +9,9 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   useEffect(() => {
-    fetch('/api/warmup');
+    fetch('/api/warmup').catch(() => {
+      // warmupは補助処理のため、失敗しても画面表示には影響させない
+    });
   }, []);
 
   return (
