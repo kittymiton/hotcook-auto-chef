@@ -23,7 +23,7 @@ export const TalkInput = ({
         onFocus={onFocus}
         onChange={(e) => onChange(e.target.value)}
         size={32}
-        className="border rounded p-2 flex-grow focus:outline-none focus:ring-2 focus:ring-blue-300"
+        className="flex-grow rounded border p-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
       />
     </>
   );
