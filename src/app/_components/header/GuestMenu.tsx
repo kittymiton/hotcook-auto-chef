@@ -2,7 +2,7 @@
 
 import { LOGIN_ERROR_PATH, LOGIN_PATH, SIGNUP_PATH } from '@/constants/index';
 import { usePathname } from 'next/navigation';
-import { Button } from '../ui/Button';
+import { Button } from '../../../components/ui/Button';
 
 export const GuestMenu = () => {
   const pathname = usePathname();

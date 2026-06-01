@@ -5,7 +5,9 @@ import { Header } from '../_components/header/Header';
 
 export default function AuthLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: {
+  children: React.ReactNode;
+}) {
   useEffect(() => {
     fetch('/api/warmup');
   }, []);
@@ -13,7 +15,7 @@ export default function AuthLayout({
   return (
     <>
       <Header />
-      <main>{children}</main>
+      <main className="mx-auto w-full max-w-[960px]">{children}</main>
     </>
   );
 }
