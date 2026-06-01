@@ -2,7 +2,7 @@
 
 import { signOut } from '@auth/lib/sign';
 import { Session } from '@supabase/supabase-js';
-import router from 'next/router';
+import { useRouter } from 'next/navigation';
 import { Button } from '../../../components/ui/Button';
 
 type Props = {
@@ -11,6 +11,7 @@ type Props = {
 };
 
 export const UserMenu = ({ session, showLogout }: Props) => {
+  const router = useRouter();
   const email = session?.user?.email;
   if (!email) return null;
 

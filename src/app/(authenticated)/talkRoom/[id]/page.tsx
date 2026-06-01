@@ -19,8 +19,7 @@ import { useTalkSubmit } from '@authenticated/talkRoom/hooks/useTalkSubmit';
 import { getSortedSuggestList } from '@authenticated/talkRoom/utils/getSortedSuggestList';
 import { runMutations } from '@authenticated/talkRoom/utils/runMutations';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import router from 'next/router';
+import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useRef, useState } from 'react';
 import { mutate } from 'swr';
 
@@ -29,6 +28,7 @@ export default function TalkRoomIdPage() {
   const [isInputFocused, setIsInputFocused] = useState(false);
   const inputRef = useRef<HTMLDivElement>(null);
   const { token } = useSupabaseSession();
+  const router = useRouter();
 
   const params = useParams();
   const parsedParams = numberSchema.safeParse(params.id);
