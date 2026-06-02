@@ -157,7 +157,9 @@ export async function GET(request: NextRequest) {
       take: 30,
     });
 
-    return NextResponse.json(talks);
+    const displayOrderdTalks = talks.slice().reverse();
+
+    return NextResponse.json(displayOrderdTalks);
   } catch (e) {
     if (e instanceof ZodError) {
       console.error('[Talk API] GET Validation failed', e);

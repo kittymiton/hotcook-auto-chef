@@ -1,26 +1,11 @@
 'use client';
 
-import { APP_NAME, LOGIN_PATH, SIGNUP_PATH } from '@/constants/index';
-/**
- * TOPページ
- * @returns {JSX.Element}
- */
-import Link from 'next/link';
+import { Header } from './_components/header/Header';
 
 export default function HomePage() {
   return (
     <div>
-      <h1>{APP_NAME}</h1>
-      <nav>
-        <ul>
-          <li>
-            <Link href={LOGIN_PATH}>ログイン</Link>
-          </li>
-          <li>
-            <Link href={SIGNUP_PATH}>会員登録</Link>
-          </li>
-        </ul>
-      </nav>
+      <Header />
     </div>
   );
 }

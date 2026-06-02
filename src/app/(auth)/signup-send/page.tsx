@@ -1,6 +1,5 @@
 'use client';
 
-import { HOME_PATH } from '@/constants/index';
 import Link from 'next/link';
 
 /**
@@ -20,7 +19,7 @@ export default function SignUpSendPage() {
           ※リンクをクリックするとトークルームへ自動で移動します。
         </p>
         <p>
-          <Link href={HOME_PATH}>TOP</Link>
+          <Link href="/">TOP</Link>
         </p>
       </div>
     </div>

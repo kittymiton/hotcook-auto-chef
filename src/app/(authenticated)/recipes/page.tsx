@@ -8,9 +8,10 @@ import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
 import { useRecipes } from '@authenticated/hooks/useRecipes';
 import { RecipeList } from '@authenticated/recipes/components/RecipeList';
 import Link from 'next/link';
-import router from 'next/router';
+import { useRouter } from 'next/navigation';
 
 export default function RecipesPage() {
+  const router = useRouter();
   const {
     data: recipes,
     error: recipeError,
@@ -43,8 +44,8 @@ export default function RecipesPage() {
 
   return (
     <>
-      <main className="p-6 max-w-3xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">あなたのレシピ一覧</h1>
+      <main className="mx-auto max-w-3xl p-6">
+        <h1 className="mb-6 text-2xl font-bold">あなたのレシピ一覧</h1>
         {renderRecipeList()}
         <Link href={`/talkRoom/${talkRoomId}`} className="text-sm underline">
           会話に戻る

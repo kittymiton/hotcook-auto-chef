@@ -1,6 +1,5 @@
 'use client';
 
-import { HOME_PATH } from '@/constants/index';
 import Link from 'next/link';
 
 /**
@@ -14,7 +13,7 @@ export default function UpdatePasswordSendPage() {
       <div>
         <p>
           パスワード変更済みです。
-          <Link href={HOME_PATH}>TOP</Link>
+          <Link href="/">TOP</Link>
         </p>
       </div>
     </div>

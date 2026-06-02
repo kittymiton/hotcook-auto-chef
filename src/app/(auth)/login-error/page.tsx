@@ -1,6 +1,5 @@
 'use client';
 
-import { HOME_PATH } from '@/constants/index';
 import { AuthErrorBanner } from '@auth/components/AuthErrorBanner';
 import { useAuthForm } from '@auth/hooks/useAuthForm';
 import Link from 'next/link';
@@ -36,7 +35,7 @@ export default function LoginErrorPage() {
         setEmail={setEmail}
         formErrors={formErrors}
       />
-      <Link href={HOME_PATH}>TOP</Link>
+      <Link href="/">TOP</Link>
     </div>
   );
 }
