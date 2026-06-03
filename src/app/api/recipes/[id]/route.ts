@@ -27,7 +27,7 @@ export async function GET(
         ingredients: true,
         instructions: true,
         imageKey: true,
-        createdAt: true,
+        talkRoomId: true,
       },
     });
 

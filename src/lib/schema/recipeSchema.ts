@@ -9,6 +9,7 @@ export type RecipeBaseList = z.infer<typeof recipeSchema>;
 
 export const recipeSummarySchema = recipeBaseSchema.extend({
   cookingTime: z.string().optional(),
+  talkRoomId: z.number(),
 });
 export const recipeSummaryListSchema = z.array(recipeSummarySchema);
 export type RecipeSummaryList = z.infer<typeof recipeSummaryListSchema>;
@@ -19,6 +20,7 @@ export const recipeDetailSchema = recipeBaseSchema.extend({
   ingredients: z.string(),
   instructions: z.string(),
   imageKey: z.string().nullable().optional(),
+  talkRoomId: z.number(),
 });
 export type RecipeDetail = z.infer<typeof recipeDetailSchema>;
 

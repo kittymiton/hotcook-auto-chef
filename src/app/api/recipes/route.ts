@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
         id: true,
         title: true,
         cookingTime: true,
+        talkRoomId: true,
       },
       orderBy: { createdAt: 'desc' },
       take,

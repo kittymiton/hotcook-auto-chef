@@ -94,6 +94,7 @@ export async function POST(request: NextRequest) {
             ingredients: JSON.stringify(recipeObj['材料（2人分）']),
             instructions: JSON.stringify(recipeObj['作り方']),
             createdByUser: userId,
+            talkRoomId,
           },
         });
       }
