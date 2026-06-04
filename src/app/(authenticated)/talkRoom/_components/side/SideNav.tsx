@@ -1,13 +1,17 @@
+import { userRoomSchema } from '@auth/lib/validation/userRoomSchema';
+import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
 import Image from 'next/image';
 import { ReactNode } from 'react';
 import { Button } from '../../../../../components/ui/Button';
 
 type Props = {
-  talkRoomId: number;
-  children: ReactNode;
+  children?: ReactNode;
 };
 
-export const SideNav = ({ talkRoomId, children }: Props) => {
+export const SideNav = ({ children }: Props) => {
+  const { data: userRoom } = useAuthedSWR('/api/userRoom', userRoomSchema);
+  const talkRoomId = userRoom?.talkRoom.id;
+
   return (
     <nav>
       <ul className="mb-8 flex flex-col gap-4">

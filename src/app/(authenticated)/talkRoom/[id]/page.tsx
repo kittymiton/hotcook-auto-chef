@@ -119,7 +119,7 @@ export default function TalkRoomIdPage() {
     }
 
     return (
-      <SideNav talkRoomId={talkRoomId}>
+      <SideNav>
         <SideRecipeList recipes={recipes} />
       </SideNav>
     );
