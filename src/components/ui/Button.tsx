@@ -98,7 +98,7 @@ const buttonStyles = {
 
   'side-recipe-item': {
     ...beigeBase,
-    hover: 'hover:bg-beige-cement',
+    hover: 'hover:bg-none hover:bg-beige-cement',
     shape: 'justify-start w-full h-[40px] text-[14px] leading-[1.4] pl-8',
     shadow: createShadow('hard', {
       base: primitives.black,

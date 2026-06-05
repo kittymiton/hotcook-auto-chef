@@ -14,7 +14,7 @@ export const SideNav = ({ children }: Props) => {
 
   return (
     <nav>
-      <ul className="mb-8 flex flex-col gap-4">
+      <ul className="mb-8 flex flex-col gap-4 pt-4">
         <li>
           <Button href={`/talkRoom/${talkRoomId}`} variant="side-chat">
             <div className="flex w-[24px] shrink-0 justify-center">
