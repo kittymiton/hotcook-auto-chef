@@ -115,7 +115,7 @@ const buttonStyles = {
       base: primitives.black,
       highlight: primitives.black,
     }),
-    isHover: true,
+    shadowOnHover: true, // 通常時は影なし、hover時のみ影を出す
   },
 } as const;
 
@@ -127,8 +127,9 @@ export const Button = ({
   ariaLabel,
 }: Props) => {
   const config = buttonStyles[variant];
-  const isFlat = 'isHover' in config && config.isHover;
-  const shadowClass = isFlat ? 'shadow-none' : config.shadow?.type;
+
+  const shadowOnHover = 'shadowOnHover' in config && config.shadowOnHover;
+  const shadowClass = shadowOnHover ? 'shadow-none' : config.shadow?.type;
 
   const combinedClass = cn(
     baseClassName,
