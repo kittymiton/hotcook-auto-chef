@@ -4,6 +4,7 @@ import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
 import Image from 'next/image';
 import { ReactNode } from 'react';
 import { Button } from '../../../../components/ui/Button';
+import { IconWrapper } from '../../../../components/ui/IconWrapper';
 
 type Props = {
   children?: ReactNode;
@@ -34,7 +35,7 @@ export const SideNav = ({ children }: Props) => {
       <ul className="mb-8 flex flex-col gap-4 pt-4">
         <li>
           <Button href={`/talkRoom/${talkRoomId}`} variant="side-chat">
-            <div className="flex w-[24px] shrink-0 justify-center">
+            <IconWrapper>
               <Image
                 src="/icons/system/chat.svg"
                 alt=""
@@ -43,13 +44,13 @@ export const SideNav = ({ children }: Props) => {
                 height={18}
                 className="size-[18px] shrink-0"
               />
-            </div>
+            </IconWrapper>
             <span>Chat</span>
           </Button>
         </li>
         <li>
           <Button href="/mypage" variant="side-mypage">
-            <div className="flex w-[24px] shrink-0 justify-center">
+            <IconWrapper>
               <Image
                 src="/icons/system/account.svg"
                 alt=""
@@ -58,13 +59,13 @@ export const SideNav = ({ children }: Props) => {
                 height={22}
                 className="h-auto shrink-0"
               />
-            </div>
+            </IconWrapper>
             <span>MYページ</span>
           </Button>
         </li>
         <li>
           <Button href="/recipes" variant="side-my-recipes">
-            <div className="flex w-[24px] shrink-0 justify-center">
+            <IconWrapper>
               <Image
                 src="/icons/system/recipe.svg"
                 alt=""
@@ -73,7 +74,7 @@ export const SideNav = ({ children }: Props) => {
                 height={15}
                 className="size-[15px] shrink-0"
               />
-            </div>
+            </IconWrapper>
             <span>MYレシピ</span>
           </Button>
         </li>
