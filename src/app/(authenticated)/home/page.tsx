@@ -1,7 +1,7 @@
 'use client';
 
-import { SideArea } from '@authenticated/components/SideArea';
-import { SideNav } from '@authenticated/components/SideNav';
+import { SideArea } from '@authenticated/components/side/SideArea';
+import { SideNav } from '@authenticated/components/side/SideNav';
 
 // ログインユーザーのダッシュボード 将来はトーク一覧の入口にする
 export default function AuthenticatedHomePage() {

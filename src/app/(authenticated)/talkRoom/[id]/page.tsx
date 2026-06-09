@@ -4,8 +4,8 @@ import { numberSchema } from '@/lib/schema/numberSchema';
 import { recipeSchema } from '@/lib/schema/recipeSchema';
 import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
 import { Loading } from '@authenticated/components/Loading';
-import { SideArea } from '@authenticated/components/SideArea';
-import { SideNav } from '@authenticated/components/SideNav';
+import { SideArea } from '@authenticated/components/side/SideArea';
+import { SideNav } from '@authenticated/components/side/SideNav';
 import { TalkArea } from '@authenticated/components/TalkArea';
 import { useClickOutside } from '@authenticated/hooks/useClickOutside';
 import { useRecipes } from '@authenticated/hooks/useRecipes';
@@ -13,7 +13,6 @@ import { useTalks } from '@authenticated/hooks/useTalks';
 import { TalkForm } from '@authenticated/talkRoom/components/form/TalkForm';
 import { TalkPanel } from '@authenticated/talkRoom/components/panel/TalkPanel';
 import { SideRecipeList } from '@authenticated/talkRoom/components/side/SideRecipeList';
-
 import { useSuggest } from '@authenticated/talkRoom/hooks/useSuggest';
 import { useTalkSubmit } from '@authenticated/talkRoom/hooks/useTalkSubmit';
 import { getSortedSuggestList } from '@authenticated/talkRoom/utils/getSortedSuggestList';
