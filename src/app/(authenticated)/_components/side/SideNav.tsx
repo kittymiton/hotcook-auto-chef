@@ -1,16 +1,37 @@
+import { userRoomSchema } from '@auth/lib/validation/userRoomSchema';
+import { Loading } from '@authenticated/components/Loading';
+import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
 import Image from 'next/image';
 import { ReactNode } from 'react';
-import { Button } from '../../../../../components/ui/Button';
+import { Button } from '../../../../components/ui/Button';
 
 type Props = {
-  talkRoomId: number;
-  children: ReactNode;
+  children?: ReactNode;
 };
 
-export const SideNav = ({ talkRoomId, children }: Props) => {
+export const SideNav = ({ children }: Props) => {
+  const {
+    data: userRoom,
+    isLoading,
+    error,
+  } = useAuthedSWR('/api/userRoom', userRoomSchema);
+
+  if (isLoading) return <Loading />;
+
+  const talkRoomId = userRoom?.talkRoom.id;
+
+  // NOTE: talkRoomIdを取得できなかった場合のみ、失敗表示（ログイン済み前提、未ログイン状態は上位で認証ガード済）
+  if (error || !talkRoomId) {
+    return (
+      <nav>
+        <p className="pt-4">ナビを表示できませんでした</p>
+      </nav>
+    );
+  }
+
   return (
     <nav>
-      <ul className="mb-8 flex flex-col gap-4">
+      <ul className="mb-8 flex flex-col gap-4 pt-4">
         <li>
           <Button href={`/talkRoom/${talkRoomId}`} variant="side-chat">
             <div className="flex w-[24px] shrink-0 justify-center">
