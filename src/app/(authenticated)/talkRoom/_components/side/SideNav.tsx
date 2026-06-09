@@ -1,4 +1,5 @@
 import { userRoomSchema } from '@auth/lib/validation/userRoomSchema';
+import { Loading } from '@authenticated/components/Loading';
 import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
 import Image from 'next/image';
 import { ReactNode } from 'react';
@@ -9,8 +10,24 @@ type Props = {
 };
 
 export const SideNav = ({ children }: Props) => {
-  const { data: userRoom } = useAuthedSWR('/api/userRoom', userRoomSchema);
+  const {
+    data: userRoom,
+    isLoading,
+    error,
+  } = useAuthedSWR('/api/userRoom', userRoomSchema);
+
+  if (isLoading) return <Loading />;
+
   const talkRoomId = userRoom?.talkRoom.id;
+
+  // NOTE: talkRoomIdを取得できなかった場合のみ、失敗表示（ログイン済み前提、未ログイン状態は上位で認証ガード済）
+  if (error || !talkRoomId) {
+    return (
+      <nav>
+        <p className="pt-4">ナビを表示できませんでした</p>
+      </nav>
+    );
+  }
 
   return (
     <nav>
