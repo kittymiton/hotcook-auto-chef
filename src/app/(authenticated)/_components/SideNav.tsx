@@ -3,7 +3,7 @@ import { Loading } from '@authenticated/components/Loading';
 import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
 import Image from 'next/image';
 import { ReactNode } from 'react';
-import { Button } from '../../../../../components/ui/Button';
+import { Button } from '../../../components/ui/Button';
 
 type Props = {
   children?: ReactNode;

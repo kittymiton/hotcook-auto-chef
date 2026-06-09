@@ -1,7 +1,7 @@
 'use client';
 
 import { SideArea } from '@authenticated/components/SideArea';
-import { SideNav } from '@authenticated/talkRoom/components/side/SideNav';
+import { SideNav } from '@authenticated/components/SideNav';
 
 // ログインユーザーのダッシュボード 将来はトーク一覧の入口にする
 export default function AuthenticatedHomePage() {
