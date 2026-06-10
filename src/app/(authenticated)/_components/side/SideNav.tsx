@@ -1,9 +1,9 @@
 import { userRoomSchema } from '@auth/lib/validation/userRoomSchema';
 import { Loading } from '@authenticated/components/Loading';
 import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
-import Image from 'next/image';
 import { ReactNode } from 'react';
 import { Button } from '../../../../components/ui/Button';
+import { IconImage } from '../../../../components/ui/IconImage';
 import { IconWrapper } from '../../../../components/ui/IconWrapper';
 
 type Props = {
@@ -36,13 +36,11 @@ export const SideNav = ({ children }: Props) => {
         <li>
           <Button href={`/talkRoom/${talkRoomId}`} variant="side-chat">
             <IconWrapper>
-              <Image
+              <IconImage
                 src="/icons/system/chat.svg"
-                alt=""
-                aria-hidden="true"
                 width={18}
                 height={18}
-                className="size-[18px] shrink-0"
+                className="size-[18px]"
               />
             </IconWrapper>
             <span>Chat</span>
@@ -51,13 +49,11 @@ export const SideNav = ({ children }: Props) => {
         <li>
           <Button href="/mypage" variant="side-mypage">
             <IconWrapper>
-              <Image
+              <IconImage
                 src="/icons/system/account.svg"
-                alt=""
-                aria-hidden="true"
                 width={22}
                 height={22}
-                className="h-auto shrink-0"
+                className="h-auto"
               />
             </IconWrapper>
             <span>MYページ</span>
@@ -66,13 +62,11 @@ export const SideNav = ({ children }: Props) => {
         <li>
           <Button href="/recipes" variant="side-my-recipes">
             <IconWrapper>
-              <Image
+              <IconImage
                 src="/icons/system/recipe.svg"
-                alt=""
-                aria-hidden="true"
                 width={15}
                 height={15}
-                className="size-[15px] shrink-0"
+                className="size-[15px]"
               />
             </IconWrapper>
             <span>MYレシピ</span>
