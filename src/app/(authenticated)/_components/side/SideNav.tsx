@@ -3,8 +3,8 @@ import { Loading } from '@authenticated/components/Loading';
 import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
 import { ReactNode } from 'react';
 import { Button } from '../../../../components/ui/Button';
+import { Icon } from '../../../../components/ui/Icon';
 import { IconWrapper } from '../../../../components/ui/IconWrapper';
-import { NavImage } from '../../../../components/ui/NavImage';
 
 type Props = {
   children?: ReactNode;
@@ -36,7 +36,7 @@ export const SideNav = ({ children }: Props) => {
         <li>
           <Button href={`/talkRoom/${talkRoomId}`} variant="side-chat">
             <IconWrapper>
-              <NavImage
+              <Icon
                 src="/icons/system/chat.svg"
                 width={18}
                 height={18}
@@ -49,7 +49,7 @@ export const SideNav = ({ children }: Props) => {
         <li>
           <Button href="/mypage" variant="side-mypage">
             <IconWrapper>
-              <NavImage
+              <Icon
                 src="/icons/system/account.svg"
                 width={22}
                 height={22}
@@ -62,7 +62,7 @@ export const SideNav = ({ children }: Props) => {
         <li>
           <Button href="/recipes" variant="side-my-recipes">
             <IconWrapper>
-              <NavImage
+              <Icon
                 src="/icons/system/recipe.svg"
                 width={15}
                 height={15}

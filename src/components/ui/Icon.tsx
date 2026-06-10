@@ -8,7 +8,7 @@ type Props = {
   className?: string;
 };
 
-export const NavImage = ({ src, width, height, className }: Props) => {
+export const Icon = ({ src, width, height, className }: Props) => {
   return (
     <Image
       src={src}
