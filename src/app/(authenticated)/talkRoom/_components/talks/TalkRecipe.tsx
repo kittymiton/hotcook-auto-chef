@@ -4,7 +4,7 @@ import { Surface } from '../../../../../components/ui/Surface';
 type Props = {
   recipe: RecipeObj;
 };
-
+// NOTE: トーク内の読み取り専用
 // TODO: RecipeDetail実装時に、材料・作り方などの内部表示を共通パーツとして抽出する。
 export const TalkRecipe = ({ recipe }: Props) => {
   return (
