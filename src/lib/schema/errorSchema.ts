@@ -6,6 +6,7 @@ import z from 'zod';
 // ④ サーバー・その他
 export const errorCodeSchema = z.enum([
   'INVALID_FORMAT',
+  'INVALID_ID',
   'UNAUTHORIZED',
   'FORBIDDEN',
   'TALK_NOT_FOUND',

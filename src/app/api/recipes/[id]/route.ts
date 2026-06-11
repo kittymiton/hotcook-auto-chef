@@ -1,6 +1,6 @@
 import { createErrorResponse } from '@/lib/apiServer/createErrorResponse';
 import { requireUserId } from '@/lib/apiServer/requireUserId';
-import { numberSchema } from '@/lib/schema/numberSchema';
+import { idParamSchema } from '@/lib/schema/paramSchema';
 import { prisma } from '@/lib/utils/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { ZodError } from 'zod';
@@ -15,7 +15,7 @@ export async function GET(
       return createErrorResponse('UNAUTHORIZED', 401);
     }
 
-    const recipeId = numberSchema.parse(params.id);
+    const recipeId = idParamSchema.parse(params.id);
 
     const recipe = await prisma.recipe.findFirst({
       where: { id: recipeId, createdByUser: userId },
@@ -39,7 +39,7 @@ export async function GET(
   } catch (e) {
     if (e instanceof ZodError) {
       console.error('[Recipe API] GET Validation failed', e);
-      return createErrorResponse('INVALID_FORMAT', 400);
+      return createErrorResponse('INVALID_ID', 400);
     }
     console.error('[Recipe API] GET Unexpected error', e);
     return createErrorResponse('INTERNAL_SERVER_ERROR', 500);
