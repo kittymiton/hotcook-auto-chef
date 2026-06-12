@@ -10,6 +10,8 @@ type Props = {
   children?: ReactNode;
 };
 
+// NOTE: ログイン後画面で共通利用するサイドナビ
+// SideAreaはサイドバー外枠、SideNavは共通ナビ本体。childrenには画面ごとの追加要素を渡す。
 export const SideNav = ({ children }: Props) => {
   const {
     data: userRoom,
@@ -17,11 +19,14 @@ export const SideNav = ({ children }: Props) => {
     error,
   } = useAuthedSWR('/api/userRoom', userRoomSchema);
 
-  if (isLoading) return <Loading />;
-
   const talkRoomId = userRoom?.talkRoom.id;
 
-  // NOTE: talkRoomIdを取得できなかった場合のみ、失敗表示（ログイン済み前提、未ログイン状態は上位で認証ガード済）
+  // NOTE: userRoom取得中のundefinedを失敗扱いにしない
+  if (isLoading || !userRoom) {
+    return <Loading />;
+  }
+
+  // 認証済み前提でroomIdを取得できなかった場合のみ失敗表示
   if (error || !talkRoomId) {
     return (
       <nav>
