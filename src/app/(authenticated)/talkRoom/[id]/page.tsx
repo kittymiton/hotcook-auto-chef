@@ -1,5 +1,6 @@
 'use client';
 
+import { errorCodeMap } from '@/lib/constants/errorCodeMap';
 import { idParamSchema } from '@/lib/schema/paramSchema';
 import { recipeSchema } from '@/lib/schema/recipeSchema';
 import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
@@ -37,7 +38,7 @@ export default function TalkRoomIdPage() {
   if (!parsedParams.success) {
     return (
       <main className="px-4">
-        <p>不正なURLです</p>
+        <p>{errorCodeMap.INVALID_ID}</p>
       </main>
     );
   }
