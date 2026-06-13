@@ -3,13 +3,15 @@ import { Loading } from '@authenticated/components/Loading';
 import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
 import { ReactNode } from 'react';
 import { Button } from '../../../../components/ui/Button';
+import { Icon } from '../../../../components/ui/Icon';
 import { IconWrapper } from '../../../../components/ui/IconWrapper';
-import { NavImage } from '../../../../components/ui/NavImage';
 
 type Props = {
   children?: ReactNode;
 };
 
+// ログイン後画面で共通利用するサイドナビ
+// SideArea：サイドバー外枠、SideNav：共通ナビ本体。childrenには画面ごとの追加要素を渡す
 export const SideNav = ({ children }: Props) => {
   const {
     data: userRoom,
@@ -17,11 +19,13 @@ export const SideNav = ({ children }: Props) => {
     error,
   } = useAuthedSWR('/api/userRoom', userRoomSchema);
 
-  if (isLoading) return <Loading />;
+  if (isLoading) {
+    return <Loading />;
+  }
 
   const talkRoomId = userRoom?.talkRoom.id;
 
-  // NOTE: talkRoomIdを取得できなかった場合のみ、失敗表示（ログイン済み前提、未ログイン状態は上位で認証ガード済）
+  // 取得中undefinedはLoading、取得後undefinedは失敗表示
   if (error || !talkRoomId) {
     return (
       <nav>
@@ -36,7 +40,7 @@ export const SideNav = ({ children }: Props) => {
         <li>
           <Button href={`/talkRoom/${talkRoomId}`} variant="side-chat">
             <IconWrapper>
-              <NavImage
+              <Icon
                 src="/icons/system/chat.svg"
                 width={18}
                 height={18}
@@ -49,7 +53,7 @@ export const SideNav = ({ children }: Props) => {
         <li>
           <Button href="/mypage" variant="side-mypage">
             <IconWrapper>
-              <NavImage
+              <Icon
                 src="/icons/system/account.svg"
                 width={22}
                 height={22}
@@ -62,7 +66,7 @@ export const SideNav = ({ children }: Props) => {
         <li>
           <Button href="/recipes" variant="side-my-recipes">
             <IconWrapper>
-              <NavImage
+              <Icon
                 src="/icons/system/recipe.svg"
                 width={15}
                 height={15}

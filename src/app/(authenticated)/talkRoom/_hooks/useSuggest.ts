@@ -2,13 +2,13 @@ import { suggestCollectionSchema } from '@/lib/schema/suggestSchema';
 import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
 
 type UseSuggestArgs = {
-  url_suggest: string;
+  suggestUrl: string;
   isInputFocused: boolean;
 };
 
 // サジェストデータの取得実行、取得タイミングの制御をするフック
-export const useSuggest = ({ url_suggest, isInputFocused }: UseSuggestArgs) => {
-  const swrKey = isInputFocused ? url_suggest : null;
+export const useSuggest = ({ suggestUrl, isInputFocused }: UseSuggestArgs) => {
+  const swrKey = isInputFocused ? suggestUrl : null;
   // NOTE: suggestは初回フォーカス時のみ取得、その後はキャッシュ利用
 
   const { data: suggest } = useAuthedSWR(swrKey, suggestCollectionSchema);

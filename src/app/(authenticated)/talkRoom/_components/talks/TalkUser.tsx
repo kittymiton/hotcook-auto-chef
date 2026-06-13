@@ -1,14 +1,14 @@
-import { TalkSurface } from '@authenticated/talkRoom/components/talks/TalkSurface';
+import { Surface } from '../../../../../components/ui/Surface';
 
 type Props = {
   content: string;
 };
 
-// contentをTalkSurfaceのchildrenとして渡す薄いラッパー
+// contentをSurfaceのchildrenとして渡す薄いラッパー
 export const TalkUser = ({ content }: Props) => {
   return (
-    <TalkSurface type="user">
+    <Surface type="user">
       <p className="whitespace-pre-line">{content}</p>
-    </TalkSurface>
+    </Surface>
   );
 };

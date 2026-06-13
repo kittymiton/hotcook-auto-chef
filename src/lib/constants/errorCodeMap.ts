@@ -1,7 +1,10 @@
 import { ErrorCode } from '@/lib/schema/errorSchema';
 
+// APIから返るアプリ独自errorCodeを、UI表示用メッセージに変換
 export const errorCodeMap: Record<ErrorCode, string> = {
-  INVALID_FORMAT: '料理名や食材を教えてください',
+  //INVALID_FORMAT: '料理名や食材を教えてください', TODO: 料理名・食材入力の不足は専用errorCodeへ切り出す
+  INVALID_FORMAT: '入力内容を確認してください',
+  INVALID_ID: '不正なURLです',
   UNAUTHORIZED: 'ログインが必要です',
   FORBIDDEN: '現在この機能は利用できません。設定をご確認ください',
   TALK_NOT_FOUND: 'トークが見つかりません',

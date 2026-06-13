@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
       take,
     });
 
-    return NextResponse.json(recipes); // 0件でも正常（空配列で返す）
+    return NextResponse.json(recipes); // 0件(データ未保存）でも正常（空配列で返す）
   } catch (e) {
     if (e instanceof ZodError) {
       console.error('[Recipes API] GET Validation failed', e);

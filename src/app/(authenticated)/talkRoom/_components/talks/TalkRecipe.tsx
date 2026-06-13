@@ -1,14 +1,14 @@
 import type { RecipeObj } from '@/lib/schema/recipeBlockSchema';
-import { TalkSurface } from '@authenticated/talkRoom/components/talks/TalkSurface';
+import { Surface } from '../../../../../components/ui/Surface';
 
 type Props = {
   recipe: RecipeObj;
 };
-
+// NOTE: トーク内の読み取り専用
 // TODO: RecipeDetail実装時に、材料・作り方などの内部表示を共通パーツとして抽出する。
 export const TalkRecipe = ({ recipe }: Props) => {
   return (
-    <TalkSurface type="recipe">
+    <Surface type="recipe">
       <h2 className="mb-1 text-[18px] font-[600]">
         {recipe['レシピタイトル']}
       </h2>
@@ -52,6 +52,6 @@ export const TalkRecipe = ({ recipe }: Props) => {
           ))}
         </ol>
       </div>
-    </TalkSurface>
+    </Surface>
   );
 };

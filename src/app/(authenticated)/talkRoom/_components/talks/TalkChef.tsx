@@ -1,4 +1,4 @@
-import { TalkSurface } from '@authenticated/talkRoom/components/talks/TalkSurface';
+import { Surface } from '../../../../../components/ui/Surface';
 
 type Props = {
   content: string;
@@ -6,8 +6,8 @@ type Props = {
 
 export const TalkChef = ({ content }: Props) => {
   return (
-    <TalkSurface type="chef">
+    <Surface type="chef">
       <p className="whitespace-pre-line">{content}</p>
-    </TalkSurface>
+    </Surface>
   );
 };

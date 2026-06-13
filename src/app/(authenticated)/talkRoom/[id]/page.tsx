@@ -1,6 +1,7 @@
 'use client';
 
-import { numberSchema } from '@/lib/schema/numberSchema';
+import { errorCodeMap } from '@/lib/constants/errorCodeMap';
+import { idParamSchema } from '@/lib/schema/paramSchema';
 import { recipeSchema } from '@/lib/schema/recipeSchema';
 import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
 import { Loading } from '@authenticated/components/Loading';
@@ -26,34 +27,44 @@ export default function TalkRoomIdPage() {
   const [content, setContent] = useState<string>('');
   const [isInputFocused, setIsInputFocused] = useState(false);
   const inputRef = useRef<HTMLDivElement>(null);
-  const { token } = useSupabaseSession();
-  const router = useRouter();
 
+  const { token } = useSupabaseSession();
+
+  const router = useRouter();
   const params = useParams();
-  const parsedParams = numberSchema.safeParse(params.id);
-  if (!parsedParams.success) return <p>不正なURLです</p>;
+
+  const parsedParams = idParamSchema.safeParse(params.id);
+
+  if (!parsedParams.success) {
+    return (
+      <main className="px-4">
+        <p>{errorCodeMap.INVALID_ID}</p>
+      </main>
+    );
+  }
 
   const talkRoomId = parsedParams.data;
 
-  const url_main = `/api/talks?talkRoomId=${talkRoomId}`;
-  const url_aside = `/api/recipes?take=5`; // TODO: recentRecipesUrlにリネームする
-  const url_suggest = `/api/suggest`;
+  const talkRoomUrl = `/api/talks?talkRoomId=${talkRoomId}`;
+  const recipeListUrl = `/api/recipes?take=5`;
+  const suggestUrl = `/api/suggest`;
 
-  const run = runMutations(mutate, url_main, url_aside);
+  const run = runMutations(mutate, talkRoomUrl, recipeListUrl);
 
   const {
     data: talks,
     error: talkError,
     isLoading: isTalkLoading,
-  } = useTalks(url_main);
+  } = useTalks(talkRoomUrl);
 
+  // sidenav用レシピ一覧
   const {
     data: recipes,
-    error: recipeError,
-    isLoading: isRecipeLoading,
-  } = useRecipes(url_aside, recipeSchema);
+    error: recipesError,
+    isLoading: isRecipesLoading,
+  } = useRecipes(recipeListUrl, recipeSchema); // レシピ一覧・レシピ詳細でschemaが異なるため、呼び出し側でschemaを渡す
 
-  const { suggest } = useSuggest({ url_suggest, isInputFocused });
+  const { suggest } = useSuggest({ suggestUrl, isInputFocused }); // サジェスト取得条件をまとめて渡す
 
   const handleInputFocus = () => {
     setIsInputFocused(true);
@@ -99,10 +110,10 @@ export default function TalkRoomIdPage() {
     );
   }
 
-  if (recipeError) {
+  if (recipesError) {
     return (
       <div>
-        <p>{recipeError}</p>
+        <p>{recipesError}</p>
         <button onClick={() => router.back()}>戻る</button>
         <Link href="/">TOPに戻る</Link>
       </div>

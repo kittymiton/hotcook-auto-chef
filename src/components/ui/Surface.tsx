@@ -5,7 +5,7 @@ import { createShadow } from '@styles/tailwindTokens';
 type SurfaceType = keyof typeof surfaceStyles;
 type Props = {
   type: SurfaceType;
-  children: React.ReactNode;
+  children?: React.ReactNode;
 };
 
 // NOTE: typeごとの差分を閉じるためTailwindクラスをconfigに置く。
@@ -35,12 +35,20 @@ const surfaceStyles = {
       highlight: primitives.gray.dove,
     }),
   },
+  'recipe-detail': {
+    shape: 'mx-auto w-full',
+    background: 'bg-beige-tomato',
+    shadow: createShadow('hard', {
+      base: primitives.gray.dark,
+      highlight: primitives.gray.dove,
+    }),
+  },
 } as const;
 
 const baseClassName = 'mb-6 rounded-xl px-4 pb-4 pt-3';
 
-// トーク外枠だけを提供し、中身の種類は関知しない
-export const TalkSurface = ({ type, children }: Props) => {
+// 外枠だけを提供
+export const Surface = ({ type, children }: Props) => {
   // typeごとの箱の差分
   const config = surfaceStyles[type];
 
