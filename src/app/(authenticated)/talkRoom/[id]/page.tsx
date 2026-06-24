@@ -165,11 +165,16 @@ export default function TalkRoomIdPage() {
 
   return (
     <>
-      {errorMsg && <p className="mb-2">送信エラー：{errorMsg}</p>}
-
       <div className="flex h-[calc(100vh-55px)] gap-8">
         <SideArea>{renderRecipeList()}</SideArea>
-        <TalkArea>{renderTalks()}</TalkArea>
+        <TalkArea>
+          <div className="mb-2 min-h-6">
+            {errorMsg && <p>送信エラー：{errorMsg}</p>}
+          </div>
+          {/* TODO: 送信エラー表示を TalkForm 上部に移動し、エラー用の高さを確保する */}
+
+          {renderTalks()}
+        </TalkArea>
       </div>
     </>
   );
