@@ -5,8 +5,12 @@ import { extractedRecipeBlock } from '@/lib/parser/extractedRecipeBlock';
 import { recipeBlockForParse } from '@/lib/parser/recipeBlockForParse';
 import { numberSchema } from '@/lib/schema/numberSchema';
 import { openAIRequestSchema } from '@/lib/schema/openAISchema';
-import { updateTalkKeyword } from '@/lib/services/updateTalkKeyword';
+import {
+  saveRecipeTags,
+  upsertTalkKeywords,
+} from '@/lib/services/saveAiKeyword';
 import { prisma } from '@/lib/utils/prisma';
+import { cleanKeywordsPairs } from '@/lib/validators/cleanKeywordsPairs';
 import { sanitize, substantial } from '@/lib/validators/contentProcessor';
 import { OpenAIChatRequest } from '@/types/api';
 import { Prisma, TalkSender } from '@prisma/client';
@@ -64,29 +68,33 @@ export async function POST(request: NextRequest) {
 
     const recipeObj = recipeBlockForParse(chefContent);
 
-    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      await tx.talk.create({
-        data: {
-          talkRoomId,
-          content,
-          sender: TalkSender.USER,
-          isReciped: false,
-          deleted: false,
-        },
-      });
+    const result = await prisma.$transaction(
+      async (tx: Prisma.TransactionClient) => {
+        await tx.talk.create({
+          data: {
+            talkRoomId,
+            content,
+            sender: TalkSender.USER,
+            isReciped: false,
+            deleted: false,
+          },
+        });
 
-      await tx.talk.create({
-        data: {
-          talkRoomId,
-          content: chefContent,
-          sender: TalkSender.CHEF,
-          isReciped: recipeObj !== null,
-          deleted: false,
-        },
-      });
+        await tx.talk.create({
+          data: {
+            talkRoomId,
+            content: chefContent,
+            sender: TalkSender.CHEF,
+            isReciped: recipeObj !== null,
+            deleted: false,
+          },
+        });
 
-      if (recipeObj) {
-        await tx.recipe.create({
+        if (!recipeObj) {
+          return null;
+        }
+
+        const recipe = await tx.recipe.create({
           data: {
             title: recipeObj['レシピタイトル'],
             point: recipeObj['ポイント'],
@@ -97,14 +105,23 @@ export async function POST(request: NextRequest) {
             talkRoomId,
           },
         });
+
+        const keywordPairs = cleanKeywordsPairs(recipeObj.keywords);
+
+        return {
+          recipeId: recipe.id,
+          keywordPairs,
+        };
       }
-    });
+    );
 
-    if (recipeObj) {
-      const { keywords } = recipeObj;
-
-      updateTalkKeyword(userId, keywords).catch((err) =>
+    if (result && result.keywordPairs.length) {
+      upsertTalkKeywords(userId, result.keywordPairs).catch((err) =>
         console.error('[Talk API] POST keyword update error', err)
+      );
+
+      saveRecipeTags(result.recipeId, result.keywordPairs).catch((err) =>
+        console.error('[Talk API] POST ecipe tag save error', err)
       );
     }
 
