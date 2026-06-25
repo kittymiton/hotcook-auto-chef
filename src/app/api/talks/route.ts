@@ -116,13 +116,21 @@ export async function POST(request: NextRequest) {
     );
 
     if (result && result.keywordPairs.length) {
-      upsertTalkKeywords(userId, result.keywordPairs).catch((err) =>
-        console.error('[Talk API] POST keyword update error', err)
-      );
+      // allSettledは各副処理の成功/失敗結果どちらも入る
+      const sideEffectResults = await Promise.allSettled([
+        upsertTalkKeywords(userId, result.keywordPairs),
+        saveRecipeTags(result.recipeId, result.keywordPairs),
+      ]);
 
-      saveRecipeTags(result.recipeId, result.keywordPairs).catch((err) =>
-        console.error('[Talk API] POST ecipe tag save error', err)
-      );
+      // Promise<void>のため成功時valueは使わず、失敗時だけログに残す
+      sideEffectResults.forEach((sideEffectResult) => {
+        if (sideEffectResult.status === 'rejected') {
+          console.error(
+            '[Talk API] POST keyword error',
+            sideEffectResult.reason
+          );
+        }
+      });
     }
 
     return NextResponse.json({}, { status: 200 });
