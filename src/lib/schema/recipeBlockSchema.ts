@@ -17,3 +17,5 @@ export const recipeBlockSchema = z.object({
 });
 
 export type RecipeObj = z.infer<typeof recipeBlockSchema>;
+
+export type AiKeywords = RecipeObj['keywords'];

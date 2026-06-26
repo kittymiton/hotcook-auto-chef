@@ -96,10 +96,10 @@ model Recipe {
 // レシピ表示用タグテーブル
 model RecipeTag {
   id      Int                 @id @default(autoincrement())
-  tag     String
+  tag     String              @unique
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
   recipes RecipeTagRelation[]
-
-  @@unique([tag])
 }
 
 // レシピとタグを多対多で紐づける中間テーブル
