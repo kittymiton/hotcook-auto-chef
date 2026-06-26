@@ -116,19 +116,32 @@ export async function POST(request: NextRequest) {
     );
 
     if (result && result.keywordPairs.length) {
+      const sideEffects = [
+        {
+          name: 'upsertTalkKeywords',
+          promise: upsertTalkKeywords(userId, result.keywordPairs),
+        },
+        {
+          name: 'saveRecipeTags',
+          promise: saveRecipeTags(result.recipeId, result.keywordPairs),
+        },
+      ];
+
       // allSettledは各副処理の成功/失敗結果どちらも入る
-      const sideEffectResults = await Promise.allSettled([
-        upsertTalkKeywords(userId, result.keywordPairs),
-        saveRecipeTags(result.recipeId, result.keywordPairs),
-      ]);
+      const sideEffectResults = await Promise.allSettled(
+        sideEffects.map((sideEffect) => sideEffect.promise)
+      );
 
       // Promise<void>のため成功時valueは使わず、失敗時だけログに残す
-      sideEffectResults.forEach((sideEffectResult) => {
+      sideEffectResults.forEach((sideEffectResult, index) => {
         if (sideEffectResult.status === 'rejected') {
-          console.error(
-            '[Talk API] POST keyword error',
-            sideEffectResult.reason
-          );
+          console.error('[Talk API] POST keyword side effect error', {
+            name: sideEffects[index].name,
+            reason: sideEffectResult.reason,
+            userId,
+            recipeId: result.recipeId,
+            keywordPairs: result.keywordPairs,
+          });
         }
       });
     }
