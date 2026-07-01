@@ -7,14 +7,16 @@ export const recipeBaseSchema = z.object({
 export const recipeSchema = z.array(recipeBaseSchema);
 export type RecipeBaseList = z.infer<typeof recipeSchema>;
 
+// レシピ一覧表示用 APIからフロント
 export const recipeSummarySchema = recipeBaseSchema.extend({
   cookingTime: z.string().optional(),
   talkRoomId: z.number(),
+  tags: z.array(z.string().min(1)),
 });
 export const recipeSummaryListSchema = z.array(recipeSummarySchema);
 export type RecipeSummaryList = z.infer<typeof recipeSummaryListSchema>;
 
-// APIからレシピ詳細をフロント表示用に受け取るschema
+// レシピ詳細表示用 APIからフロント
 export const recipeDetailSchema = recipeBaseSchema.extend({
   point: z.string().optional(),
   cookingTime: z.string().optional(),
