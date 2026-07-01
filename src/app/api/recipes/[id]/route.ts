@@ -49,9 +49,9 @@ export async function GET(
       return relation.recipeTag.tag;
     });
 
-    const resRecipe = { ...recipe, tags: recipeTags };
+    const formattedRecipe = { ...recipe, tags: recipeTags };
 
-    const parsedRecipe = recipeDetailSchema.parse(resRecipe);
+    const parsedRecipe = recipeDetailSchema.parse(formattedRecipe);
 
     return NextResponse.json(parsedRecipe);
   } catch (e) {
