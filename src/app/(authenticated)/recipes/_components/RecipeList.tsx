@@ -1,5 +1,6 @@
 import type { RecipeSummaryList } from '@/lib/schema/recipeSchema';
 import Link from 'next/link';
+import { Tag } from '../../../../components/Tag';
 
 type Props = {
   recipes: RecipeSummaryList;
@@ -25,6 +26,14 @@ export const RecipeList = ({ recipes, cookingTime }: Props) => {
                   {cookingTime && recipe.cookingTime && (
                     <p className="text-sm">調理時間: {recipe.cookingTime}</p>
                   )}
+
+                    <ul className="mb-1 flex flex-wrap gap-2">
+                      {recipe.tags.map((tag: string) => (
+                        <li key={tag}>
+                          <Tag keyword={tag} />
+                        </li>
+                      ))}
+                    </ul>
                 </div>
               </div>
             </Link>
