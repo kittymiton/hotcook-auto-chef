@@ -93,6 +93,7 @@ const buttonStyles = {
     shadow: createShadow('soft', {
       base: primitives.beige.deep,
       highlight: primitives.beige.deep,
+      accent: primitives.beige.deep,
     }),
   },
 
