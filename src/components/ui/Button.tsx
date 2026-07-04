@@ -15,19 +15,23 @@ type Props = {
 
 const baseClassName =
   'flex items-center rounded-full transition-all duration-200 transform';
+
 const beigeBase = {
   background: 'bg-beige-light',
   text: 'text-primary',
 };
+
 const grayBase = {
   background: 'bg-gray-slate-deep',
   text: 'text-white',
 };
+
 const headerBase = {
   shape:
     'justify-center w-[104px] h-[35px] text-[14px] active:translate-y-[2px] pb-[2px]', // pb-影の厚み分
   hover: 'hover:brightness-110',
 };
+
 const sideBase = {
   shape: 'gap-4 w-[200px] h-[48px] pl-8 active:translate-y-[2px]',
   hover: 'hover:brightness-110 active:shadow-none',
@@ -43,6 +47,7 @@ const buttonStyles = {
       highlight: primitives.black,
     }),
   },
+
   'header-login': {
     ...grayBase,
     ...headerBase,
@@ -51,6 +56,7 @@ const buttonStyles = {
       highlight: primitives.gray.light,
     }),
   },
+
   'header-logout': {
     ...grayBase,
     ...headerBase,
@@ -110,13 +116,13 @@ const buttonStyles = {
   'side-all-recipe': {
     background: 'bg-transparent',
     text: 'text-primary',
-    hover: 'hover:shadow-hard',
+    hover: 'hover:shadow-hard', // shadowOnlyOnHoverとtypeを揃える
     shape: 'w-full h-[40px] text-[14px] pl-8',
     shadow: createShadow('hard', {
       base: primitives.black,
       highlight: primitives.black,
     }),
-    shadowOnHover: true, // 通常時は影なし、hover時のみ影を出す
+    shadowOnlyOnHover: true, // 通常時は影なし、hover時のみ影を出す
   },
 } as const;
 
@@ -129,8 +135,9 @@ export const Button = ({
 }: Props) => {
   const config = buttonStyles[variant];
 
-  const shadowOnHover = 'shadowOnHover' in config && config.shadowOnHover;
-  const shadowClass = shadowOnHover ? 'shadow-none' : config.shadow?.type;
+  const shadowOnlyOnHover =
+    'shadowOnlyOnHover' in config && config.shadowOnlyOnHover;
+  const shadowClass = shadowOnlyOnHover ? 'shadow-none' : config.shadow?.type;
 
   const combinedClass = cn(
     baseClassName,
@@ -145,7 +152,7 @@ export const Button = ({
     ...(config.shadow?.vars ?? {}),
   };
 
-  // 見た目は全部ボタン様式のため、中身をLink or buttonにする
+  // ボタン様式見た目を持つ操作パーツ用。中身をLink or buttonとして扱う。表示だけの場合は含めない。
   if (href) {
     return (
       <Link
