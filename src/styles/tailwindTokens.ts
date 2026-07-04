@@ -116,7 +116,7 @@ export const createShadow = (
         vars: {
           '--shadow-ambient': `inset -1px -1px 2px rgba(${baseRgb}, 0.3)`,
           '--shadow-highlight': `inset 1px -1px 2px rgba(${highlightRgb}, 0.5)`,
-          '--shadow-edge': `-1px -1px -1px rgba(${highlightRgb}, 0.9)`, // 表面コーティング（パキッとした硬質な輪郭）
+          '--shadow-edge': `-1px -1px 0px rgba(${highlightRgb}, 0.9)`, // 表面コーティング（パキッとした硬質な輪郭）
           '--shadow-ground': `1px 1px 2px rgba(${accentRgb}, 0.2)`,
         } as React.CSSProperties,
       };
