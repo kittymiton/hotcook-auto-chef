@@ -20,6 +20,7 @@ const surfaceStyles = {
       highlight: primitives.gray.dove,
     }),
   },
+
   user: {
     shape: 'ml-auto w-fit max-w-[70%]',
     background: 'bg-beige-salmon',
@@ -28,6 +29,7 @@ const surfaceStyles = {
       highlight: primitives.gray.dove,
     }),
   },
+
   recipe: {
     shape: 'mr-auto w-full max-w-[720px]',
     background: 'bg-beige-tomato',
@@ -36,6 +38,7 @@ const surfaceStyles = {
       highlight: primitives.gray.dove,
     }),
   },
+
   'recipe-detail': {
     shape: 'mx-auto w-full',
     background: 'bg-beige-tomato',
@@ -44,11 +47,31 @@ const surfaceStyles = {
       highlight: primitives.gray.dove,
     }),
   },
+
+  'recipe-list-item': {
+    shape: 'mx-auto w-full',
+    background: 'bg-beige-tomato',
+    hover: 'hover:shadow-soft-glossy',
+    transition: 'transition-all duration-200',
+    shadow: createShadow('soft-glossy', {
+      base: primitives.pink.softPink,
+      highlight: primitives.pink.strawberry,
+      accent: primitives.gray.dark,
+    }),
+    shadowOnlyOnHover: true, // 通常時の影を消す
+  },
 } as const;
 
 // 外枠を提供
 export const Surface = ({ variant, children }: Props) => {
   const config = surfaceStyles[variant];
+
+  const isShadowOnlyOnHover =
+    'shadowOnlyOnHover' in config && config.shadowOnlyOnHover;
+  const shadowClass = isShadowOnlyOnHover ? 'shadow-none' : config.shadow?.type;
+
+  const hoverClass = 'hover' in config && config.hover;
+  const transitionClass = 'transition' in config && config.transition;
 
   return (
     <div
@@ -56,7 +79,9 @@ export const Surface = ({ variant, children }: Props) => {
         baseClassName,
         config.shape,
         config.background,
-        config.shadow?.type
+        hoverClass,
+        shadowClass,
+        transitionClass
       )}
       style={{
         ...(config.shadow?.vars ?? {}),
