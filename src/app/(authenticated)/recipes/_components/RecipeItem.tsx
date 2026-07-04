@@ -7,13 +7,13 @@ type Props = {
   recipe: RecipeDetail;
 };
 
-// NOTE: 保存済みレシピの詳細・編集用
+// 保存済みレシピの詳細・編集画面
 export const RecipeItem = ({ recipe }: Props) => {
   const itemsBlock = stepsItemForParse(recipe.ingredients, recipe.instructions);
 
   return (
     <>
-      <h1 className="mb-2 text-2xl font-bold">{recipe.title}</h1>
+      <h1 className="mt-2 pt-2 text-2xl font-bold">{recipe.title}</h1>
       <p className="mb-2 text-gray-600">
         ⏱ 調理時間: {recipe.cookingTime || '不明'}
       </p>
@@ -27,7 +27,7 @@ export const RecipeItem = ({ recipe }: Props) => {
         </ul>
 
         <h2 className="mb-1 text-lg font-semibold">作り方</h2>
-        <ol className="list-inside list-decimal">
+        <ol className="mb-4 list-inside list-decimal">
           {itemsBlock.instructions.map((step: string, i: number) => (
             <li key={i} className="mb-1">
               {step.replace(/^\d+[:：]\s*/, '').trim()}
@@ -44,6 +44,7 @@ export const RecipeItem = ({ recipe }: Props) => {
           ))}
         </ul>
       </section>
+
       {recipe.imageKey && (
         <Image
           src={`/images/${recipe.imageKey}`}
