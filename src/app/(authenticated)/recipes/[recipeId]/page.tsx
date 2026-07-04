@@ -87,7 +87,7 @@ export default function RecipeDetailPage() {
 
     return (
       <>
-        <Surface type="recipe-detail">
+        <Surface variant="recipe-detail">
           <RecipeItem recipe={recipe} />
         </Surface>
 

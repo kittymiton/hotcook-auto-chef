@@ -2,14 +2,15 @@ import { cn } from '@/lib/utils/cn';
 import { primitives } from '@styles/primitives';
 import { createShadow } from '@styles/tailwindTokens';
 
-type SurfaceType = keyof typeof surfaceStyles;
+type SurfaceVariant = keyof typeof surfaceStyles;
 type Props = {
-  type: SurfaceType;
+  variant: SurfaceVariant;
   children?: React.ReactNode;
 };
 
-// NOTE: typeごとの差分を閉じるためTailwindクラスをconfigに置く。
-// Prettierの並び替えが効きにくいので、追加時は手動で順序を整える。
+const baseClassName = 'mb-6 rounded-xl px-4 pb-4 pt-3';
+
+// Prettierの並び替えが効きにくいので、追加時は手動で順序を整える
 const surfaceStyles = {
   chef: {
     shape: 'mr-auto w-fit max-w-[680px]',
@@ -45,12 +46,9 @@ const surfaceStyles = {
   },
 } as const;
 
-const baseClassName = 'mb-6 rounded-xl px-4 pb-4 pt-3';
-
-// 外枠だけを提供
-export const Surface = ({ type, children }: Props) => {
-  // typeごとの箱の差分
-  const config = surfaceStyles[type];
+// 外枠を提供
+export const Surface = ({ variant, children }: Props) => {
+  const config = surfaceStyles[variant];
 
   return (
     <div
