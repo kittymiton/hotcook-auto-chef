@@ -1,6 +1,7 @@
 import { stepsItemForParse } from '@/lib/parser/stepsItemForParse';
 import type { RecipeDetail } from '@/lib/schema/recipeSchema';
 import Image from 'next/image';
+import { Tag } from '../../../../components/Tag';
 
 type Props = {
   recipe: RecipeDetail;
@@ -33,6 +34,15 @@ export const RecipeItem = ({ recipe }: Props) => {
             </li>
           ))}
         </ol>
+
+        <h3 className="mb-2 text-sm font-semibold">キーワード</h3>
+        <ul className="mb-4 flex flex-wrap gap-2">
+          {recipe.tags.map((tag: string) => (
+            <li key={tag}>
+              <Tag keyword={tag} />
+            </li>
+          ))}
+        </ul>
       </section>
       {recipe.imageKey && (
         <Image
