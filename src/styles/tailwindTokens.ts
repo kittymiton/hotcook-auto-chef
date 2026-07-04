@@ -111,7 +111,7 @@ export const createShadow = (
 
     case 'soft-glossy':
       return {
-        type: `shadow-${type}`,
+        type: shadowMap[type],
         vars: {
           '--shadow-ambient': `inset -1px -1px 2px rgba(${baseRgb}, 0.3)`,
           '--shadow-highlight': `inset 1px -1px 2px rgba(${highlightRgb}, 0.5)`,
