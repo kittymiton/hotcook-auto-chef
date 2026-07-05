@@ -1,6 +1,7 @@
 import { createErrorResponse } from '@/lib/apiServer/createErrorResponse';
 import { requireUserId } from '@/lib/apiServer/requireUserId';
 import { idParamSchema } from '@/lib/schema/paramSchema';
+import { recipeDetailSchema } from '@/lib/schema/recipeSchema';
 import { prisma } from '@/lib/utils/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { ZodError } from 'zod';
@@ -28,6 +29,15 @@ export async function GET(
         instructions: true,
         imageKey: true,
         talkRoomId: true,
+        tags: {
+          select: {
+            recipeTag: {
+              select: {
+                tag: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -35,7 +45,15 @@ export async function GET(
       return createErrorResponse('RECIPE_NOT_FOUND', 404);
     }
 
-    return NextResponse.json(recipe);
+    const recipeTags = recipe.tags.map((relation) => {
+      return relation.recipeTag.tag;
+    });
+
+    const formattedRecipe = { ...recipe, tags: recipeTags };
+
+    const parsedRecipe = recipeDetailSchema.parse(formattedRecipe);
+
+    return NextResponse.json(parsedRecipe);
   } catch (e) {
     if (e instanceof ZodError) {
       console.error('[Recipe API] GET Validation failed', e);

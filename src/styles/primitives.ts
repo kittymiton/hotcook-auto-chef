@@ -42,6 +42,7 @@ export const primitives = {
     pink: '#fff7f6',
     deep: '#716C68',
     cement: '#C0B7B0',
+    dark_tomato: '#5e26264d',
   },
   white: '#FFFFFF',
   charcoal: '#110000',

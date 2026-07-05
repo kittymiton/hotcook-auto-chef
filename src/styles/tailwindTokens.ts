@@ -32,7 +32,7 @@ const darkenSingleHex = (hex: string): string => {
   return `#${newR}${newG}${newB}`;
 };
 
-// colorを1段濃くする関数
+// hover用 colorを1段濃くする関数
 export const createActiveColor = (colorStr: string): string => {
   return colorStr.replace(/#[0-9a-fA-F]{6}/g, (match) =>
     darkenSingleHex(match)
@@ -46,6 +46,7 @@ type ShadowColors = {
   base: string;
   highlight: string;
   accent?: string;
+  // TODO: createShadowのcolors型をshadow typeごとに分ける。accentの渡しを型で守る。
 };
 
 // createShadowに渡す型
@@ -111,11 +112,11 @@ export const createShadow = (
 
     case 'soft-glossy':
       return {
-        type: `shadow-${type}`,
+        type: shadowMap[type],
         vars: {
           '--shadow-ambient': `inset -1px -1px 2px rgba(${baseRgb}, 0.3)`,
           '--shadow-highlight': `inset 1px -1px 2px rgba(${highlightRgb}, 0.5)`,
-          '--shadow-edge': `-1px -1px -1px rgba(${highlightRgb}, 0.9)`, // 表面コーティング（パキッとした硬質な輪郭）
+          '--shadow-edge': `-1px -1px 0px rgba(${highlightRgb}, 0.9)`, // 表面コーティング（パキッとした硬質な輪郭）
           '--shadow-ground': `1px 1px 2px rgba(${accentRgb}, 0.2)`,
         } as React.CSSProperties,
       };
@@ -147,8 +148,9 @@ export const createShadow = (
   }
 };
 
-// 1層に整えてconfigに渡す
+// className用 1層に整えてconfigに渡す
 // 役割色（よく使う場所をエイリアスとして固定登録）重複OK
+// 影色は肥大化防止でTailwindクラス化せずcreateShadowに実色を渡す
 export const tailwindColors = {
   white: primitives.white,
   primary: primitives.charcoal,

@@ -8,7 +8,7 @@ type Props = {
 // TODO: RecipeDetail実装時に、材料・作り方などの内部表示を共通パーツとして抽出する。
 export const TalkRecipe = ({ recipe }: Props) => {
   return (
-    <Surface type="recipe">
+    <Surface variant="recipe">
       <h2 className="mb-1 text-[18px] font-[600]">
         {recipe['レシピタイトル']}
       </h2>

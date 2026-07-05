@@ -7,7 +7,7 @@ type Props = {
 // contentをSurfaceのchildrenとして渡す薄いラッパー
 export const TalkUser = ({ content }: Props) => {
   return (
-    <Surface type="user">
+    <Surface variant="user">
       <p className="whitespace-pre-line">{content}</p>
     </Surface>
   );

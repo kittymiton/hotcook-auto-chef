@@ -6,7 +6,7 @@ type Props = {
 
 export const TalkChef = ({ content }: Props) => {
   return (
-    <Surface type="chef">
+    <Surface variant="chef">
       <p className="whitespace-pre-line">{content}</p>
     </Surface>
   );

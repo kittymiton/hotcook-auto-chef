@@ -1,6 +1,7 @@
 import { createErrorResponse } from '@/lib/apiServer/createErrorResponse';
 import { requireUserId } from '@/lib/apiServer/requireUserId';
 import { numberSchema } from '@/lib/schema/numberSchema';
+import { recipeSummaryListSchema } from '@/lib/schema/recipeSchema';
 import { prisma } from '@/lib/utils/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { ZodError } from 'zod';
@@ -23,12 +24,32 @@ export async function GET(request: NextRequest) {
         title: true,
         cookingTime: true,
         talkRoomId: true,
+        tags: {
+          select: {
+            recipeTag: {
+              select: {
+                tag: true,
+              },
+            },
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
       take,
     });
 
-    return NextResponse.json(recipes); // 0件(データ未保存）でも正常（空配列で返す）
+    const formattedRecipes = recipes.map((recipe) => {
+      // レシピ単体はtag[]にしたレシピに作り変える
+      const recipeTags = recipe.tags.map((relation) => {
+        return relation.recipeTag.tag;
+      });
+
+      return { ...recipe, tags: recipeTags };
+    });
+
+    const parsedRecipes = recipeSummaryListSchema.parse(formattedRecipes);
+
+    return NextResponse.json(parsedRecipes); // 0件(データ未保存）でも正常（空配列で返す）
   } catch (e) {
     if (e instanceof ZodError) {
       console.error('[Recipes API] GET Validation failed', e);
