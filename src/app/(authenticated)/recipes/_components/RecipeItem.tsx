@@ -1,5 +1,6 @@
 import { stepsItemForParse } from '@/lib/parser/stepsItemForParse';
 import type { RecipeDetail } from '@/lib/schema/recipeSchema';
+import { RecipePoint } from '@authenticated/components/recipe/RecipePoint';
 import { RecipeTag } from '@authenticated/components/recipe/RecipeTag';
 import Image from 'next/image';
 
@@ -17,7 +18,9 @@ export const RecipeItem = ({ recipe }: Props) => {
       <p className="mb-2 text-gray-600">
         ⏱ 調理時間: {recipe.cookingTime || '不明'}
       </p>
-      <p className="mb-4">{recipe.point}</p>
+
+      <RecipePoint point={recipe.point} />
+
       <section>
         <h2 className="mb-1 text-lg font-semibold">材料（2人分）</h2>
         <ul className="mb-4 list-inside list-disc">
