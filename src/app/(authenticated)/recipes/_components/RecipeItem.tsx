@@ -1,7 +1,7 @@
 import { stepsItemForParse } from '@/lib/parser/stepsItemForParse';
 import type { RecipeDetail } from '@/lib/schema/recipeSchema';
+import { RecipeTag } from '@authenticated/components/recipe/RecipeTag';
 import Image from 'next/image';
-import { Tag } from '../../../../components/Tag';
 
 type Props = {
   recipe: RecipeDetail;
@@ -39,7 +39,7 @@ export const RecipeItem = ({ recipe }: Props) => {
         <ul className="mb-4 flex flex-wrap gap-2">
           {recipe.tags.map((tag: string) => (
             <li key={tag}>
-              <Tag keyword={tag} />
+              <RecipeTag keyword={tag} />
             </li>
           ))}
         </ul>
