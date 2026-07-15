@@ -1,4 +1,5 @@
 import type { RecipeObj } from '@/lib/schema/recipeBlockSchema';
+import { RecipeCookingTime } from '@authenticated/components/recipe/RecipeCookingTime';
 import { RecipePoint } from '@authenticated/components/recipe/RecipePoint';
 import { Surface } from '../../../../../components/ui/Surface';
 
@@ -15,12 +16,7 @@ export const TalkRecipe = ({ recipe }: Props) => {
       </h2>
 
       <RecipePoint point={recipe['ポイント']} variant="compact" />
-
-      {recipe['調理時間'] && (
-        <p className="mb-1">
-          <strong>調理時間:</strong> {recipe['調理時間']}
-        </p>
-      )}
+      <RecipeCookingTime cookingTime={recipe['調理時間']} variant="compact" />
 
       <div className="mb-1">
         <strong>材料（2人分）:</strong>
