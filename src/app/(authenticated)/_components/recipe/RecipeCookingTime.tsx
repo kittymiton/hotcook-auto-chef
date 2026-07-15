@@ -7,7 +7,7 @@ type Props = {
 const styles = {
   compact: 'mb-1',
   default: 'mb-2',
-};
+} as const;
 
 export const RecipeCookingTime = ({ variant, cookingTime }: Props) => {
   const styleKey = variant ?? 'default';
