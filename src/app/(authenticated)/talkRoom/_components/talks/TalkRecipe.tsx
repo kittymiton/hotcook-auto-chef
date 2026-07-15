@@ -1,5 +1,6 @@
 import type { RecipeObj } from '@/lib/schema/recipeBlockSchema';
 import { RecipeCookingTime } from '@authenticated/components/recipe/RecipeCookingTime';
+import { RecipeIngredients } from '@authenticated/components/recipe/RecipeIngredients';
 import { RecipePoint } from '@authenticated/components/recipe/RecipePoint';
 import { Surface } from '../../../../../components/ui/Surface';
 
@@ -17,21 +18,10 @@ export const TalkRecipe = ({ recipe }: Props) => {
 
       <RecipePoint point={recipe['ポイント']} variant="compact" />
       <RecipeCookingTime cookingTime={recipe['調理時間']} variant="compact" />
-
-      <div className="mb-1">
-        <strong>材料（2人分）:</strong>
-        <ul>
-          {recipe['材料（2人分）'].map((item, index) => (
-            <li
-              key={index}
-              className="relative pl-6 before:absolute before:left-[0.2em] before:top-[0.6em] before:h-2 before:w-2 before:rounded-full before:bg-primary before:content-['']"
-            >
-              {item}
-            </li>
-            // TODO:JSON構造を見直し：英語keyに変更 / keyにidを持たせkey.idの形にする
-          ))}
-        </ul>
-      </div>
+      <RecipeIngredients
+        ingredients={recipe['材料（2人分）']}
+        variant="compact"
+      />
 
       <div>
         <strong>作り方:</strong>
