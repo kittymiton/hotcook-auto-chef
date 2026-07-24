@@ -11,7 +11,6 @@ import { RecipeItem } from '@authenticated/recipes/components/RecipeItem';
 import { SideRecipeList } from '@authenticated/talkRoom/components/side/SideRecipeList';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { Surface } from '../../../../components/ui/Surface';
 
 export default function RecipeDetailPage() {
   const router = useRouter();
@@ -87,9 +86,7 @@ export default function RecipeDetailPage() {
 
     return (
       <>
-        <Surface variant="recipe-detail">
-          <RecipeItem recipe={recipe} />
-        </Surface>
+        <RecipeItem recipe={recipe} />
 
         {/* ちらつき防止 */}
         {talkRoomId && (

@@ -6,6 +6,7 @@ import { RecipeInstructions } from '@authenticated/components/recipe/RecipeInstr
 import { RecipePoint } from '@authenticated/components/recipe/RecipePoint';
 import { RecipeTag } from '@authenticated/components/recipe/RecipeTag';
 import Image from 'next/image';
+import { Surface } from '../../../../components/ui/Surface';
 
 type Props = {
   recipe: RecipeDetail;
@@ -16,7 +17,7 @@ export const RecipeItem = ({ recipe }: Props) => {
   const itemsBlock = stepsItemForParse(recipe.ingredients, recipe.instructions);
 
   return (
-    <>
+    <Surface variant="recipe-detail">
       <h1 className="mt-2 pt-2 text-2xl font-bold">{recipe.title}</h1>
 
       <RecipePoint point={recipe.point} />
@@ -45,6 +46,6 @@ export const RecipeItem = ({ recipe }: Props) => {
           className="mb-4 rounded-lg shadow"
         />
       )}
-    </>
+    </Surface>
   );
 };
