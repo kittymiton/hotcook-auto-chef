@@ -2,6 +2,7 @@ import { stepsItemForParse } from '@/lib/parser/stepsItemForParse';
 import type { RecipeDetail } from '@/lib/schema/recipeSchema';
 import { RecipeCookingTime } from '@authenticated/components/recipe/RecipeCookingTime';
 import { RecipeIngredients } from '@authenticated/components/recipe/RecipeIngredients';
+import { RecipeInstructions } from '@authenticated/components/recipe/RecipeInstructions';
 import { RecipePoint } from '@authenticated/components/recipe/RecipePoint';
 import { RecipeTag } from '@authenticated/components/recipe/RecipeTag';
 import Image from 'next/image';
@@ -23,15 +24,7 @@ export const RecipeItem = ({ recipe }: Props) => {
 
       <section>
         <RecipeIngredients ingredients={itemsBlock.ingredients} />
-
-        <h2 className="mb-1 text-lg font-semibold">作り方</h2>
-        <ol className="mb-4 list-inside list-decimal">
-          {itemsBlock.instructions.map((step: string, i: number) => (
-            <li key={i} className="mb-1">
-              {step.replace(/^\d+[:：]\s*/, '').trim()}
-            </li>
-          ))}
-        </ol>
+        <RecipeInstructions instructions={itemsBlock.instructions} />
 
         <h3 className="mb-2 text-sm font-semibold">キーワード</h3>
         <ul className="mb-4 flex flex-wrap gap-2">

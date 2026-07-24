@@ -1,6 +1,7 @@
 import type { RecipeObj } from '@/lib/schema/recipeBlockSchema';
 import { RecipeCookingTime } from '@authenticated/components/recipe/RecipeCookingTime';
 import { RecipeIngredients } from '@authenticated/components/recipe/RecipeIngredients';
+import { RecipeInstructions } from '@authenticated/components/recipe/RecipeInstructions';
 import { RecipePoint } from '@authenticated/components/recipe/RecipePoint';
 import { Surface } from '../../../../../components/ui/Surface';
 
@@ -22,19 +23,7 @@ export const TalkRecipe = ({ recipe }: Props) => {
         ingredients={recipe['材料（2人分）']}
         variant="compact"
       />
-
-      <div>
-        <strong>作り方:</strong>
-        <ol>
-          {recipe['作り方'].map((step, index) => (
-            <li key={index} className="flex gap-2">
-              <span className="shrink-0 font-bold">{index + 1}.</span>
-              <span>{step.replace(/^\d+[:：]\s*/, '').trim()}</span>
-            </li>
-            // TODO:JSON構造を見直し：配列のIndexを信頼し番号を振らずに返却するプロンプトへ変更する
-          ))}
-        </ol>
-      </div>
+      <RecipeInstructions instructions={recipe['作り方']} variant="compact" />
     </Surface>
   );
 };
