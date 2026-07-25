@@ -5,6 +5,7 @@ import { RecipeIngredients } from '@authenticated/components/recipe/RecipeIngred
 import { RecipeInstructions } from '@authenticated/components/recipe/RecipeInstructions';
 import { RecipePoint } from '@authenticated/components/recipe/RecipePoint';
 import { RecipeTag } from '@authenticated/components/recipe/RecipeTag';
+import { RecipeTitle } from '@authenticated/components/recipe/RecipeTitle';
 import Image from 'next/image';
 import { Surface } from '../../../../components/ui/Surface';
 
@@ -18,8 +19,7 @@ export const RecipeItem = ({ recipe }: Props) => {
 
   return (
     <Surface variant="recipe-detail">
-      <h1 className="mt-2 pt-2 text-2xl font-bold">{recipe.title}</h1>
-
+      <RecipeTitle title={recipe.title} />
       <RecipePoint point={recipe.point} />
       <RecipeCookingTime cookingTime={recipe.cookingTime || '不明'} />
 

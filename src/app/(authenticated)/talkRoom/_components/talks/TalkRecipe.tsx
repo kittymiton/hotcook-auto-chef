@@ -3,6 +3,7 @@ import { RecipeCookingTime } from '@authenticated/components/recipe/RecipeCookin
 import { RecipeIngredients } from '@authenticated/components/recipe/RecipeIngredients';
 import { RecipeInstructions } from '@authenticated/components/recipe/RecipeInstructions';
 import { RecipePoint } from '@authenticated/components/recipe/RecipePoint';
+import { RecipeTitle } from '@authenticated/components/recipe/RecipeTitle';
 import { Surface } from '../../../../../components/ui/Surface';
 
 type Props = {
@@ -12,10 +13,7 @@ type Props = {
 export const TalkRecipe = ({ recipe }: Props) => {
   return (
     <Surface variant="recipe">
-      <h2 className="mb-1 text-[18px] font-[600]">
-        {recipe['レシピタイトル']}
-      </h2>
-
+      <RecipeTitle title={recipe['レシピタイトル']} variant="compact" />
       <RecipePoint point={recipe['ポイント']} variant="compact" />
       <RecipeCookingTime cookingTime={recipe['調理時間']} variant="compact" />
       <RecipeIngredients
