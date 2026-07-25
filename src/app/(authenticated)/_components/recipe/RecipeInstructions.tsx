@@ -1,3 +1,8 @@
+import {
+  recipeSectionHeadingStyles,
+  type Variant,
+} from '@authenticated/components/recipe/recipeElementStyles';
+
 type Props = {
   variant?: Variant;
   instructions: string[];
@@ -6,20 +11,21 @@ type Props = {
 const olStyles = {
   compact: 'mb-1',
   default: 'mb-4',
-} as const;
-
-type Variant = keyof typeof olStyles;
+} as const satisfies Record<Variant, string>;
 
 export const RecipeInstructions = ({ variant, instructions }: Props) => {
   const styleKey = variant ?? 'default';
   const styleClass = olStyles[styleKey];
+  const headingClass = recipeSectionHeadingStyles[styleKey];
+
+  const instructionsHeadingText = '作り方';
 
   let heading: React.ReactNode;
 
   if (styleKey === 'compact') {
-    heading = <h3 className="font-semibold">作り方</h3>;
+    heading = <h3 className={headingClass}>{instructionsHeadingText}</h3>;
   } else {
-    heading = <h2 className="mb-1 text-lg font-semibold">作り方</h2>;
+    heading = <h2 className={headingClass}>{instructionsHeadingText}</h2>;
   }
 
   return (

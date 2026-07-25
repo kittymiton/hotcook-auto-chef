@@ -1,17 +1,16 @@
-type Variant = keyof typeof styles;
+import {
+  recipeElementMarginStyles,
+  type Variant,
+} from '@authenticated/components/recipe/recipeElementStyles';
+
 type Props = {
   variant?: Variant;
   point?: string;
 };
 
-const styles = {
-  compact: 'mb-1',
-  default: 'mb-2',
-} as const;
-
 export const RecipePoint = ({ point, variant }: Props) => {
   const styleKey = variant ?? 'default';
-  const styleClass = styles[styleKey];
+  const styleClass = recipeElementMarginStyles[styleKey];
 
   if (!point) return null;
 
