@@ -14,7 +14,7 @@ export const RecipeInstructions = ({ variant, instructions }: Props) => {
   const styleKey = variant ?? 'default';
   const styleClass = olStyles[styleKey];
 
-  let heading;
+  let heading: React.ReactNode;
 
   if (styleKey === 'compact') {
     heading = <h3 className="font-semibold">作り方</h3>;
