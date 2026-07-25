@@ -38,8 +38,8 @@ export const primitives = {
     coffee: '#df9a7680', //50% opacityfff0e880
     caramel: '#f1cdb4cc', //80% opacity
     oyster: '#fe962299',
-    tomato: '#ff8e8e4d',
-    pink: '#fff7f6',
+    tomato: '#ffa9a99c',
+    pink: '#ffe7e4',
     deep: '#716C68',
     cement: '#C0B7B0',
     dark_tomato: '#5e26264d',
