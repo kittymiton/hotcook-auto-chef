@@ -1,7 +1,13 @@
 import { stepsItemForParse } from '@/lib/parser/stepsItemForParse';
 import type { RecipeDetail } from '@/lib/schema/recipeSchema';
+import { RecipeCookingTime } from '@authenticated/components/recipe/RecipeCookingTime';
+import { RecipeIngredients } from '@authenticated/components/recipe/RecipeIngredients';
+import { RecipeInstructions } from '@authenticated/components/recipe/RecipeInstructions';
+import { RecipePoint } from '@authenticated/components/recipe/RecipePoint';
+import { RecipeTag } from '@authenticated/components/recipe/RecipeTag';
+import { RecipeTitle } from '@authenticated/components/recipe/RecipeTitle';
 import Image from 'next/image';
-import { Tag } from '../../../../components/Tag';
+import { Surface } from '../../../../components/ui/Surface';
 
 type Props = {
   recipe: RecipeDetail;
@@ -12,34 +18,20 @@ export const RecipeItem = ({ recipe }: Props) => {
   const itemsBlock = stepsItemForParse(recipe.ingredients, recipe.instructions);
 
   return (
-    <>
-      <h1 className="mt-2 pt-2 text-2xl font-bold">{recipe.title}</h1>
-      <p className="mb-2 text-gray-600">
-        ⏱ 調理時間: {recipe.cookingTime || '不明'}
-      </p>
-      <p className="mb-4">{recipe.point}</p>
-      <section>
-        <h2 className="mb-1 text-lg font-semibold">材料（2人分）</h2>
-        <ul className="mb-4 list-inside list-disc">
-          {itemsBlock.ingredients.map((item: string, i: number) => (
-            <li key={i}>{item}</li>
-          ))}
-        </ul>
+    <Surface variant="recipe-detail">
+      <RecipeTitle title={recipe.title} />
+      <RecipePoint point={recipe.point} />
+      <RecipeCookingTime cookingTime={recipe.cookingTime || '不明'} />
 
-        <h2 className="mb-1 text-lg font-semibold">作り方</h2>
-        <ol className="mb-4 list-inside list-decimal">
-          {itemsBlock.instructions.map((step: string, i: number) => (
-            <li key={i} className="mb-1">
-              {step.replace(/^\d+[:：]\s*/, '').trim()}
-            </li>
-          ))}
-        </ol>
+      <section>
+        <RecipeIngredients ingredients={itemsBlock.ingredients} />
+        <RecipeInstructions instructions={itemsBlock.instructions} />
 
         <h3 className="mb-2 text-sm font-semibold">キーワード</h3>
         <ul className="mb-4 flex flex-wrap gap-2">
           {recipe.tags.map((tag: string) => (
             <li key={tag}>
-              <Tag keyword={tag} />
+              <RecipeTag keyword={tag} />
             </li>
           ))}
         </ul>
@@ -54,6 +46,6 @@ export const RecipeItem = ({ recipe }: Props) => {
           className="mb-4 rounded-lg shadow"
         />
       )}
-    </>
+    </Surface>
   );
 };

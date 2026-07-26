@@ -20,6 +20,7 @@ export type RecipeSummaryList = z.infer<typeof recipeSummaryListSchema>;
 export const recipeDetailSchema = recipeBaseSchema.extend({
   point: z.string().optional(),
   cookingTime: z.string().optional(),
+  // TODO: cookingTimeは後で必須化し、空文字も弾く
   ingredients: z.string(),
   instructions: z.string(),
   imageKey: z.string().nullable().optional(),

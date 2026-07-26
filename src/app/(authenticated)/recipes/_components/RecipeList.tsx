@@ -1,11 +1,13 @@
 import type { RecipeSummaryList } from '@/lib/schema/recipeSchema';
+import { RecipeTag } from '@authenticated/components/recipe/RecipeTag';
 import Link from 'next/link';
-import { Tag } from '../../../../components/Tag';
 import { Surface } from '../../../../components/ui/Surface';
 
 type Props = {
   recipes: RecipeSummaryList;
   cookingTime?: boolean;
+  // TODO: 表示するかbooleanとして扱っているが、表示内容そのものを渡す形に整理
+  // RecipePointと同じく、値があれば表示するコンポーネントに寄せる
 };
 
 export const RecipeList = ({ recipes, cookingTime }: Props) => {
@@ -29,7 +31,7 @@ export const RecipeList = ({ recipes, cookingTime }: Props) => {
                     <ul className="mb-1 flex flex-wrap gap-2">
                       {recipe.tags.map((tag: string) => (
                         <li key={tag}>
-                          <Tag keyword={tag} />
+                          <RecipeTag keyword={tag} />
                         </li>
                       ))}
                     </ul>

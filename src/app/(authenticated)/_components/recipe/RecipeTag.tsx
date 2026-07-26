@@ -15,7 +15,7 @@ const tagStyles = {
   }),
 } as const;
 
-export const Tag = ({ keyword }: Props) => {
+export const RecipeTag = ({ keyword }: Props) => {
   const shadowClass = tagStyles.shadow.type;
   const shadowVars = tagStyles.shadow.vars;
 
