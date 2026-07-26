@@ -26,12 +26,12 @@ export const RecipeTitle = ({ variant, title }: Props) => {
     titleStyles[styleKey]
   );
 
-  let recipeTitle: React.ReactNode;
+  const recipeTitle =
+    styleKey === 'compact' ? (
+      <h2 className={combinedClass}>{title}</h2>
+    ) : (
+      <h1 className={combinedClass}>{title}</h1>
+    );
 
-  if (styleKey === 'compact') {
-    recipeTitle = <h2 className={combinedClass}>{title}</h2>;
-  } else {
-    recipeTitle = <h1 className={combinedClass}>{title}</h1>;
-  }
   return recipeTitle;
 };

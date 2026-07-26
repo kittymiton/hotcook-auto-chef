@@ -23,13 +23,12 @@ export const RecipeIngredients = ({ variant, ingredients }: Props) => {
 
   const ingredientsHeadingText = '材料（2人分）';
 
-  let heading: React.ReactNode;
-
-  if (styleKey === 'compact') {
-    heading = <h3 className={headingClass}>{ingredientsHeadingText}</h3>;
-  } else {
-    heading = <h2 className={headingClass}>{ingredientsHeadingText}</h2>;
-  }
+  const heading =
+    styleKey === 'compact' ? (
+      <h3 className={headingClass}>{ingredientsHeadingText}</h3>
+    ) : (
+      <h2 className={headingClass}>{ingredientsHeadingText}</h2>
+    );
 
   return (
     <section>
