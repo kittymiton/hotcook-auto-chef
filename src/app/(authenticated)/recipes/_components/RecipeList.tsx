@@ -5,12 +5,9 @@ import { Surface } from '../../../../components/ui/Surface';
 
 type Props = {
   recipes: RecipeSummaryList;
-  cookingTime?: boolean;
-  // TODO: 表示するかbooleanとして扱っているが、表示内容そのものを渡す形に整理
-  // RecipePointと同じく、値があれば表示するコンポーネントに寄せる
 };
 
-export const RecipeList = ({ recipes, cookingTime }: Props) => {
+export const RecipeList = ({ recipes }: Props) => {
   return (
     <>
       <ul className="space-y-4">
@@ -24,7 +21,7 @@ export const RecipeList = ({ recipes, cookingTime }: Props) => {
                       {recipe.title}
                     </h2>
 
-                    {cookingTime && recipe.cookingTime && (
+                    {/* {recipe.cookingTime && (
                       <p className="text-sm">調理時間: {recipe.cookingTime}</p>
                     )}
 
