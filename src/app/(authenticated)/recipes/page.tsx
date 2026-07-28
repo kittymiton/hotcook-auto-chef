@@ -54,7 +54,7 @@ export default function RecipesPage() {
       );
     }
 
-    return <RecipeList recipes={recipes} cookingTime={true} />;
+    return <RecipeList recipes={recipes} />;
   };
 
   // renderRecipeList内ガードの外なので、recipesが未取得でも落ちないようにする

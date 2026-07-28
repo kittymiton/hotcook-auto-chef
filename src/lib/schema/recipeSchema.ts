@@ -9,7 +9,7 @@ export type RecipeBaseList = z.infer<typeof recipeSchema>;
 
 // レシピ一覧表示用 APIからフロント
 export const recipeSummarySchema = recipeBaseSchema.extend({
-  cookingTime: z.string().optional(),
+  point: z.string().optional(),
   talkRoomId: z.number(),
   tags: z.array(z.string().min(1)),
 });

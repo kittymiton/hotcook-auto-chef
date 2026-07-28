@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
       select: {
         id: true,
         title: true,
-        cookingTime: true,
+        point: true,
         talkRoomId: true,
         tags: {
           select: {
