@@ -1,5 +1,7 @@
 import type { RecipeSummaryList } from '@/lib/schema/recipeSchema';
+import { RecipePoint } from '@authenticated/components/recipe/RecipePoint';
 import { RecipeTag } from '@authenticated/components/recipe/RecipeTag';
+import { RecipeTitle } from '@authenticated/components/recipe/RecipeTitle';
 import Link from 'next/link';
 import { Surface } from '../../../../components/ui/Surface';
 
@@ -17,14 +19,11 @@ export const RecipeList = ({ recipes }: Props) => {
               <Surface variant="recipe-list-item">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                   <section>
-                    <h2 className="text-lg font-semibold hover:underline">
-                      {recipe.title}
-                    </h2>
-
-                    {/* {recipe.cookingTime && (
-                      <p className="text-sm">調理時間: {recipe.cookingTime}</p>
-                    )}
-
+                    <RecipeTitle title={recipe.title} variant="compact" />
+                    <div className="flex items-start gap-1">
+                      {recipe.point && `💡`}
+                      <RecipePoint point={recipe.point} />
+                    </div>
                     <ul className="mb-1 flex flex-wrap gap-2">
                       {recipe.tags.map((tag: string) => (
                         <li key={tag}>
