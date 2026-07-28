@@ -21,7 +21,7 @@ export const RecipeItem = ({ recipe }: Props) => {
     <Surface variant="recipe-detail">
       <RecipeTitle title={recipe.title} />
       <RecipePoint point={recipe.point} />
-      <RecipeCookingTime cookingTime={recipe.cookingTime || '不明'} />
+      <RecipeCookingTime cookingTime={recipe.cookingTime} />
 
       <section>
         <RecipeIngredients ingredients={itemsBlock.ingredients} />

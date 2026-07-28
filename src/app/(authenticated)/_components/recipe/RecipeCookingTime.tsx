@@ -15,7 +15,7 @@ export const RecipeCookingTime = ({ variant, cookingTime }: Props) => {
   const timeDisplay = cookingTime ?? '不明';
   // TODO: Zodのstring()は空文字も通すのでcookingTime必須化後はfallback表示を見直す
 
-  const timePrefix = styleKey === 'compact' ? '' : '⏱ ';
+  const timePrefix = styleKey === 'compact' ? '' : '◷ ';
 
   return (
     <p className={styleClass}>
