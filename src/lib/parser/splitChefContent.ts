@@ -1,8 +1,14 @@
 import { extractedRecipeBlock } from '@/lib/parser/extractedRecipeBlock';
-import { recipeBlockSchema } from '@/lib/schema/recipeBlockSchema';
-import { type ParsedContent } from '@/types/talk';
+import { recipeBlockSchema, RecipeObj } from '@/lib/schema/recipeBlockSchema';
 
-export function splitChefContent(chefContent: string): ParsedContent {
+// AI返答を文章とレシピに分割した結果の型
+type ParsedChefContent = {
+  prefix: string;
+  recipe: RecipeObj | null;
+  suffix: string | null;
+};
+
+export function splitChefContent(chefContent: string): ParsedChefContent {
   const extracted = extractedRecipeBlock(chefContent);
   if (!extracted) {
     return {

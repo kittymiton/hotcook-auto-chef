@@ -96,11 +96,11 @@ export async function POST(request: NextRequest) {
 
         const recipe = await tx.recipe.create({
           data: {
-            title: recipeObj['レシピタイトル'],
-            point: recipeObj['ポイント'],
-            cookingTime: recipeObj['調理時間'],
-            ingredients: JSON.stringify(recipeObj['材料（2人分）']),
-            instructions: JSON.stringify(recipeObj['作り方']),
+            title: recipeObj['title'],
+            point: recipeObj['point'],
+            cookingTime: recipeObj['cookingTime'],
+            ingredients: JSON.stringify(recipeObj['ingredients']),
+            instructions: JSON.stringify(recipeObj['instructions']),
             createdByUser: userId,
             talkRoomId,
           },

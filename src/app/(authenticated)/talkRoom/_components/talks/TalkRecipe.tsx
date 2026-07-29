@@ -13,14 +13,14 @@ type Props = {
 export const TalkRecipe = ({ recipe }: Props) => {
   return (
     <Surface variant="recipe">
-      <RecipeTitle title={recipe['レシピタイトル']} variant="compact" />
-      <RecipePoint point={recipe['ポイント']} variant="compact" />
-      <RecipeCookingTime cookingTime={recipe['調理時間']} variant="compact" />
-      <RecipeIngredients
-        ingredients={recipe['材料（2人分）']}
+      <RecipeTitle title={recipe.title} variant="compact" />
+      <RecipePoint point={recipe.point} variant="compact" />
+      <RecipeCookingTime cookingTime={recipe.cookingTime} variant="compact" />
+      <RecipeIngredients ingredients={recipe.ingredients} variant="compact" />
+      <RecipeInstructions
+        instructions={recipe.instructions}
         variant="compact"
       />
-      <RecipeInstructions instructions={recipe['作り方']} variant="compact" />
     </Surface>
   );
 };
