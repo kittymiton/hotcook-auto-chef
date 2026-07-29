@@ -139,25 +139,31 @@ export default function TalkRoomIdPage() {
     if (!talks) {
       return <Loading />;
     }
-    if (talks.length === 0) {
-      return <p>会話がまだありません</p>;
-    }
 
+    const emptyMessage =
+      talks.length === 0 ? (
+        <div className="pb-4 pt-4">
+          <p>会話がまだありません。会話してレシピを作ってみましょう。</p>
+        </div>
+      ) : null;
     return (
-      <TalkPanel talks={talks}>
-        <TalkForm
-          onSubmit={handleSubmit}
-          inputRef={inputRef}
-          content={content}
-          isSending={isSending}
-          onFocus={handleInputFocus}
-          onChange={(value) => setContent(value)}
-          isInputFocused={isInputFocused}
-          sortedSuggestList={sortedSuggestList}
-          onKeywordSelect={handleSelectKeyword}
-          isDisabled={isDisabled}
-        />
-      </TalkPanel>
+      <>
+        {emptyMessage}
+        <TalkPanel talks={talks}>
+          <TalkForm
+            onSubmit={handleSubmit}
+            inputRef={inputRef}
+            content={content}
+            isSending={isSending}
+            onFocus={handleInputFocus}
+            onChange={(value) => setContent(value)}
+            isInputFocused={isInputFocused}
+            sortedSuggestList={sortedSuggestList}
+            onKeywordSelect={handleSelectKeyword}
+            isDisabled={isDisabled}
+          />
+        </TalkPanel>
+      </>
     );
   };
 
@@ -168,7 +174,7 @@ export default function TalkRoomIdPage() {
       <div className="flex h-[calc(100vh-55px)] gap-8">
         <SideArea>{renderRecipeList()}</SideArea>
         <TalkArea>
-          <div className="mb-2 min-h-6">
+          <div className="pt-4">
             {errorMsg && <p>送信エラー：{errorMsg}</p>}
           </div>
           {/* TODO: 送信エラー表示を TalkForm 上部に移動し、エラー用の高さを確保する */}
