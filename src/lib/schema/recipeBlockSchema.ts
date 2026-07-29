@@ -1,11 +1,12 @@
 import z from 'zod';
 
+// レシピ保存、Talk表示でレシピの形を保証するSchema
 export const recipeBlockSchema = z.object({
-  レシピタイトル: z.string().trim().min(1),
-  '材料（2人分）': z.array(z.string().trim().min(1)),
-  作り方: z.array(z.string().trim().min(1)),
-  調理時間: z.string().trim().min(1).optional(),
-  ポイント: z.string().trim().min(1).optional(),
+  title: z.string().trim().min(1),
+  ingredients: z.array(z.string().trim().min(1)),
+  instructions: z.array(z.string().trim().min(1)),
+  cookingTime: z.string().trim().min(1).optional(),
+  point: z.string().trim().min(1).optional(),
   keywords: z
     .array(
       z.object({

@@ -12,7 +12,7 @@ export function extractedRecipeBlock(
     };
   }
 
-  const fallbackBlock = content.match(/{[\s\S]*"レシピタイトル"[\s\S]*}/);
+  const fallbackBlock = content.match(/{[\s\S]*"title"[\s\S]*}/);
   if (fallbackBlock) {
     return {
       block: fallbackBlock[0],
