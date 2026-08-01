@@ -5,7 +5,7 @@ import {
 
 type Props = {
   variant?: Variant;
-  cookingTime?: string;
+  cookingTime: string;
 };
 
 export const RecipeCookingTime = ({ variant, cookingTime }: Props) => {

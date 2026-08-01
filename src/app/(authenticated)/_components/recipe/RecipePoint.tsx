@@ -5,14 +5,12 @@ import {
 
 type Props = {
   variant?: Variant;
-  point?: string;
+  point: string;
 };
 
 export const RecipePoint = ({ point, variant }: Props) => {
   const styleKey = variant ?? 'default';
   const styleClass = recipeElementMarginStyles[styleKey];
-
-  if (!point) return null;
 
   return <p className={styleClass}>{point}</p>;
 };
