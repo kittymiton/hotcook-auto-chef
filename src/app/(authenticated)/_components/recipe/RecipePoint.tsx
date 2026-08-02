@@ -8,9 +8,8 @@ type Props = {
   point: string;
 };
 
-export const RecipePoint = ({ point, variant }: Props) => {
-  const styleKey = variant ?? 'default';
-  const styleClass = recipeElementMarginStyles[styleKey];
+export const RecipePoint = ({ variant = 'default', point }: Props) => {
+  const styleClass = recipeElementMarginStyles[variant];
 
   return <p className={styleClass}>{point}</p>;
 };

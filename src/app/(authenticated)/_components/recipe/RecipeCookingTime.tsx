@@ -8,11 +8,12 @@ type Props = {
   cookingTime: string;
 };
 
-export const RecipeCookingTime = ({ variant, cookingTime }: Props) => {
-  const styleKey = variant ?? 'default';
-  const styleClass = recipeElementMarginStyles[styleKey];
-
-  const timePrefix = styleKey === 'compact' ? '' : '◷ ';
+export const RecipeCookingTime = ({
+  variant = 'default',
+  cookingTime,
+}: Props) => {
+  const styleClass = recipeElementMarginStyles[variant];
+  const timePrefix = variant === 'compact' ? '' : '◷ ';
 
   return (
     <p className={styleClass}>

@@ -13,15 +13,17 @@ const olStyles = {
   default: 'mb-4',
 } as const satisfies Record<Variant, string>;
 
-export const RecipeInstructions = ({ variant, instructions }: Props) => {
-  const styleKey = variant ?? 'default';
-  const styleClass = olStyles[styleKey];
-  const headingClass = recipeSectionHeadingStyles[styleKey];
+export const RecipeInstructions = ({
+  variant = 'default',
+  instructions,
+}: Props) => {
+  const styleClass = olStyles[variant];
+  const headingClass = recipeSectionHeadingStyles[variant];
 
   const instructionsHeadingText = '作り方';
 
   const heading =
-    styleKey === 'compact' ? (
+    variant === 'compact' ? (
       <h3 className={headingClass}>{instructionsHeadingText}</h3>
     ) : (
       <h2 className={headingClass}>{instructionsHeadingText}</h2>
