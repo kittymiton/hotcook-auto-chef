@@ -78,8 +78,8 @@ model TalkKeyword {
 model Recipe {
   id            Int                  @id @default(autoincrement())
   title         String
-  point         String?
-  cookingTime   String?
+  point         String
+  cookingTime   String
   ingredients   String
   instructions  String
   imageKey      String?

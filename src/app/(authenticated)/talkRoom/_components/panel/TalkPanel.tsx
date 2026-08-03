@@ -54,9 +54,7 @@ export const TalkPanel = ({ talks, children }: Props) => {
       ref={scrollRef}
       className="flex h-[calc(100vh-55px)] min-h-0 flex-1 flex-col overflow-y-auto rounded-l-3xl bg-gray-steel"
     >
-      <div className="min-h-0 flex-1 overflow-y-auto">
-        <TalkList talks={talks} />
-      </div>
+      <TalkList talks={talks} />
 
       <div className="sticky bottom-0 z-10 bg-gray-steel">{children}</div>
     </section>
