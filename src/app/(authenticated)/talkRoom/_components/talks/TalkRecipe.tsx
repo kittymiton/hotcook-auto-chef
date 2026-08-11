@@ -1,4 +1,4 @@
-import type { RecipeObj } from '@/lib/schema/recipeBlockSchema';
+import type { RecipeObj } from '@/lib/schema/openAIRecipeResponseSchema';
 import { RecipeCookingTime } from '@authenticated/components/recipe/RecipeCookingTime';
 import { RecipeIngredients } from '@authenticated/components/recipe/RecipeIngredients';
 import { RecipeInstructions } from '@authenticated/components/recipe/RecipeInstructions';

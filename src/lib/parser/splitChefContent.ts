@@ -1,5 +1,8 @@
 import { extractedRecipeBlock } from '@/lib/parser/extractedRecipeBlock';
-import { recipeBlockSchema, RecipeObj } from '@/lib/schema/recipeBlockSchema';
+import {
+  openAIRecipeResponseSchema,
+  RecipeObj,
+} from '@/lib/schema/openAIRecipeResponseSchema';
 
 // AI返答を文章とレシピに分割した結果の型
 type ParsedChefContent = {
@@ -19,7 +22,7 @@ export function splitChefContent(chefContent: string): ParsedChefContent {
   }
   const { block, recipeJson, index } = extracted;
   const jsonBlockLength = block.length;
-  const recipe = recipeBlockSchema.parse(JSON.parse(recipeJson));
+  const recipe = openAIRecipeResponseSchema.parse(JSON.parse(recipeJson));
 
   const prefix = chefContent.slice(0, index).trim();
 

@@ -1,8 +1,8 @@
 import { extractedRecipeBlock } from '@/lib/parser/extractedRecipeBlock';
 import {
-  recipeBlockSchema,
+  openAIRecipeResponseSchema,
   type RecipeObj,
-} from '@/lib/schema/recipeBlockSchema';
+} from '@/lib/schema/openAIRecipeResponseSchema';
 
 export function recipeBlockForParse(chefContent: string): RecipeObj | null {
   const extracted = extractedRecipeBlock(chefContent);
@@ -10,7 +10,7 @@ export function recipeBlockForParse(chefContent: string): RecipeObj | null {
 
   try {
     const parsed = JSON.parse(extracted.recipeJson);
-    const result = recipeBlockSchema.safeParse(parsed);
+    const result = openAIRecipeResponseSchema.safeParse(parsed);
     if (!result.success) {
       console.error('[Talk API] POST Validation failed', result.error);
       return null;

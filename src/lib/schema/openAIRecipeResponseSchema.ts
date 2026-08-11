@@ -1,7 +1,7 @@
 import z from 'zod';
 
 // レシピ保存、Talk表示でレシピの形を保証するSchema
-export const recipeBlockSchema = z.object({
+export const openAIRecipeResponseSchema = z.object({
   title: z.string().trim().min(1),
   ingredients: z.array(z.string().trim().min(1)).min(1),
   instructions: z.array(z.string().trim().min(1)).min(1),
@@ -17,6 +17,6 @@ export const recipeBlockSchema = z.object({
     .catch([]),
 });
 
-export type RecipeObj = z.infer<typeof recipeBlockSchema>;
+export type RecipeObj = z.infer<typeof openAIRecipeResponseSchema>;
 
 export type AiKeywords = RecipeObj['keywords'];
