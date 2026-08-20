@@ -55,7 +55,9 @@ export const TalkPanel = ({ talks, children }: Props) => {
     >
       <TalkList talks={talks} />
 
-      <div className="sticky bottom-0 z-10 bg-gray-steel">{children}</div>
+      <div className="sticky bottom-0 z-10 mt-auto bg-gray-steel">
+        {children}
+      </div>
     </section>
   );
 };
