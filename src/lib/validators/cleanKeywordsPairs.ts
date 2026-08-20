@@ -1,4 +1,4 @@
-import type { AiKeywords } from '@/lib/schema/recipeBlockSchema';
+import type { AiKeywords } from '@/lib/schema/openAIRecipeResponseSchema';
 
 // 表示用と検索用が揃っているキーワードだけ保存対象にする
 export function cleanKeywordsPairs(keywords: AiKeywords): AiKeywords {

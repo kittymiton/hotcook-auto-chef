@@ -1,4 +1,4 @@
-import type { RecipeObj } from '@/lib/schema/recipeBlockSchema';
+import type { RecipeObj } from '@/lib/schema/openAIRecipeResponseSchema';
 import { RecipeCookingTime } from '@authenticated/components/recipe/RecipeCookingTime';
 import { RecipeIngredients } from '@authenticated/components/recipe/RecipeIngredients';
 import { RecipeInstructions } from '@authenticated/components/recipe/RecipeInstructions';
@@ -9,6 +9,7 @@ import { Surface } from '../../../../../components/ui/Surface';
 type Props = {
   recipe: RecipeObj;
 };
+
 // トーク内の読み取り専用
 export const TalkRecipe = ({ recipe }: Props) => {
   return (

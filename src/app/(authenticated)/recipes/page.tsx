@@ -46,11 +46,17 @@ export default function RecipesPage() {
 
     if (recipes.length === 0) {
       return (
-        <p>
-          レシピがありません。
-          <br />
-          レシピを作ってみましょう！
-        </p>
+        <>
+          <p>
+            レシピがありません。
+            <br />
+            レシピを作ってみましょう！
+          </p>
+          {/* TODO: レシピ0件時の会話に戻る導線をRecipeに依存せず/api/userRoomを使ってtalkRoomIdを取得、createErrorResponse周辺の整理
+          <Link href={`/talkRoom/${talkRoomId}`} className="text-sm underline">
+            会話に戻る
+          </Link> */}
+        </>
       );
     }
 

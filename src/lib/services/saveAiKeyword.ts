@@ -1,4 +1,4 @@
-import type { AiKeywords } from '@/lib/schema/recipeBlockSchema';
+import type { AiKeywords } from '@/lib/schema/openAIRecipeResponseSchema';
 import { prisma } from '@/lib/utils/prisma';
 
 export async function upsertTalkKeywords(
