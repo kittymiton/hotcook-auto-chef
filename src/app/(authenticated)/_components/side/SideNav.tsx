@@ -63,6 +63,7 @@ export const SideNav = ({ children }: Props) => {
             <span>MYページ</span>
           </Button>
         </li>
+        {/* TODO: ユーザー切替時、Recipe再取得中は前ユーザーのRecipeを表示しない！ */}
         <li>
           <Button href="/recipes" variant="side-my-recipes">
             <IconWrapper>

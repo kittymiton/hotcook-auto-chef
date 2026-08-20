@@ -9,6 +9,7 @@ import { Surface } from '../../../../../components/ui/Surface';
 type Props = {
   recipe: RecipeObj;
 };
+
 // トーク内の読み取り専用
 export const TalkRecipe = ({ recipe }: Props) => {
   return (
