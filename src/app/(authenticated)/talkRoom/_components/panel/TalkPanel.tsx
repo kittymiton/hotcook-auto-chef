@@ -1,10 +1,9 @@
-import { ChatMessageList } from '@/lib/schema/chatSchema';
+import { ChatItemList } from '@/lib/schema/chatSchema';
 import { TalkList } from '@authenticated/talkRoom/components/talks/TalkList';
-
 import { useLayoutEffect, useRef } from 'react';
 
 type Props = {
-  talks: ChatMessageList;
+  talks: ChatItemList;
   children: React.ReactNode;
 };
 

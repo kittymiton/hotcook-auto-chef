@@ -1,8 +1,8 @@
-import type { ChatMessageList } from '@/lib/schema/chatSchema';
+import type { ChatItemList } from '@/lib/schema/chatSchema';
 import { TalkItem } from '@authenticated/talkRoom/components/talks/TalkItem';
 
 type Props = {
-  talks: ChatMessageList;
+  talks: ChatItemList;
 };
 
 export const TalkList = ({ talks }: Props) => {
