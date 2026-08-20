@@ -1,4 +1,3 @@
-import { splitChefContent } from '@/lib/parser/splitChefContent';
 import type { ChatItem } from '@/lib/schema/chatSchema';
 import { TalkChef } from '@authenticated/talkRoom/components/talks/TalkChef';
 import { TalkRecipe } from '@authenticated/talkRoom/components/talks/TalkRecipe';
@@ -12,13 +11,13 @@ export const TalkItem = ({ talk }: Props) => {
   const isChef = talk.sender === 'CHEF';
   if (!isChef) return <TalkUser content={talk.content} />;
 
-  const { prefix, recipe, suffix } = splitChefContent(talk.content);
+  const { content, recipeSnapshot, afterRecipeContent } = talk;
 
   return (
     <>
-      {prefix && <TalkChef content={prefix} />}
-      {recipe && <TalkRecipe recipe={recipe} />}
-      {suffix && <TalkChef content={suffix} />}
+      {content && <TalkChef content={content} />}
+      {recipeSnapshot && <TalkRecipe recipe={recipeSnapshot} />}
+      {afterRecipeContent && <TalkChef content={afterRecipeContent} />}
     </>
   );
 };
