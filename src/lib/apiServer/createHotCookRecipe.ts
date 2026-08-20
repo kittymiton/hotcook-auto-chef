@@ -1,7 +1,7 @@
-import { hotCookPrompt } from '@/lib/apiServer/hotCookPrompt';
+import { HOT_COOK_PROMPT } from '@/lib/apiServer/hotCookPrompt';
 import {
   openAIChatResponseSchema,
-  RecentMessage,
+  type RecentMessage,
 } from '@/lib/schema/openAISchema';
 import OpenAI from 'openai';
 import { zodTextFormat } from 'openai/helpers/zod.js';
@@ -23,7 +23,7 @@ export async function createHotcookRecipe({
       input: [
         {
           role: 'system',
-          content: hotCookPrompt,
+          content: HOT_COOK_PROMPT,
         },
         ...recentMessages,
         { role: 'user', content },
