@@ -2,7 +2,10 @@ import { createErrorResponse } from '@/lib/apiServer/createErrorResponse';
 import { createHotcookRecipe } from '@/lib/apiServer/createHotCookRecipe';
 import { requireUserId } from '@/lib/apiServer/requireUserId';
 import { numberSchema } from '@/lib/schema/numberSchema';
-import { openAIRequestSchema, RecentMessage } from '@/lib/schema/openAISchema';
+import {
+  openAIRequestSchema,
+  type RecentMessage,
+} from '@/lib/schema/openAISchema';
 import {
   saveRecipeTags,
   upsertTalkKeywords,
