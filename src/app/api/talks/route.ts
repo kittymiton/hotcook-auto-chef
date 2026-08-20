@@ -4,7 +4,7 @@ import { requireUserId } from '@/lib/apiServer/requireUserId';
 import { extractedRecipeBlock } from '@/lib/parser/extractedRecipeBlock';
 import { recipeBlockForParse } from '@/lib/parser/recipeBlockForParse';
 import { numberSchema } from '@/lib/schema/numberSchema';
-import { openAIRequestSchema } from '@/lib/schema/openAISchema';
+import { openAIRequestSchema, RecentMessage } from '@/lib/schema/openAISchema';
 import {
   saveRecipeTags,
   upsertTalkKeywords,
@@ -43,25 +43,33 @@ export async function POST(request: NextRequest) {
       take: 3,
     });
 
-    const skipRecipeJson = (content: string) => {
-      const extracted = extractedRecipeBlock(content);
-      if (!extracted) return content;
-      return content.replace(extracted.block, '').trim();
-    };
-    // TODO: 画像時、要約処理対応
-
-    const recentMessages: OpenAIChatRequest[] = [...pastTalks]
+    const recentMessages: RecentMessage = [...pastTalks]
       .reverse()
       .map((talk) => {
         const role = talk.sender === TalkSender.CHEF ? 'assistant' : 'user';
+
+        // 値がない場合も0文字のstringに揃えて連結しやすくし、結果を変えない値として使う
+        const recipeSnapshotText = talk.recipeSnapshot
+          ? JSON.stringify(talk.recipeSnapshot)
+          : '';
+        const afterRecipeContent = talk.afterRecipeContent ?? '';
+
         return {
           role,
           content:
-            role === 'assistant' ? skipRecipeJson(talk.content) : talk.content,
+            role === 'assistant'
+              ? `${talk.content} ${recipeSnapshotText ? `\n${recipeSnapshotText}` : ''}
+                ${afterRecipeContent ? `\n${afterRecipeContent}` : ''}`
+              : talk.content,
         };
       });
+    // TODO: 画像時、要約処理対応
 
-    const { content: chefContent } = await createHotcookRecipe({
+    const {
+      beforeRecipe,
+      afterRecipe,
+      recipe: generatedRecipe,
+    } = await createHotcookRecipe({
       content: sanitizedInput,
       recentMessages,
     });

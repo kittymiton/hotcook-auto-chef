@@ -1,3 +1,4 @@
+import { openAIRecipeResponseSchema } from '@/lib/schema/openAIRecipeResponseSchema';
 import z from 'zod';
 
 // API→外部API
@@ -19,6 +20,9 @@ export const openAIRequestSchema = z.object({
   talkRoomId: z.number(),
 });
 
+// 外部API→API
 export const openAIChatResponseSchema = z.object({
-  content: z.string().min(1),
+  beforeRecipe: z.string().min(1),
+  recipe: openAIRecipeResponseSchema.nullable(),
+  afterRecipe: z.string().nullable(),
 });

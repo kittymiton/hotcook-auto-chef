@@ -1,3 +1,4 @@
+import { openAIRecipeResponseSchema } from '@/lib/schema/openAIRecipeResponseSchema';
 import z from 'zod';
 
 const chatItemSchema = z.object({
@@ -5,7 +6,8 @@ const chatItemSchema = z.object({
   content: z.string().min(1),
   sender: z.enum(['USER', 'CHEF']),
 });
-export const chatSchema = z.array(chatItemSchema);
-
 export type ChatItem = z.infer<typeof chatItemSchema>;
-export type ChatMessageList = z.infer<typeof chatSchema>;
+
+// APIレスポンス全体スキーマ
+export const chatSchema = z.array(chatItemSchema);
+export type ChatItemList = z.infer<typeof chatSchema>;
