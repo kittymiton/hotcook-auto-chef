@@ -124,9 +124,6 @@ export default function TalkRoomIdPage() {
     if (!recipes) {
       return <Loading />;
     }
-    if (recipes.length === 0) {
-      return <p>レシピがまだありません</p>;
-    }
 
     return (
       <SideNav>
@@ -143,7 +140,11 @@ export default function TalkRoomIdPage() {
     const emptyMessage =
       talks.length === 0 ? (
         <div className="pb-4 pt-4">
-          <p>会話がまだありません。会話してレシピを作ってみましょう。</p>
+          <p>
+            会話がまだありません。
+            <br />
+            会話してレシピを作ってみましょう。
+          </p>
         </div>
       ) : null;
     return (
