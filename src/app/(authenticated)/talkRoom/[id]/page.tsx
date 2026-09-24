@@ -4,6 +4,8 @@ import { errorCodeMap } from '@/lib/constants/errorCodeMap';
 import { idParamSchema } from '@/lib/schema/paramSchema';
 import { recipeSchema } from '@/lib/schema/recipeSchema';
 import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
+
+import { UnauthorizedError } from '@authenticated/components/error/UnauthorizedError';
 import { Loading } from '@authenticated/components/Loading';
 import { SideArea } from '@authenticated/components/side/SideArea';
 import { SideNav } from '@authenticated/components/side/SideNav';
@@ -18,8 +20,7 @@ import { useSuggest } from '@authenticated/talkRoom/hooks/useSuggest';
 import { useTalkSubmit } from '@authenticated/talkRoom/hooks/useTalkSubmit';
 import { getSortedSuggestList } from '@authenticated/talkRoom/utils/getSortedSuggestList';
 import { runMutations } from '@authenticated/talkRoom/utils/runMutations';
-import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useCallback, useRef, useState } from 'react';
 import { mutate } from 'swr';
 
@@ -30,7 +31,6 @@ export default function TalkRoomIdPage() {
 
   const { token } = useSupabaseSession();
 
-  const router = useRouter();
   const params = useParams();
 
   const parsedParams = idParamSchema.safeParse(params.id);
@@ -101,28 +101,28 @@ export default function TalkRoomIdPage() {
   const { sortedSuggestList } = getSortedSuggestList(suggest);
 
   if (talkError) {
-    return (
-      <div>
-        <p>{talkError}</p>
-        <button onClick={() => router.back()}>戻る</button>
-        <Link href="/">TOPに戻る</Link>
-      </div>
-    );
+    const code = talkError;
+
+    if (code === 'UNAUTHORIZED') {
+      return <UnauthorizedError />;
+    }
   }
 
   if (recipesError) {
-    return (
-      <div>
-        <p>{recipesError}</p>
-        <button onClick={() => router.back()}>戻る</button>
-        <Link href="/">TOPに戻る</Link>
-      </div>
-    );
+    const code = recipesError;
+
+    if (code === 'UNAUTHORIZED') {
+      return <UnauthorizedError />;
+    }
   }
 
-  const renderRecipeList = () => {
-    if (!recipes) {
+  const renderSideRecipeList = () => {
+    if (isRecipesLoading || !recipes) {
       return <Loading />;
+    }
+
+    if (recipes.length === 0) {
+      return <SideNav />;
     }
 
     return (
@@ -133,24 +133,55 @@ export default function TalkRoomIdPage() {
   };
 
   const renderTalks = () => {
-    if (!talks) {
+    if (isTalkLoading || !talks) {
       return <Loading />;
     }
 
-    const emptyMessage =
-      talks.length === 0 ? (
+    const emptyTalkMessage =
+      !talkError && talks.length === 0 ? (
         <div className="pb-4 pt-4">
           <p>
             会話がまだありません。
             <br />
-            会話してレシピを作ってみましょう。
+            今日のおすすめは何？など、話しかけてみてください！
           </p>
         </div>
       ) : null;
+
     return (
       <>
-        {emptyMessage}
+        {/* 正常系：データなし */}
+        {emptyTalkMessage}
+
+        {/* 異常系：データ有無に関係なく取得エラーを表示。Side非表示時も見えるようmainに表示 */}
+        {/* 同一errorCodeの場合はエラー表示を重複させない */}
+        {talkError && recipesError && talkError === recipesError ? (
+          // 両方に同じerrorCode
+          <p className="mb-1 text-red-600">{errorCodeMap[talkError]}</p>
+        ) : // 両方に異なるerrorCode
+        talkError && recipesError ? (
+          <>
+            <p className="mb-1 text-red-600">{errorCodeMap[talkError]}</p>
+            <p className="mb-1 text-red-600">{errorCodeMap[recipesError]}</p>
+          </>
+        ) : (
+          // 片方のみエラーあり
+          <>
+            {talkError && (
+              <p className="mb-1 text-red-600">{errorCodeMap[talkError]}</p>
+            )}
+            {recipesError && (
+              <p className="mb-1 text-red-600">{errorCodeMap[recipesError]}</p>
+            )}
+          </>
+        )}
+
         <TalkPanel talks={talks}>
+          <div className="pl-6 pt-2">
+            {errorMsg && (
+              <p className="text-stone-700">送信できません：{errorMsg}</p>
+            )}
+          </div>
           <TalkForm
             onSubmit={handleSubmit}
             inputRef={inputRef}
@@ -173,15 +204,8 @@ export default function TalkRoomIdPage() {
   return (
     <>
       <div className="flex h-[calc(100vh-55px)] gap-8">
-        <SideArea>{renderRecipeList()}</SideArea>
-        <TalkArea>
-          <div className="pt-4">
-            {errorMsg && <p>送信エラー：{errorMsg}</p>}
-          </div>
-          {/* TODO: 送信エラー表示を TalkForm 上部に移動し、エラー用の高さを確保する */}
-
-          {renderTalks()}
-        </TalkArea>
+        <SideArea>{renderSideRecipeList()}</SideArea>
+        <TalkArea>{renderTalks()}</TalkArea>
       </div>
     </>
   );

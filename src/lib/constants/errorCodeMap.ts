@@ -13,7 +13,7 @@ export const errorCodeMap: Record<ErrorCode, string> = {
   QUOTA_EXCEEDED: '利用上限に達しました',
   NETWORK_ERROR: '通信エラーが発生しました。ネット接続を確認してください',
   AI_ERROR: 'ただいま混み合っています。少し時間をおいて再度お試しください',
-  INTERNAL_SERVER_ERROR: 'エラーが発生しました',
+  INTERNAL_SERVER_ERROR: 'サーバーエラーが発生しました',
   DEFAULT: 'システムエラーが発生しました。時間を置いてお試しください',
   UNKNOWN_ERROR: '見つかりません',
 };
