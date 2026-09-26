@@ -38,6 +38,12 @@ const sideBase = {
   text: 'text-white',
 };
 
+const actionBase = {
+  shape: 'gap-2 justify-center w-[113px] h-[40px] text-[14px]',
+  hover: 'hover:brightness-110',
+  text: 'text-white',
+};
+
 const buttonStyles = {
   'header-signup': {
     ...beigeBase,
@@ -123,6 +129,34 @@ const buttonStyles = {
       highlight: primitives.black,
     }),
     shadowOnlyOnHover: true, // 通常時は影なし、hover時のみ影を出す
+  },
+
+  'action-navigation': {
+    ...actionBase,
+    background: 'bg-gray-solid',
+    shadow: createShadow('soft', {
+      base: primitives.pink.softPink,
+      highlight: primitives.gray.soft,
+    }),
+  },
+
+  'action-primary': {
+    ...actionBase,
+    background: 'bg-pink-strawberry',
+    shadow: createShadow('rich-floating', {
+      base: primitives.pink.right,
+      highlight: primitives.gray.soft,
+      accent: primitives.pink.softPink,
+    }),
+  },
+
+  'action-danger': {
+    ...actionBase,
+    background: 'bg-gray-slate-light',
+    shadow: createShadow('soft', {
+      base: primitives.pink.softPink,
+      highlight: primitives.gray.soft,
+    }),
   },
 } as const;
 

@@ -3,7 +3,5 @@ type Props = {
 };
 
 export const IconWrapper = ({ children }: Props) => {
-  return (
-    <div className="flex w-[24px] shrink-0 justify-center">{children}</div>
-  );
+  return <div className="flex shrink-0 justify-center">{children}</div>;
 };
