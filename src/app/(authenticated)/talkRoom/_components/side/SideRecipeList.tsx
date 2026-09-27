@@ -6,7 +6,10 @@ type Props = {
   showAllRecipesButton?: boolean;
 };
 
-export const SideRecipeList = ({ recipes, showAllRecipesButton }: Props) => {
+export const SideRecipeList = ({
+  recipes,
+  showAllRecipesButton = true,
+}: Props) => {
   return (
     <div className="flex flex-col gap-4">
       <ul className="flex flex-col gap-3">
