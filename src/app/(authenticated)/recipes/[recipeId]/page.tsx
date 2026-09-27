@@ -3,17 +3,19 @@
 import { errorCodeMap } from '@/lib/constants/errorCodeMap';
 import { idParamSchema } from '@/lib/schema/paramSchema';
 import { recipeDetailSchema, recipeSchema } from '@/lib/schema/recipeSchema';
+import { UnauthorizedError } from '@authenticated/components/error/UnauthorizedError';
 import { Loading } from '@authenticated/components/Loading';
 import { SideArea } from '@authenticated/components/side/SideArea';
 import { SideNav } from '@authenticated/components/side/SideNav';
 import { useRecipes } from '@authenticated/hooks/useRecipes';
 import { RecipeItem } from '@authenticated/recipes/components/RecipeItem';
 import { SideRecipeList } from '@authenticated/talkRoom/components/side/SideRecipeList';
-import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
+import { Button } from '../../../../components/ui/Button';
+import { Icon } from '../../../../components/ui/Icon';
+import { IconWrapper } from '../../../../components/ui/IconWrapper';
 
 export default function RecipeDetailPage() {
-  const router = useRouter();
   const params = useParams();
 
   const parsedParams = idParamSchema.safeParse(params.recipeId);
@@ -31,7 +33,7 @@ export default function RecipeDetailPage() {
   const recipeListUrl = `/api/recipes?take=5`;
   const recipeDetailUrl = `/api/recipes/${recipeId}`;
 
-  // サイドナビ用の最新レシピ一覧
+  // サイドナビに表示される最新レシピ一覧
   const {
     data: recipes,
     error: recipesError,
@@ -45,9 +47,28 @@ export default function RecipeDetailPage() {
     isLoading: isRecipeLoading,
   } = useRecipes(recipeDetailUrl, recipeDetailSchema);
 
-  const renderRecipeList = () => {
-    // NOTE: SideRecipeListは補助導線のため、取得失敗・未取得時は共通ナビのみ表示する
-    if (recipesError || !recipes || recipes.length === 0) {
+  if (recipesError) {
+    const code = recipesError;
+
+    if (code === 'UNAUTHORIZED') {
+      return <UnauthorizedError />;
+    }
+  }
+
+  if (recipeError) {
+    const code = recipeError;
+
+    if (code === 'UNAUTHORIZED') {
+      return <UnauthorizedError />;
+    }
+  }
+
+  const renderSideRecipeList = () => {
+    if (isRecipesLoading || !recipes) {
+      return <Loading />;
+    }
+
+    if (recipes.length === 0) {
       return <SideNav />;
     }
 
@@ -59,45 +80,60 @@ export default function RecipeDetailPage() {
   };
 
   const renderRecipeDetail = () => {
-    if (recipeError) {
-      return (
-        <>
-          <p>{recipeError}</p>
-          <button onClick={() => router.back()}>戻る</button>
-        </>
-      );
-    }
-
     if (isRecipeLoading) {
       return <Loading />;
     }
 
     if (!recipe) {
-      // NOTE: 通常はAPI側でエラーになる想定だが、data未取得の保険として表示
-      return (
-        <>
-          <p>レシピを表示できませんでした</p>
-          <button onClick={() => router.back()}>戻る</button>
-        </>
-      );
+      // NOTE: 取得完了後のdata未取得はLoadingに含めず、例外系として表示
+      return <p>レシピ詳細を表示できません</p>;
     }
 
     const talkRoomId = recipe.talkRoomId;
 
     return (
       <>
+        {/* 異常系：データ有無に関係なく取得エラーを表示。Side非表示時も見えるようmainに表示 */}
+        {/* 同一errorCodeの場合はエラー表示を重複させない */}
+        {recipesError && recipeError && recipesError === recipeError ? (
+          // 両方に同じerrorCode
+          <p className="mb-1 text-red-600">{errorCodeMap[recipesError]}</p>
+        ) : // 両方に異なるerrorCode
+        recipesError && recipeError ? (
+          <>
+            <p className="mb-1 text-red-600">{errorCodeMap[recipesError]}</p>
+            <p className="mb-1 text-red-600">{errorCodeMap[recipeError]}</p>
+          </>
+        ) : (
+          // 片方のみエラーあり
+          <>
+            {recipesError && (
+              <p className="mb-1 text-red-600">{errorCodeMap[recipesError]}</p>
+            )}
+            {recipeError && (
+              <p className="mb-1 text-red-600">{errorCodeMap[recipeError]}</p>
+            )}
+          </>
+        )}
+
         <RecipeItem recipe={recipe} />
 
         {/* ちらつき防止 */}
         {talkRoomId && (
           <div className="mt-6">
-            <Link
-              href={`/talkRoom/${talkRoomId}`}
-              className="text-sm underline"
-            >
-              会話に戻る
-            </Link>
+            <Button href={`/talkRoom/${talkRoomId}`} variant="action-primary">
+              <IconWrapper>
+                <Icon
+                  src="/icons/system/chat.svg"
+                  width={14}
+                  height={14}
+                  className="size-[14px]"
+                />
+              </IconWrapper>
+              <span>Chat</span>
+            </Button>
           </div>
+          // TODO: チャットルームへの導線を共通コンポーネント化
         )}
       </>
     );
@@ -105,10 +141,10 @@ export default function RecipeDetailPage() {
 
   return (
     <div className="flex h-[calc(100vh-55px)] gap-8">
-      <SideArea>{renderRecipeList()}</SideArea>
+      <SideArea>{renderSideRecipeList()}</SideArea>
 
-      {/* 全画面Loadingにせず、詳細エリアだけ状態を出し分ける */}
       <main className="min-h-0 flex-1 overflow-y-auto px-8 lg:pl-0 lg:pr-8">
+        {/* // TODO: MainArea共通化時にscroll/padding差分をどう持たせるか整理 */}
         {renderRecipeDetail()}
       </main>
     </div>
