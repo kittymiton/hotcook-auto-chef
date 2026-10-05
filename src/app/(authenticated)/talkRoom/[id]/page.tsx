@@ -4,6 +4,7 @@ import { errorCodeMap } from '@/lib/constants/errorCodeMap';
 import { idParamSchema } from '@/lib/schema/paramSchema';
 import { recipeSchema } from '@/lib/schema/recipeSchema';
 import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
+import { DisplayErrorMessage } from '@authenticated/components/error/DisplayErrorMessage';
 
 import { UnauthorizedError } from '@authenticated/components/error/UnauthorizedError';
 import { Loading } from '@authenticated/components/Loading';
@@ -137,16 +138,23 @@ export default function TalkRoomIdPage() {
       return <Loading />;
     }
 
-    const emptyTalkMessage =
-      !talkError && talks.length === 0 ? (
-        <div className="pb-4 pt-4">
-          <p>
-            会話がまだありません。
-            <br />
-            今日のおすすめは何？など、話しかけてみてください！
-          </p>
-        </div>
-      ) : null;
+    const emptyTalkMessage = !talkError && talks.length === 0 && (
+      <div className="pb-4 pt-4">
+        <p>
+          会話がまだありません。
+          <br />
+          今日のおすすめは何？など、話しかけてみてください！
+        </p>
+      </div>
+    );
+
+    // エラー表示対象のcodeを1つの配列にまとめる
+    const errorCodeArray = [talkError, recipesError];
+
+    // 片方のみエラー時に混ざるnullだけを除外
+    const filterdErrorCodeArray = errorCodeArray.filter(
+      (code) => code !== null
+    );
 
     return (
       <>
@@ -154,26 +162,8 @@ export default function TalkRoomIdPage() {
         {emptyTalkMessage}
 
         {/* 異常系：データ有無に関係なく取得エラーを表示。Side非表示時も見えるようmainに表示 */}
-        {/* 同一errorCodeの場合はエラー表示を重複させない */}
-        {talkError && recipesError && talkError === recipesError ? (
-          // 両方に同じerrorCode
-          <p className="mb-1 text-red-600">{errorCodeMap[talkError]}</p>
-        ) : // 両方に異なるerrorCode
-        talkError && recipesError ? (
-          <>
-            <p className="mb-1 text-red-600">{errorCodeMap[talkError]}</p>
-            <p className="mb-1 text-red-600">{errorCodeMap[recipesError]}</p>
-          </>
-        ) : (
-          // 片方のみエラーあり
-          <>
-            {talkError && (
-              <p className="mb-1 text-red-600">{errorCodeMap[talkError]}</p>
-            )}
-            {recipesError && (
-              <p className="mb-1 text-red-600">{errorCodeMap[recipesError]}</p>
-            )}
-          </>
+        {filterdErrorCodeArray.length > 0 && (
+          <DisplayErrorMessage errorCodes={filterdErrorCodeArray} />
         )}
 
         <TalkPanel talks={talks}>

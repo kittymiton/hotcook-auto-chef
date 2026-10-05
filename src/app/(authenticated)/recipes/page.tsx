@@ -1,9 +1,9 @@
 'use client';
 
-import { errorCodeMap } from '@/lib/constants/errorCodeMap';
 import { recipeSummaryListSchema } from '@/lib/schema/recipeSchema';
 import { getErrorCode } from '@/lib/utils/getErrorCode';
 import { userRoomSchema } from '@auth/lib/validation/userRoomSchema';
+import { DisplayErrorMessage } from '@authenticated/components/error/DisplayErrorMessage';
 import { UnauthorizedError } from '@authenticated/components/error/UnauthorizedError';
 import { Loading } from '@authenticated/components/Loading';
 import { SideArea } from '@authenticated/components/side/SideArea';
@@ -26,8 +26,8 @@ export default function RecipesPage() {
   // レシピ0件時に会話へ戻る導線用補助データ
   const {
     data: userRoom,
-    isLoading: isUserRoomLoading,
     error: userRoomError,
+    isLoading: isUserRoomLoading,
   } = useAuthedSWR('/api/userRoom', userRoomSchema);
 
   if (recipesError) {
@@ -110,36 +110,22 @@ export default function RecipesPage() {
         </>
       ) : null;
 
+    // エラー表示対象のcodeを1つの配列にまとめる
+    const errorCodeArray = [recipesError, userRoomErrorCode];
+
+    // 片方のみエラー時に混ざるnullだけを除外
+    const filterdErrorCodeArray = errorCodeArray.filter(
+      (code) => code !== null
+    );
+
     return (
       <>
         {/* 正常系：データなし */}
         {emptyRecipesMessage}
 
         {/* 異常系：データ有無に関係なく取得エラーを表示。Side非表示時も見えるようmainに表示 */}
-        {/* 同一errorCodeの場合はエラー表示を重複させない */}
-        {recipesError && userRoomError && recipesError === userRoomErrorCode ? (
-          // 両方に同じerrorCode
-          <p className="mb-1 text-red-600">{errorCodeMap[recipesError]}</p>
-        ) : // 両方に異なるerrorCode
-        recipesError && userRoomErrorCode ? (
-          <>
-            <p className="mb-1 text-red-600">{errorCodeMap[recipesError]}</p>
-            <p className="mb-1 text-red-600">
-              {errorCodeMap[userRoomErrorCode]}
-            </p>
-          </>
-        ) : (
-          // 片方のみエラーあり
-          <>
-            {recipesError && (
-              <p className="mb-1 text-red-600">{errorCodeMap[recipesError]}</p>
-            )}
-            {userRoomErrorCode && (
-              <p className="mb-1 text-red-600">
-                {errorCodeMap[userRoomErrorCode]}
-              </p>
-            )}
-          </>
+        {filterdErrorCodeArray.length > 0 && (
+          <DisplayErrorMessage errorCodes={filterdErrorCodeArray} />
         )}
         {/* TODO: 現在はSWR keyがユーザー単位でないため、userRoomError時はキャッシュのroomIdを信用しない。key改修後に再検討 */}
 

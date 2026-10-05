@@ -3,6 +3,7 @@
 import { errorCodeMap } from '@/lib/constants/errorCodeMap';
 import { idParamSchema } from '@/lib/schema/paramSchema';
 import { recipeDetailSchema, recipeSchema } from '@/lib/schema/recipeSchema';
+import { DisplayErrorMessage } from '@authenticated/components/error/DisplayErrorMessage';
 import { UnauthorizedError } from '@authenticated/components/error/UnauthorizedError';
 import { Loading } from '@authenticated/components/Loading';
 import { SideArea } from '@authenticated/components/side/SideArea';
@@ -91,29 +92,19 @@ export default function RecipeDetailPage() {
 
     const talkRoomId = recipe.talkRoomId;
 
+    // エラー表示対象のcodeを1つの配列にまとめる
+    const errorCodeArray = [recipeError, recipesError];
+
+    // 片方のみエラー時に混ざるnullだけを除外
+    const filterdErrorCodeArray = errorCodeArray.filter(
+      (code) => code !== null
+    );
+
     return (
       <>
         {/* 異常系：データ有無に関係なく取得エラーを表示。Side非表示時も見えるようmainに表示 */}
-        {/* 同一errorCodeの場合はエラー表示を重複させない */}
-        {recipesError && recipeError && recipesError === recipeError ? (
-          // 両方に同じerrorCode
-          <p className="mb-1 text-red-600">{errorCodeMap[recipesError]}</p>
-        ) : // 両方に異なるerrorCode
-        recipesError && recipeError ? (
-          <>
-            <p className="mb-1 text-red-600">{errorCodeMap[recipesError]}</p>
-            <p className="mb-1 text-red-600">{errorCodeMap[recipeError]}</p>
-          </>
-        ) : (
-          // 片方のみエラーあり
-          <>
-            {recipesError && (
-              <p className="mb-1 text-red-600">{errorCodeMap[recipesError]}</p>
-            )}
-            {recipeError && (
-              <p className="mb-1 text-red-600">{errorCodeMap[recipeError]}</p>
-            )}
-          </>
+        {filterdErrorCodeArray.length > 0 && (
+          <DisplayErrorMessage errorCodes={filterdErrorCodeArray} />
         )}
 
         <RecipeItem recipe={recipe} />
