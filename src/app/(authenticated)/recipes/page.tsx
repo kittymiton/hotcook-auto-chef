@@ -80,12 +80,14 @@ export default function RecipesPage() {
     }
 
     if (!recipes) {
-      // NOTE: 通常はerrorかLoadingに入る想定だが、data未取得の保険として表示
+      // NOTE: 取得完了後のdata未取得はLoadingに含めず、例外系として表示
       return <p>レシピを表示できません</p>;
     }
 
-    const emptyRecipesMessage =
-      !recipesError && talkRoomId && recipes && recipes.length === 0 ? (
+    const emptyRecipesMessage = !recipesError &&
+      talkRoomId &&
+      recipes &&
+      recipes.length === 0 && (
         <>
           <div className="pb-4 pt-4">
             <p>
@@ -108,7 +110,7 @@ export default function RecipesPage() {
             </Button>
           </div>
         </>
-      ) : null;
+      );
 
     // エラー表示対象のcodeを1つの配列にまとめる
     const errorCodeArray = [recipesError, userRoomErrorCode];
