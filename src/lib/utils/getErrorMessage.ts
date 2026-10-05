@@ -1,6 +1,7 @@
 import { errorCodeMap } from '@/lib/constants/errorCodeMap';
 import { fetcherThrownErrorSchema } from '@/lib/schema/errorSchema';
 
+// raw errorをUI表示用に整える
 export const getErrorMessage = (e: unknown): string => {
   // catchではeがunknownになるため、throw時のerrorCodeをZodで復元する
   const parsed = fetcherThrownErrorSchema.safeParse(e);
