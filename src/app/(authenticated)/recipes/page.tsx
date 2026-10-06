@@ -74,13 +74,11 @@ export default function RecipesPage() {
   };
 
   const renderMainRecipeList = () => {
-    // 初回取得時のみLoadingを表示、再取得中は既存のrecipesを表示
     if (isRecipesLoading && !recipes) {
       return <Loading />;
     }
 
     if (!recipes) {
-      // NOTE: 取得完了後のdata未取得はLoadingに含めず、例外系として表示
       return <p>レシピを表示できません</p>;
     }
 
@@ -112,20 +110,16 @@ export default function RecipesPage() {
         </>
       );
 
-    // エラー表示対象のcodeを1つの配列にまとめる
     const errorCodeArray = [recipesError, userRoomErrorCode];
 
-    // 片方のみエラー時に混ざるnullだけを除外
     const filterdErrorCodeArray = errorCodeArray.filter(
       (code) => code !== null
     );
 
     return (
       <>
-        {/* 正常系：データなし */}
         {emptyRecipesMessage}
 
-        {/* 異常系：データ有無に関係なく取得エラーを表示。Side非表示時も見えるようmainに表示 */}
         {filterdErrorCodeArray.length > 0 && (
           <DisplayErrorMessage errorCodes={filterdErrorCodeArray} />
         )}
@@ -144,7 +138,6 @@ export default function RecipesPage() {
         <div className="mx-auto max-w-3xl">
           <h1 className="mb-6 text-2xl font-bold">あなたのレシピ一覧</h1>
 
-          {/* 全画面Loadingにせず、一覧エリアだけ状態を出し分ける */}
           {renderMainRecipeList()}
         </div>
       </main>

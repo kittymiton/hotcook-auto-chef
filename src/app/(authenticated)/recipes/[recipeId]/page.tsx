@@ -31,15 +31,8 @@ export default function RecipeDetailPage() {
 
   const recipeId = parsedParams.data;
 
-  const recipeListUrl = `/api/recipes?take=5`;
   const recipeDetailUrl = `/api/recipes/${recipeId}`;
-
-  // サイドナビに表示される最新レシピ一覧
-  const {
-    data: recipes,
-    error: recipesError,
-    isLoading: isRecipesLoading,
-  } = useRecipes(recipeListUrl, recipeSchema);
+  const recipeListUrl = `/api/recipes?take=5`;
 
   // レシピ詳細
   const {
@@ -48,16 +41,23 @@ export default function RecipeDetailPage() {
     isLoading: isRecipeLoading,
   } = useRecipes(recipeDetailUrl, recipeDetailSchema);
 
-  if (recipesError) {
-    const code = recipesError;
+  // SideNav用レシピ一覧
+  const {
+    data: recipes,
+    error: recipesError,
+    isLoading: isRecipesLoading,
+  } = useRecipes(recipeListUrl, recipeSchema);
+
+  if (recipeError) {
+    const code = recipeError;
 
     if (code === 'UNAUTHORIZED') {
       return <UnauthorizedError />;
     }
   }
 
-  if (recipeError) {
-    const code = recipeError;
+  if (recipesError) {
+    const code = recipesError;
 
     if (code === 'UNAUTHORIZED') {
       return <UnauthorizedError />;
@@ -86,30 +86,25 @@ export default function RecipeDetailPage() {
     }
 
     if (!recipe) {
-      // NOTE: 取得完了後のdata未取得はLoadingに含めず、例外系として表示
       return <p>レシピ詳細を表示できません</p>;
     }
 
     const talkRoomId = recipe.talkRoomId;
 
-    // エラー表示対象のcodeを1つの配列にまとめる
     const errorCodeArray = [recipeError, recipesError];
 
-    // 片方のみエラー時に混ざるnullだけを除外
     const filterdErrorCodeArray = errorCodeArray.filter(
       (code) => code !== null
     );
 
     return (
       <>
-        {/* 異常系：データ有無に関係なく取得エラーを表示。Side非表示時も見えるようmainに表示 */}
         {filterdErrorCodeArray.length > 0 && (
           <DisplayErrorMessage errorCodes={filterdErrorCodeArray} />
         )}
 
         <RecipeItem recipe={recipe} />
 
-        {/* ちらつき防止 */}
         {talkRoomId && (
           <div className="mt-6">
             <Button href={`/talkRoom/${talkRoomId}`} variant="action-primary">

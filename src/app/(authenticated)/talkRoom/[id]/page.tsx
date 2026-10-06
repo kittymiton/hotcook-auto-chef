@@ -138,6 +138,11 @@ export default function TalkRoomIdPage() {
       return <Loading />;
     }
 
+    if (!talks) {
+      // NOTE: 取得完了後のdata未取得はLoadingに含めず、例外系として表示
+      return <p>会話を表示できません</p>;
+    }
+
     const emptyTalkMessage = !talkError && talks.length === 0 && (
       <div className="pb-4 pt-4">
         <p>
