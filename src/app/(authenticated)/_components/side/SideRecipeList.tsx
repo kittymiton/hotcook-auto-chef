@@ -1,5 +1,5 @@
 import type { RecipeBaseList } from '@/lib/schema/recipeSchema';
-import { Button } from '../../../../../components/ui/Button';
+import { Button } from '../../../../components/ui/Button';
 
 type Props = {
   recipes: RecipeBaseList;

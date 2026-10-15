@@ -7,10 +7,10 @@ import { UnauthorizedError } from '@authenticated/components/error/UnauthorizedE
 import { Loading } from '@authenticated/components/Loading';
 import { SideArea } from '@authenticated/components/side/SideArea';
 import { SideNav } from '@authenticated/components/side/SideNav';
+import { SideRecipeList } from '@authenticated/components/side/SideRecipeList';
 import { useRecipes } from '@authenticated/hooks/useRecipes';
 import { RecipeDataState } from '@authenticated/recipes/components/RecipeDataState';
 import { RecipeItem } from '@authenticated/recipes/components/RecipeItem';
-import { SideRecipeList } from '@authenticated/talkRoom/components/side/SideRecipeList';
 import { useParams } from 'next/navigation';
 import { Button } from '../../../../components/ui/Button';
 import { Icon } from '../../../../components/ui/Icon';
@@ -82,7 +82,7 @@ export default function RecipeDetailPage() {
     );
   };
 
-    return (
+  return (
     <div className="flex h-[calc(100vh-55px)] gap-8">
       <SideArea>{renderSideNav()}</SideArea>
       <main className="min-h-0 flex-1 overflow-y-auto px-8 lg:pl-0 lg:pr-8">

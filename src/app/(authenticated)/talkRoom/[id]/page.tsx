@@ -4,11 +4,11 @@ import { errorCodeMap } from '@/lib/constants/errorCodeMap';
 import { idParamSchema } from '@/lib/schema/paramSchema';
 import { recipeSchema } from '@/lib/schema/recipeSchema';
 import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
-
 import { UnauthorizedError } from '@authenticated/components/error/UnauthorizedError';
 import { Loading } from '@authenticated/components/Loading';
 import { SideArea } from '@authenticated/components/side/SideArea';
 import { SideNav } from '@authenticated/components/side/SideNav';
+import { SideRecipeList } from '@authenticated/components/side/SideRecipeList';
 import { TalkArea } from '@authenticated/components/TalkArea';
 import { useClickOutside } from '@authenticated/hooks/useClickOutside';
 import { useRecipes } from '@authenticated/hooks/useRecipes';
@@ -134,7 +134,7 @@ export default function TalkRoomIdPage() {
     );
   };
 
-    return (
+  return (
     <div className="flex h-[calc(100vh-55px)] gap-8">
       <SideArea>{renderSideNav()}</SideArea>
       <TalkArea>
@@ -145,27 +145,27 @@ export default function TalkRoomIdPage() {
           recipesError={recipesError}
         />
         {talks && (
-        <TalkPanel talks={talks}>
-          <div className="pl-6 pt-2">
-            {errorMsg && (
-              <p className="text-stone-700">送信できません：{errorMsg}</p>
-            )}
-          </div>
-          <TalkForm
-            onSubmit={handleSubmit}
-            inputRef={inputRef}
-            content={content}
-            isSending={isSending}
-            onFocus={handleInputFocus}
-            onChange={(value) => setContent(value)}
-            isInputFocused={isInputFocused}
-            sortedSuggestList={sortedSuggestList}
-            onKeywordSelect={handleSelectKeyword}
-            isDisabled={isDisabled}
-          />
-        </TalkPanel>
+          <TalkPanel talks={talks}>
+            <div className="pl-6 pt-2">
+              {errorMsg && (
+                <p className="text-stone-700">送信できません：{errorMsg}</p>
+              )}
+            </div>
+            <TalkForm
+              onSubmit={handleSubmit}
+              inputRef={inputRef}
+              content={content}
+              isSending={isSending}
+              onFocus={handleInputFocus}
+              onChange={(value) => setContent(value)}
+              isInputFocused={isInputFocused}
+              sortedSuggestList={sortedSuggestList}
+              onKeywordSelect={handleSelectKeyword}
+              isDisabled={isDisabled}
+            />
+          </TalkPanel>
         )}
       </TalkArea>
-      </div>
+    </div>
   );
 }

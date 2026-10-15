@@ -7,6 +7,7 @@ import { UnauthorizedError } from '@authenticated/components/error/UnauthorizedE
 import { Loading } from '@authenticated/components/Loading';
 import { SideArea } from '@authenticated/components/side/SideArea';
 import { SideNav } from '@authenticated/components/side/SideNav';
+import { SideRecipeList } from '@authenticated/components/side/SideRecipeList';
 import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
 import { useRecipes } from '@authenticated/hooks/useRecipes';
 import { RecipeList } from '@authenticated/recipes/components/RecipeList';
@@ -83,19 +84,19 @@ export default function RecipesPage() {
           />
           {recipes && <RecipeList recipes={recipes} />}
           {talkRoomId && (
-          <div className="mt-6">
-            <Button href={`/talkRoom/${talkRoomId}`} variant="action-primary">
-              <IconWrapper>
-                <Icon
-                  src="/icons/system/chat.svg"
-                  width={14}
-                  height={14}
-                  className="size-[14px]"
-                />
-              </IconWrapper>
-              <span>Chat</span>
-            </Button>
-          </div>
+            <div className="mt-6">
+              <Button href={`/talkRoom/${talkRoomId}`} variant="action-primary">
+                <IconWrapper>
+                  <Icon
+                    src="/icons/system/chat.svg"
+                    width={14}
+                    height={14}
+                    className="size-[14px]"
+                  />
+                </IconWrapper>
+                <span>Chat</span>
+              </Button>
+            </div>
             // TODO: 常時表示するチャットルームへの導線を共通コンポーネント化
           )}
         </div>
