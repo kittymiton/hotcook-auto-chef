@@ -4,7 +4,6 @@ import { errorCodeMap } from '@/lib/constants/errorCodeMap';
 import { idParamSchema } from '@/lib/schema/paramSchema';
 import { recipeSchema } from '@/lib/schema/recipeSchema';
 import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
-import { DisplayErrorMessage } from '@authenticated/components/error/DisplayErrorMessage';
 
 import { UnauthorizedError } from '@authenticated/components/error/UnauthorizedError';
 import { Loading } from '@authenticated/components/Loading';
@@ -16,7 +15,7 @@ import { useRecipes } from '@authenticated/hooks/useRecipes';
 import { useTalks } from '@authenticated/hooks/useTalks';
 import { TalkForm } from '@authenticated/talkRoom/components/form/TalkForm';
 import { TalkPanel } from '@authenticated/talkRoom/components/panel/TalkPanel';
-import { SideRecipeList } from '@authenticated/talkRoom/components/side/SideRecipeList';
+import { TalkDataState } from '@authenticated/talkRoom/components/talks/TalkDataState';
 import { useSuggest } from '@authenticated/talkRoom/hooks/useSuggest';
 import { useTalkSubmit } from '@authenticated/talkRoom/hooks/useTalkSubmit';
 import { getSortedSuggestList } from '@authenticated/talkRoom/utils/getSortedSuggestList';
@@ -101,6 +100,8 @@ export default function TalkRoomIdPage() {
 
   const { sortedSuggestList } = getSortedSuggestList(suggest);
 
+  if (!token) return <p>ログイン確認中...</p>;
+
   if (talkError) {
     const code = talkError;
 
@@ -117,12 +118,12 @@ export default function TalkRoomIdPage() {
     }
   }
 
-  const renderSideRecipeList = () => {
-    if (isRecipesLoading || !recipes) {
+  const renderSideNav = () => {
+    if (isRecipesLoading && !recipes) {
       return <Loading />;
     }
 
-    if (recipes.length === 0) {
+    if (!recipes || recipes.length === 0) {
       return <SideNav />;
     }
 
@@ -133,44 +134,17 @@ export default function TalkRoomIdPage() {
     );
   };
 
-  const renderTalks = () => {
-    if (isTalkLoading || !talks) {
-      return <Loading />;
-    }
-
-    if (!talks) {
-      // NOTE: 取得完了後のdata未取得はLoadingに含めず、例外系として表示
-      return <p>会話を表示できません</p>;
-    }
-
-    const emptyTalkMessage = !talkError && talks.length === 0 && (
-      <div className="pb-4 pt-4">
-        <p>
-          会話がまだありません。
-          <br />
-          今日のおすすめは何？など、話しかけてみてください！
-        </p>
-      </div>
-    );
-
-    // エラー表示対象のcodeを1つの配列にまとめる
-    const errorCodeArray = [talkError, recipesError];
-
-    // 片方のみエラー時に混ざるnullだけを除外
-    const filterdErrorCodeArray = errorCodeArray.filter(
-      (code) => code !== null
-    );
-
     return (
-      <>
-        {/* 正常系：データなし */}
-        {emptyTalkMessage}
-
-        {/* 異常系：データ有無に関係なく取得エラーを表示。Side非表示時も見えるようmainに表示 */}
-        {filterdErrorCodeArray.length > 0 && (
-          <DisplayErrorMessage errorCodes={filterdErrorCodeArray} />
-        )}
-
+    <div className="flex h-[calc(100vh-55px)] gap-8">
+      <SideArea>{renderSideNav()}</SideArea>
+      <TalkArea>
+        <TalkDataState
+          talks={talks}
+          talkError={talkError}
+          isTalkLoading={isTalkLoading}
+          recipesError={recipesError}
+        />
+        {talks && (
         <TalkPanel talks={talks}>
           <div className="pl-6 pt-2">
             {errorMsg && (
@@ -190,18 +164,8 @@ export default function TalkRoomIdPage() {
             isDisabled={isDisabled}
           />
         </TalkPanel>
-      </>
-    );
-  };
-
-  if (!token) return <p>ログイン確認中...</p>;
-
-  return (
-    <>
-      <div className="flex h-[calc(100vh-55px)] gap-8">
-        <SideArea>{renderSideRecipeList()}</SideArea>
-        <TalkArea>{renderTalks()}</TalkArea>
+        )}
+      </TalkArea>
       </div>
-    </>
   );
 }

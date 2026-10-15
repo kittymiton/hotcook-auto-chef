@@ -3,12 +3,12 @@
 import { errorCodeMap } from '@/lib/constants/errorCodeMap';
 import { idParamSchema } from '@/lib/schema/paramSchema';
 import { recipeDetailSchema, recipeSchema } from '@/lib/schema/recipeSchema';
-import { DisplayErrorMessage } from '@authenticated/components/error/DisplayErrorMessage';
 import { UnauthorizedError } from '@authenticated/components/error/UnauthorizedError';
 import { Loading } from '@authenticated/components/Loading';
 import { SideArea } from '@authenticated/components/side/SideArea';
 import { SideNav } from '@authenticated/components/side/SideNav';
 import { useRecipes } from '@authenticated/hooks/useRecipes';
+import { RecipeDataState } from '@authenticated/recipes/components/RecipeDataState';
 import { RecipeItem } from '@authenticated/recipes/components/RecipeItem';
 import { SideRecipeList } from '@authenticated/talkRoom/components/side/SideRecipeList';
 import { useParams } from 'next/navigation';
@@ -64,12 +64,14 @@ export default function RecipeDetailPage() {
     }
   }
 
-  const renderSideRecipeList = () => {
-    if (isRecipesLoading || !recipes) {
+  const talkRoomId = recipe && recipe.talkRoomId;
+
+  const renderSideNav = () => {
+    if (isRecipesLoading && !recipes) {
       return <Loading />;
     }
 
-    if (recipes.length === 0) {
+    if (!recipes || recipes.length === 0) {
       return <SideNav />;
     }
 
@@ -80,31 +82,18 @@ export default function RecipeDetailPage() {
     );
   };
 
-  const renderRecipeDetail = () => {
-    if (isRecipeLoading) {
-      return <Loading />;
-    }
-
-    if (!recipe) {
-      return <p>レシピ詳細を表示できません</p>;
-    }
-
-    const talkRoomId = recipe.talkRoomId;
-
-    const errorCodeArray = [recipeError, recipesError];
-
-    const filterdErrorCodeArray = errorCodeArray.filter(
-      (code) => code !== null
-    );
-
     return (
-      <>
-        {filterdErrorCodeArray.length > 0 && (
-          <DisplayErrorMessage errorCodes={filterdErrorCodeArray} />
-        )}
-
-        <RecipeItem recipe={recipe} />
-
+    <div className="flex h-[calc(100vh-55px)] gap-8">
+      <SideArea>{renderSideNav()}</SideArea>
+      <main className="min-h-0 flex-1 overflow-y-auto px-8 lg:pl-0 lg:pr-8">
+        {/* // TODO: MainArea共通化時にscroll/padding差分をどう持たせるか整理 */}
+        <RecipeDataState
+          recipe={recipe}
+          recipeError={recipeError}
+          isRecipeLoading={isRecipeLoading}
+          recipesError={recipesError}
+        />
+        {recipe && <RecipeItem recipe={recipe} />}
         {talkRoomId && (
           <div className="mt-6">
             <Button href={`/talkRoom/${talkRoomId}`} variant="action-primary">
@@ -119,19 +108,7 @@ export default function RecipeDetailPage() {
               <span>Chat</span>
             </Button>
           </div>
-          // TODO: チャットルームへの導線を共通コンポーネント化
         )}
-      </>
-    );
-  };
-
-  return (
-    <div className="flex h-[calc(100vh-55px)] gap-8">
-      <SideArea>{renderSideRecipeList()}</SideArea>
-
-      <main className="min-h-0 flex-1 overflow-y-auto px-8 lg:pl-0 lg:pr-8">
-        {/* // TODO: MainArea共通化時にscroll/padding差分をどう持たせるか整理 */}
-        {renderRecipeDetail()}
       </main>
     </div>
   );
