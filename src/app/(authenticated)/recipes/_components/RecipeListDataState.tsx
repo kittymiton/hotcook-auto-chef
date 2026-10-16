@@ -18,6 +18,7 @@ export const RecipeListDataState = ({
   userRoomErrorCode,
   isRecipesLoading,
 }: Props) => {
+  // TODO: DataStateで共通している判定処理関数化検討
   if (isRecipesLoading && !recipes) {
     return <Loading />;
   }
