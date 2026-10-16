@@ -6,10 +6,10 @@ import { recipeSchema } from '@/lib/schema/recipeSchema';
 import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
 import { UnauthorizedError } from '@authenticated/components/error/UnauthorizedError';
 import { Loading } from '@authenticated/components/Loading';
+import { MainArea } from '@authenticated/components/MainArea';
 import { SideArea } from '@authenticated/components/side/SideArea';
 import { SideNav } from '@authenticated/components/side/SideNav';
 import { SideRecipeList } from '@authenticated/components/side/SideRecipeList';
-import { TalkArea } from '@authenticated/components/TalkArea';
 import { useClickOutside } from '@authenticated/hooks/useClickOutside';
 import { useRecipes } from '@authenticated/hooks/useRecipes';
 import { useTalks } from '@authenticated/hooks/useTalks';
@@ -137,7 +137,7 @@ export default function TalkRoomIdPage() {
   return (
     <div className="flex h-[calc(100vh-55px)] gap-8">
       <SideArea>{renderSideNav()}</SideArea>
-      <TalkArea>
+      <MainArea>
         <TalkDataState
           talks={talks}
           talkError={talkError}
@@ -165,7 +165,7 @@ export default function TalkRoomIdPage() {
             />
           </TalkPanel>
         )}
-      </TalkArea>
+      </MainArea>
     </div>
   );
 }
