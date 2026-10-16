@@ -46,6 +46,7 @@ export default function RecipesPage() {
       return <UnauthorizedError />;
     }
   }
+  // TODO: UNAUTHORIZED判定関数化
 
   // エラーメッセージの重複判定用
   const userRoomErrorCode = userRoomError ? getErrorCode(userRoomError) : null;
@@ -70,6 +71,7 @@ export default function RecipesPage() {
       </SideNav>
     );
   };
+  // TODO: SideNav共通化
 
   return (
     <div className="flex h-[calc(100vh-55px)] gap-8">
