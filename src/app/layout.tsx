@@ -10,26 +10,25 @@ const notoSansJp = Noto_Sans_JP({
 });
 
 export const metadata: Metadata = {
-  title: 'ホットクック専用AIレシピアプリ',
+  title: 'AI提案ホットクックレシピ',
   description:
-    '忙しい毎日に、ホットクックで作れるレシピを。記憶の中の料理やSNSで見かけたレシピを、AIが手軽に試せる形で提案します。',
+    '忙しい毎日に、ホットクックで作れるレシピを。記憶の中の料理やSNSで見かけたレシピを、AIがホットクックで手軽に試せる形で提案します。',
   keywords: [
     'ホットクック',
-    'ホットクックレシピ',
     'AIレシピ',
     '無水調理',
     '自動調理',
     '時短料理',
     '簡単レシピ',
   ],
-  applicationName: 'ホットクック専用AIレシピアプリ',
+  applicationName: 'AI提案ホットクックレシピ',
   openGraph: {
-    title: 'ホットクック専用AIレシピアプリ',
+    title: 'AI提案ホットクックレシピ',
     description:
-      '忙しい毎日に、ホットクックで作れるレシピを。記憶の中の料理やSNSで見かけたレシピを、AIが手軽に試せる形で提案します。',
+      '忙しい毎日に、ホットクックで作れるレシピを。記憶の中の料理やSNSで見かけたレシピを、AIがホットクックで手軽に試せる形で提案します。。',
     type: 'website',
     locale: 'ja_JP',
-    siteName: 'ホットクック専用AIレシピアプリ',
+    siteName: 'AI提案ホットクックレシピ',
     images: ['/og-image.png'], // TODO: TOP画面を入れる
   },
   robots: {

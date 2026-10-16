@@ -29,6 +29,7 @@ export const primitives = {
     strawberry: '#f39696',
     salmon: '#ad200980',
     softPink: '#995858',
+    right: '#FFCCCC',
   },
   beige: {
     light: '#FDF3EA',
@@ -59,6 +60,7 @@ export const gradients = {
       'linear-gradient(90deg, #b0b0b0 0%, #d1d1d1 23%, #c8c8c8 50%, #d1d1d1 81%, #b0b0b0 100%)',
     slate_light: 'linear-gradient(180deg, #9d9b99 0%, #7a7772 100%)',
     slate_deep: 'linear-gradient(180deg, #9D9B99 0%, #6C6965 100%)',
+    hurricane: 'linear-gradient(180deg, #858585 0%, #7C7878 31%, #515151 100%)',
     ash: 'linear-gradient()',
   },
 

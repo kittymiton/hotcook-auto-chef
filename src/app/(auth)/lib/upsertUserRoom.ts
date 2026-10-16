@@ -1,4 +1,3 @@
-import { API_USERROOM_PATH } from '@/constants/index';
 import { fetcher } from '@/lib/apiClient/fetcher';
 import type { InitUserContextRequest } from '@/types/auth';
 import { Session } from '@supabase/supabase-js';
@@ -19,7 +18,7 @@ export const upsertUserRoom = async (
   };
 
   const result = userRoomSchema.parse(
-    await fetcher(API_USERROOM_PATH, {
+    await fetcher('/api/userRoom', {
       method: 'POST',
       token: access_token,
       body,

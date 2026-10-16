@@ -4,22 +4,23 @@ import { errorCodeMap } from '@/lib/constants/errorCodeMap';
 import { idParamSchema } from '@/lib/schema/paramSchema';
 import { recipeSchema } from '@/lib/schema/recipeSchema';
 import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
+import { UnauthorizedError } from '@authenticated/components/error/UnauthorizedError';
 import { Loading } from '@authenticated/components/Loading';
+import { MainArea } from '@authenticated/components/MainArea';
 import { SideArea } from '@authenticated/components/side/SideArea';
 import { SideNav } from '@authenticated/components/side/SideNav';
-import { TalkArea } from '@authenticated/components/TalkArea';
+import { SideRecipeList } from '@authenticated/components/side/SideRecipeList';
 import { useClickOutside } from '@authenticated/hooks/useClickOutside';
 import { useRecipes } from '@authenticated/hooks/useRecipes';
 import { useTalks } from '@authenticated/hooks/useTalks';
 import { TalkForm } from '@authenticated/talkRoom/components/form/TalkForm';
 import { TalkPanel } from '@authenticated/talkRoom/components/panel/TalkPanel';
-import { SideRecipeList } from '@authenticated/talkRoom/components/side/SideRecipeList';
+import { TalkDataState } from '@authenticated/talkRoom/components/talks/TalkDataState';
 import { useSuggest } from '@authenticated/talkRoom/hooks/useSuggest';
 import { useTalkSubmit } from '@authenticated/talkRoom/hooks/useTalkSubmit';
 import { getSortedSuggestList } from '@authenticated/talkRoom/utils/getSortedSuggestList';
 import { runMutations } from '@authenticated/talkRoom/utils/runMutations';
-import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useCallback, useRef, useState } from 'react';
 import { mutate } from 'swr';
 
@@ -30,7 +31,6 @@ export default function TalkRoomIdPage() {
 
   const { token } = useSupabaseSession();
 
-  const router = useRouter();
   const params = useParams();
 
   const parsedParams = idParamSchema.safeParse(params.id);
@@ -100,32 +100,31 @@ export default function TalkRoomIdPage() {
 
   const { sortedSuggestList } = getSortedSuggestList(suggest);
 
+  if (!token) return <p>ログイン確認中...</p>;
+
   if (talkError) {
-    return (
-      <div>
-        <p>{talkError}</p>
-        <button onClick={() => router.back()}>戻る</button>
-        <Link href="/">TOPに戻る</Link>
-      </div>
-    );
+    const code = talkError;
+
+    if (code === 'UNAUTHORIZED') {
+      return <UnauthorizedError />;
+    }
   }
 
   if (recipesError) {
-    return (
-      <div>
-        <p>{recipesError}</p>
-        <button onClick={() => router.back()}>戻る</button>
-        <Link href="/">TOPに戻る</Link>
-      </div>
-    );
+    const code = recipesError;
+
+    if (code === 'UNAUTHORIZED') {
+      return <UnauthorizedError />;
+    }
   }
 
-  const renderRecipeList = () => {
-    if (!recipes) {
+  const renderSideNav = () => {
+    if (isRecipesLoading && !recipes) {
       return <Loading />;
     }
-    if (recipes.length === 0) {
-      return <p>レシピがまだありません</p>;
+
+    if (!recipes || recipes.length === 0) {
+      return <SideNav />;
     }
 
     return (
@@ -135,53 +134,38 @@ export default function TalkRoomIdPage() {
     );
   };
 
-  const renderTalks = () => {
-    if (!talks) {
-      return <Loading />;
-    }
-
-    const emptyMessage =
-      talks.length === 0 ? (
-        <div className="pb-4 pt-4">
-          <p>会話がまだありません。会話してレシピを作ってみましょう。</p>
-        </div>
-      ) : null;
-    return (
-      <>
-        {emptyMessage}
-        <TalkPanel talks={talks}>
-          <TalkForm
-            onSubmit={handleSubmit}
-            inputRef={inputRef}
-            content={content}
-            isSending={isSending}
-            onFocus={handleInputFocus}
-            onChange={(value) => setContent(value)}
-            isInputFocused={isInputFocused}
-            sortedSuggestList={sortedSuggestList}
-            onKeywordSelect={handleSelectKeyword}
-            isDisabled={isDisabled}
-          />
-        </TalkPanel>
-      </>
-    );
-  };
-
-  if (!token) return <p>ログイン確認中...</p>;
-
   return (
-    <>
-      <div className="flex h-[calc(100vh-55px)] gap-8">
-        <SideArea>{renderRecipeList()}</SideArea>
-        <TalkArea>
-          <div className="pt-4">
-            {errorMsg && <p>送信エラー：{errorMsg}</p>}
-          </div>
-          {/* TODO: 送信エラー表示を TalkForm 上部に移動し、エラー用の高さを確保する */}
-
-          {renderTalks()}
-        </TalkArea>
-      </div>
-    </>
+    <div className="flex h-[calc(100vh-55px)] gap-8">
+      <SideArea>{renderSideNav()}</SideArea>
+      <MainArea>
+        <TalkDataState
+          talks={talks}
+          talkError={talkError}
+          isTalkLoading={isTalkLoading}
+          recipesError={recipesError}
+        />
+        {talks && (
+          <TalkPanel talks={talks}>
+            <div className="pl-6 pt-2">
+              {errorMsg && (
+                <p className="text-stone-700">送信できません：{errorMsg}</p>
+              )}
+            </div>
+            <TalkForm
+              onSubmit={handleSubmit}
+              inputRef={inputRef}
+              content={content}
+              isSending={isSending}
+              onFocus={handleInputFocus}
+              onChange={(value) => setContent(value)}
+              isInputFocused={isInputFocused}
+              sortedSuggestList={sortedSuggestList}
+              onKeywordSelect={handleSelectKeyword}
+              isDisabled={isDisabled}
+            />
+          </TalkPanel>
+        )}
+      </MainArea>
+    </div>
   );
 }

@@ -33,6 +33,7 @@ export async function fetcher(
       const raw = await res.json().catch(() => ({}));
       const parsed = apiErrorResponseSchema.safeParse(raw);
 
+      // 生エラー
       const errorCode =
         parsed.success && parsed.data.error
           ? parsed.data.error

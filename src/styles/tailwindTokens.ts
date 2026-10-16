@@ -68,7 +68,10 @@ const shadowMap = {
   'rich-grounded': 'shadow-rich-grounded',
 } as const;
 
+// ====================
 // Tailwind configに登録する色・グラデーション・影の形
+// ====================
+
 // NOTE: 「影type」「影色vars」で1セット
 // 第1引数:影の形(type)はTailwind configにshadowtypeとして登録する
 // 第2引数:影の色(vars)はcreateShadowにprimitivesの色を渡す
@@ -126,7 +129,7 @@ export const createShadow = (
         type: shadowMap[type],
         vars: {
           '--shadow-ambient': `inset -1px -1px 2px rgba(${baseRgb}, 0.3)`,
-          '--shadow-highlight': `inset 1px -1px 2px rgba(${highlightRgb}, 0.5)`,
+          '--shadow-highlight': `inset -1px -1px 2px rgba(${highlightRgb}, 0.5)`,
           '--shadow-edge': `-1px -1px 2px rgba(${baseRgb}, 0.9)`,
           '--shadow-reflect': `-1px 1px 3px rgba(${accentRgb}, 0.35)`, // 直下の反射光（ボタンを背景から切り離す）
           '--shadow-ambient-out': `-1px -1px 2px rgba(${highlightRgb}, 0.2)`, // 外側のにじみ
@@ -148,7 +151,7 @@ export const createShadow = (
   }
 };
 
-// className用 1層に整えてconfigに渡す
+// className用: 1層に整えてconfigに渡す
 // 役割色（よく使う場所をエイリアスとして固定登録）重複OK
 // 影色は肥大化防止でTailwindクラス化せずcreateShadowに実色を渡す
 export const tailwindColors = {
@@ -164,9 +167,12 @@ export const tailwindColors = {
   'beige-skin': primitives.beige.skin, // アプリ全体
 
   'gray-warm': primitives.gray.warm,
+  'gray-solid': primitives.gray.solid,
 
   taupe: primitives.taupe,
   'beige-dark': primitives.beige.dark,
+
+  'pink-strawberry': primitives.pink.strawberry, // 汎用actionボタン
 } as const;
 
 export const tailwindGradients = {
@@ -180,6 +186,7 @@ export const tailwindGradients = {
   'gray-slate-deep': gradients.gray.slate_deep,
   'gray-steel': gradients.gray.steel,
   'gray-slate-light': gradients.gray.slate_light,
+  'gray-hurricane': gradients.gray.hurricane, // 汎用action-deleteボタン
   'pink-soft': gradients.pink.soft,
   'pink-soft-active': createActiveColor(gradients.pink.soft),
 } as const;
