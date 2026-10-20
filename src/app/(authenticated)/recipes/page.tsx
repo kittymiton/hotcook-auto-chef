@@ -51,9 +51,7 @@ export default function RecipesPage() {
   // エラーメッセージの重複判定用
   const userRoomErrorCode = userRoomError ? getErrorCode(userRoomError) : null;
 
-  // NOTE: SWR key見直し前の暫定対応。
-  // userRoom取得エラー時はキャッシュ由来のtalkRoomIdを使用しない
-  const talkRoomId = !userRoomError ? userRoom?.talkRoom.id : undefined;
+  const talkRoomId = userRoom?.talkRoom.id;
   // TODO: 複数room/共有機能/URL直アクセス対応時、roomIdをURLparamsから取得、API（/api/talkRoom/[id]）で認可チェック
 
   const renderSideNav = () => {
