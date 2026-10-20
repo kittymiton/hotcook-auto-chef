@@ -25,7 +25,6 @@ export const SideNav = ({ children }: Props) => {
 
   const talkRoomId = userRoom?.talkRoom.id;
 
-  // 取得中undefinedはLoading、取得後undefinedは失敗表示
   if (error || !talkRoomId) {
     return (
       <nav>
@@ -33,6 +32,7 @@ export const SideNav = ({ children }: Props) => {
       </nav>
     );
   }
+  // TODO: userRoom初回取得失敗時の救済導線をSideNavの構造整理で検討する。
 
   return (
     <nav>
