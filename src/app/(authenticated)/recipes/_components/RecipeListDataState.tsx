@@ -25,7 +25,7 @@ export const RecipeListDataState = ({
 
   if (!recipes) {
     // 例外系
-    return <p>レシピ詳細を表示できません</p>;
+    return <p>レシピを表示できません</p>;
   }
 
   const emptyRecipesMessage = !recipesError && recipes.length === 0 && (
