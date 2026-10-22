@@ -46,3 +46,10 @@ next-env.d.ts
 **/*.learning.ts
 **/*.learning.tsx
 _learning/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
