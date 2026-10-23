@@ -23,20 +23,22 @@ export const RecipeListDataState = ({
     return <Loading />;
   }
 
-  if (!recipes) {
-    // 例外系
+  if (!recipesError && !recipes) {
+    // 例外系（通信未開始など）によるdata未取得の表示
     return <p>レシピを表示できません</p>;
   }
 
-  const emptyRecipesMessage = !recipesError && recipes.length === 0 && (
-    <div className="pb-4 pt-4">
-      <p>
-        レシピがまだありません。
-        <br />
-        会話してオリジナルのレシピを作ってみましょう！
-      </p>
-    </div>
-  );
+  const emptyRecipesMessage = !recipesError &&
+    recipes &&
+    recipes.length === 0 && (
+      <div className="pb-4 pt-4">
+        <p>
+          レシピがまだありません。
+          <br />
+          会話してオリジナルのレシピを作ってみましょう！
+        </p>
+      </div>
+    );
 
   const filteredErrorCodeArray = filterErrorCodes(
     recipesError,
@@ -49,7 +51,6 @@ export const RecipeListDataState = ({
       {filteredErrorCodeArray.length > 0 && (
         <DisplayErrorMessage errorCodes={filteredErrorCodeArray} />
       )}
-      {/* TODO: 現在はSWR keyがユーザー単位でないため、userRoomError時はキャッシュのroomIdを信用しない。key改修後に再検討 */}
     </>
   );
 };
