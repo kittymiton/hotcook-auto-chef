@@ -59,5 +59,15 @@ test.describe('RecipeList', () => {
       page.getByRole('main').getByRole('link', { name: 'TestTitle' })
     ).toBeVisible();
   });
+
+  // Loading
+  test('Loading', async ({ page }) => {
+    await page.route('**/api/recipes', async (route) => {
+      await new Promise(() => {});
+    });
+    await page.goto('http://localhost:3000/recipes');
+    await expect(
+      page.getByRole('main').getByText('ローディング中')
+    ).toBeVisible();
   });
 });
