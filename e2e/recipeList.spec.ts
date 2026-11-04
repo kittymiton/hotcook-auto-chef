@@ -70,4 +70,20 @@ test.describe('RecipeList', () => {
       page.getByRole('main').getByText('ローディング中')
     ).toBeVisible();
   });
+
+  // 異常系
+  test('API取得失敗', async ({ page }) => {
+    await page.route('**/api/recipes', async (route) => {
+      await route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: 'INTERNAL_SERVER_ERROR' }),
+      });
+    });
+    await page.goto('http://localhost:3000/recipes');
+
+    await expect(
+      page.getByRole('main').getByText('サーバーエラーが発生しました')
+    ).toBeVisible();
+  });
 });
