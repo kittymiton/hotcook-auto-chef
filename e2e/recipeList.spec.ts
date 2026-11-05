@@ -18,8 +18,9 @@ test.describe('RecipeList', () => {
     // TODO: ログイン回数が増えるため、E2Eの本数が増えてきたタイミングでstorageStateに切り替え
   });
 
-  // 正常系：0件
-  test('0件表示', async ({ page }) => {
+  test('レシピが0件のとき、作成を促すメッセージが表示される', async ({
+    page,
+  }) => {
     await page.route('**/api/recipes', async (route) => {
       await route.fulfill({
         status: 200,
@@ -37,8 +38,7 @@ test.describe('RecipeList', () => {
     ).toBeVisible();
   });
 
-  // 正常系
-  test('データあり', async ({ page }) => {
+  test('レシピが1件以上のとき、一覧が表示される', async ({ page }) => {
     await page.route('**/api/recipes', async (route) => {
       await route.fulfill({
         status: 200,
@@ -61,8 +61,7 @@ test.describe('RecipeList', () => {
     ).toBeVisible();
   });
 
-  // Loading
-  test('Loading', async ({ page }) => {
+  test('応答待ちのとき、ローディングが表示される', async ({ page }) => {
     await page.route('**/api/recipes', async (route) => {
       await new Promise(() => {});
     });
@@ -72,8 +71,7 @@ test.describe('RecipeList', () => {
     ).toBeVisible();
   });
 
-  // 異常系
-  test('API取得失敗', async ({ page }) => {
+  test('取得失敗のとき、エラーメッセージが表示される', async ({ page }) => {
     await page.route('**/api/recipes', async (route) => {
       await route.fulfill({
         status: 500,
