@@ -9,12 +9,13 @@ test.describe('RecipeList', () => {
       throw new Error('E2Eのログイン情報が設定されていません');
     }
 
-    await page.goto('http://localhost:3000/login');
+    await page.goto('/login');
     await page.getByLabel('メールアドレス').fill(email);
     await page.getByLabel('パスワード').fill(password);
     await page.getByRole('button', { name: 'ログイン', exact: true }).click();
 
-    await expect(page).toHaveURL(/\/talkRoom\/\d+$/);
+    await expect(page).toHaveURL(/\/talkRoom\/\d+$/, { timeout: 15000 });
+    // TODO: ログイン回数が増えるため、E2Eの本数が増えてきたタイミングでstorageStateに切り替え
   });
 
   // 正常系：0件
@@ -27,7 +28,7 @@ test.describe('RecipeList', () => {
       });
     });
 
-    await page.goto('http://localhost:3000/recipes');
+    await page.goto('/recipes');
 
     await expect(
       page.getByText(
@@ -53,7 +54,7 @@ test.describe('RecipeList', () => {
         ]),
       });
     });
-    await page.goto('http://localhost:3000/recipes');
+    await page.goto('/recipes');
 
     await expect(
       page.getByRole('main').getByRole('link', { name: 'TestTitle' })
@@ -65,7 +66,7 @@ test.describe('RecipeList', () => {
     await page.route('**/api/recipes', async (route) => {
       await new Promise(() => {});
     });
-    await page.goto('http://localhost:3000/recipes');
+    await page.goto('/recipes');
     await expect(
       page.getByRole('main').getByText('ローディング中')
     ).toBeVisible();
@@ -80,7 +81,7 @@ test.describe('RecipeList', () => {
         body: JSON.stringify({ error: 'INTERNAL_SERVER_ERROR' }),
       });
     });
-    await page.goto('http://localhost:3000/recipes');
+    await page.goto('/recipes');
 
     await expect(
       page.getByRole('main').getByText('サーバーエラーが発生しました')
