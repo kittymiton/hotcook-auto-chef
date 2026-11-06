@@ -72,7 +72,9 @@ test.describe('RecipeList', () => {
     ).toBeVisible();
   });
 
-  test('取得失敗のとき、エラーメッセージが表示される', async ({ page }) => {
+  test('取得失敗のとき、エラーメッセージを表示し、通信未開始用のメッセージは表示しない', async ({
+    page,
+  }) => {
     await page.route('**/api/recipes', async (route) => {
       await route.fulfill({
         status: 500,
@@ -82,8 +84,9 @@ test.describe('RecipeList', () => {
     });
     await page.goto('/recipes');
 
-    await expect(
-      page.getByRole('main').getByText('サーバーエラーが発生しました')
-    ).toBeVisible();
+    const main = page.getByRole('main');
+
+    await expect(main.getByText('サーバーエラーが発生しました')).toBeVisible();
+    await expect(main.getByText('レシピを表示できません')).toBeHidden();
   });
 });
