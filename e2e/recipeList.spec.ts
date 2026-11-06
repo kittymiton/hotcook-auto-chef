@@ -1,3 +1,4 @@
+import { RecipeSummaryList } from '@/lib/schema/recipeSchema';
 import { expect, test } from '@playwright/test';
 
 test.describe('RecipeList', () => {
@@ -51,7 +52,7 @@ test.describe('RecipeList', () => {
             talkRoomId: 9,
             tags: ['TestTag1'],
           },
-        ]),
+        ] satisfies RecipeSummaryList),
       });
     });
     await page.goto('/recipes');
