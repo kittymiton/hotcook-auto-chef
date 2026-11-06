@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "lint:raw": "eslint . --ext .ts,.tsx",
-    "lint:off": "echo 'lint無効化中'"
+    "lint:off": "echo 'lint無効化中'",
+    "test:e2e": "playwright test"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
