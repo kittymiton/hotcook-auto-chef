@@ -1,0 +1,92 @@
+import { RecipeSummaryList } from '@/lib/schema/recipeSchema';
+import { expect, test } from '@playwright/test';
+
+test.describe('RecipeList', () => {
+  test.beforeEach(async ({ page }) => {
+    const email = process.env.E2E_EMAIL;
+    const password = process.env.E2E_PASSWORD;
+
+    if (!email || !password) {
+      throw new Error('E2Eのログイン情報が設定されていません');
+    }
+
+    await page.goto('/login');
+    await page.getByLabel('メールアドレス').fill(email);
+    await page.getByLabel('パスワード').fill(password);
+    await page.getByRole('button', { name: 'ログイン', exact: true }).click();
+
+    await expect(page).toHaveURL(/\/talkRoom\/\d+$/, { timeout: 15000 });
+    // TODO: ログイン回数が増えるため、E2Eの本数が増えてきたタイミングでstorageStateに切り替え
+  });
+
+  test('レシピが0件のとき、作成を促すメッセージが表示される', async ({
+    page,
+  }) => {
+    await page.route('**/api/recipes', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([]),
+      });
+    });
+
+    await page.goto('/recipes');
+
+    await expect(
+      page.getByText(
+        'レシピがまだありません。会話してオリジナルのレシピを作ってみましょう！'
+      )
+    ).toBeVisible();
+  });
+
+  test('レシピが1件以上のとき、一覧が表示される', async ({ page }) => {
+    await page.route('**/api/recipes', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            id: 1,
+            title: 'TestTitle',
+            point: 'TestPoint',
+            talkRoomId: 9,
+            tags: ['TestTag1'],
+          },
+        ] satisfies RecipeSummaryList),
+      });
+    });
+    await page.goto('/recipes');
+
+    await expect(
+      page.getByRole('main').getByRole('link', { name: 'TestTitle' })
+    ).toBeVisible();
+  });
+
+  test('応答待ちのとき、ローディングが表示される', async ({ page }) => {
+    await page.route('**/api/recipes', async (route) => {
+      await new Promise(() => {});
+    });
+    await page.goto('/recipes');
+    await expect(
+      page.getByRole('main').getByText('ローディング中')
+    ).toBeVisible();
+  });
+
+  test('取得失敗のとき、エラーメッセージを表示し、通信未開始用のメッセージは表示しない', async ({
+    page,
+  }) => {
+    await page.route('**/api/recipes', async (route) => {
+      await route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: 'INTERNAL_SERVER_ERROR' }),
+      });
+    });
+    await page.goto('/recipes');
+
+    const main = page.getByRole('main');
+
+    await expect(main.getByText('サーバーエラーが発生しました')).toBeVisible();
+    await expect(main.getByText('レシピを表示できません')).toBeHidden();
+  });
+});

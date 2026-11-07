@@ -24,7 +24,7 @@ export const UserMenu = ({ session, showLogout }: Props) => {
 
   const handleLogout = async () => {
     const { error } = await signOut();
-
+    // TODO: ログアウト成功時にSWRのユーザー固有キャッシュを削除する
     if (error) {
       alert('ログアウトに失敗しました');
       return;

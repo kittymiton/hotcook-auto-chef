@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "lint:raw": "eslint . --ext .ts,.tsx",
-    "lint:off": "echo 'lint無効化中'"
+    "lint:off": "echo 'lint無効化中'",
+    "test:e2e": "playwright test"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
@@ -30,9 +31,11 @@
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^15.5.3",
+    "@playwright/test": "^1.64.1",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "dotenv": "^18.0.9",
     "eslint": "^8",
     "eslint-config-next": "14.2.16",
     "postcss": "^8",

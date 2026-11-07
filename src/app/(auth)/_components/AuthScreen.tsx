@@ -12,14 +12,10 @@ import { useAuthForm } from '@auth/hooks/useAuthForm';
 import Link from 'next/link';
 
 /**
- * 認証フォームのUI
  * 認証ロジック呼び出し＆文言切り替えハブ
- *
  * - useAuthForm初期化
  * - AuthScreen内部でCOPY[type]を参照し、title/buttonLabel/footerを決定
  * - AuthFormBaseに文言・ハンドラーを渡し、AuthFieldsをchildrenとして組み込む
- * @param AuthType 'signin' | 'login'
- * @returns {JSX.Element}（ログインまたはサインアップ画面全体）
  */
 const COPY: Record<AuthType, Copy> = {
   login: {
