@@ -29,7 +29,8 @@ export default function TalkRoomIdPage() {
   const [isInputFocused, setIsInputFocused] = useState(false);
   const inputRef = useRef<HTMLDivElement>(null);
 
-  const { token } = useSupabaseSession();
+  const { token, session } = useSupabaseSession();
+  const userId = session?.user.id;
 
   const params = useParams();
 
@@ -49,7 +50,7 @@ export default function TalkRoomIdPage() {
   const recipeListUrl = `/api/recipes?take=5`;
   const suggestUrl = `/api/suggest`;
 
-  const run = runMutations(mutate, talkRoomUrl, recipeListUrl);
+  const run = runMutations(mutate, userId, talkRoomUrl, recipeListUrl);
 
   const {
     data: talks,
