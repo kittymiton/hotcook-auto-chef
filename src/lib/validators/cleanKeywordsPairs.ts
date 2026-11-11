@@ -8,5 +8,5 @@ export function cleanKeywordsPairs(keywords: AiKeywords): AiKeywords {
       normalizedKeyword: word.normalizedKeyword?.normalize('NFKC').trim() ?? '',
     }))
     .filter((word) => word.keyword && word.normalizedKeyword)
-    .slice(0, 2);
+    .slice(0, 3);
 }
