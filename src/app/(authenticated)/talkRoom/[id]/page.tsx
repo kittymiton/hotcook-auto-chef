@@ -50,7 +50,8 @@ export default function TalkRoomIdPage() {
   const recipeListUrl = `/api/recipes?take=5`;
   const suggestUrl = `/api/suggest`;
 
-  const run = runMutations(mutate, userId, talkRoomUrl, recipeListUrl);
+  // SWRから取得したmutateを渡す
+  const run = runMutations(mutate, talkRoomUrl, recipeListUrl, userId);
 
   const {
     data: talks,
