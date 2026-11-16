@@ -3,13 +3,9 @@ import { Button } from '../../../../components/ui/Button';
 
 type Props = {
   recipes: RecipeBaseList;
-  showAllRecipesButton?: boolean;
 };
 
-export const SideRecipeList = ({
-  recipes,
-  showAllRecipesButton = true,
-}: Props) => {
+export const RecentRecipeList = ({ recipes }: Props) => {
   return (
     <div className="flex flex-col gap-4">
       <ul className="flex flex-col gap-3">
@@ -21,11 +17,9 @@ export const SideRecipeList = ({
           </li>
         ))}
       </ul>
-      {showAllRecipesButton && (
-        <Button href="/recipes" variant="side-all-recipe">
-          <span>すべてのレシピを見る</span>
-        </Button>
-      )}
+      <Button href="/recipes" variant="side-all-recipe">
+        <span>すべてのレシピを見る</span>
+      </Button>
     </div>
   );
 };

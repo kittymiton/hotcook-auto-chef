@@ -33,7 +33,7 @@ export default function RecipesPage() {
 
   const selectedTag = useSearchParams().get('tag');
 
-  // URLタグのレシピを絞り込む
+  // URLタグと一致するレシピを絞り込む
   const filteredRecipes = selectedTag
     ? recipes?.filter((recipe) => recipe.tags.includes(selectedTag))
     : recipes;

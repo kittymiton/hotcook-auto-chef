@@ -5,9 +5,9 @@ import { idParamSchema } from '@/lib/schema/paramSchema';
 import { recipeDetailSchema, recipeSchema } from '@/lib/schema/recipeSchema';
 import { UnauthorizedError } from '@authenticated/components/error/UnauthorizedError';
 import { Loading } from '@authenticated/components/Loading';
+import { RecentRecipeList } from '@authenticated/components/side/RecentRecipeList';
 import { SideArea } from '@authenticated/components/side/SideArea';
 import { SideNav } from '@authenticated/components/side/SideNav';
-import { SideRecipeList } from '@authenticated/components/side/SideRecipeList';
 import { useRecipes } from '@authenticated/hooks/useRecipes';
 import { RecipeDataState } from '@authenticated/recipes/components/RecipeDataState';
 import { RecipeItem } from '@authenticated/recipes/components/RecipeItem';
@@ -77,7 +77,7 @@ export default function RecipeDetailPage() {
 
     return (
       <SideNav>
-        <SideRecipeList recipes={recipes} />
+        <RecentRecipeList recipes={recipes} />
       </SideNav>
     );
   };

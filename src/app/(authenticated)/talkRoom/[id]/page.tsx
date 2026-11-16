@@ -7,9 +7,9 @@ import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
 import { UnauthorizedError } from '@authenticated/components/error/UnauthorizedError';
 import { Loading } from '@authenticated/components/Loading';
 import { MainArea } from '@authenticated/components/MainArea';
+import { RecentRecipeList } from '@authenticated/components/side/RecentRecipeList';
 import { SideArea } from '@authenticated/components/side/SideArea';
 import { SideNav } from '@authenticated/components/side/SideNav';
-import { SideRecipeList } from '@authenticated/components/side/SideRecipeList';
 import { useClickOutside } from '@authenticated/hooks/useClickOutside';
 import { useRecipes } from '@authenticated/hooks/useRecipes';
 import { useTalks } from '@authenticated/hooks/useTalks';
@@ -131,7 +131,7 @@ export default function TalkRoomIdPage() {
 
     return (
       <SideNav>
-        <SideRecipeList recipes={recipes} />
+        <RecentRecipeList recipes={recipes} />
       </SideNav>
     );
   };
