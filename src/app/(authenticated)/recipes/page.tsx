@@ -7,11 +7,12 @@ import { UnauthorizedError } from '@authenticated/components/error/UnauthorizedE
 import { Loading } from '@authenticated/components/Loading';
 import { SideArea } from '@authenticated/components/side/SideArea';
 import { SideNav } from '@authenticated/components/side/SideNav';
-import { SideRecipeList } from '@authenticated/components/side/SideRecipeList';
+import { TagList } from '@authenticated/components/side/TagList';
 import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
 import { useRecipes } from '@authenticated/hooks/useRecipes';
 import { RecipeList } from '@authenticated/recipes/components/RecipeList';
 import { RecipeListDataState } from '@authenticated/recipes/components/RecipeListDataState';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
 import { IconWrapper } from '../../../components/ui/IconWrapper';
@@ -29,6 +30,13 @@ export default function RecipesPage() {
     error: userRoomError,
     isLoading: isUserRoomLoading, // 取得中でも本線UIは止めない
   } = useAuthedSWR('/api/userRoom', userRoomSchema);
+
+  const selectedTag = useSearchParams().get('tag');
+
+  // URLタグのレシピを絞り込む
+  const filteredRecipes = selectedTag
+    ? recipes?.filter((recipe) => recipe.tags.includes(selectedTag))
+    : recipes;
 
   if (recipesError) {
     const code = recipesError;
@@ -63,9 +71,14 @@ export default function RecipesPage() {
       return <SideNav />;
     }
 
+    // キーワード抽出
+    const tagArray = recipes.flatMap((recipe) => recipe.tags);
+    const uniqueTags = [...new Set(tagArray)];
+    const displayTags = uniqueTags.slice(0, 8);
+
     return (
       <SideNav>
-        <SideRecipeList recipes={recipes} showAllRecipesButton={false} />
+        <TagList tags={displayTags} />
       </SideNav>
     );
   };
@@ -78,13 +91,15 @@ export default function RecipesPage() {
       <main className="min-h-0 flex-1 overflow-y-auto px-8 lg:pl-0 lg:pr-8">
         <div className="mx-auto max-w-3xl">
           <h1 className="mb-6 text-2xl font-bold">あなたのレシピ一覧</h1>
+
           <RecipeListDataState
             recipes={recipes}
             recipesError={recipesError}
             userRoomErrorCode={userRoomErrorCode}
             isRecipesLoading={isRecipesLoading}
           />
-          {recipes && <RecipeList recipes={recipes} />}
+          {filteredRecipes && <RecipeList recipes={filteredRecipes} />}
+
           {talkRoomId && (
             <div className="mt-6">
               <Button href={`/talkRoom/${talkRoomId}`} variant="action-primary">

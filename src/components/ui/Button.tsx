@@ -7,6 +7,7 @@ import Link from 'next/link';
 type Variant = keyof typeof buttonStyles;
 type Props = {
   variant: Variant;
+  className?: string;
   onClick?: () => void;
   href?: string;
   ariaLabel?: string;
@@ -112,7 +113,8 @@ const buttonStyles = {
   'side-recipe-item': {
     ...beigeBase,
     hover: 'hover:bg-none hover:bg-beige-cement',
-    shape: 'justify-start w-full h-[40px] text-[14px] leading-[1.4] pl-8',
+    shape:
+      'justify-start w-full min-h-[40px] text-[14px] leading-[1.2] py-3 px-4',
     shadow: createShadow('hard', {
       base: primitives.black,
       highlight: primitives.black,
@@ -162,6 +164,7 @@ const buttonStyles = {
 
 export const Button = ({
   variant,
+  className,
   onClick,
   href,
   children,
@@ -179,7 +182,8 @@ export const Button = ({
     config.shape,
     config.text,
     config.hover,
-    shadowClass
+    shadowClass,
+    className
   );
 
   const shadowStyle = {
