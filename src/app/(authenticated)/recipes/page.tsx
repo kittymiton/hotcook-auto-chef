@@ -12,6 +12,8 @@ import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
 import { useRecipes } from '@authenticated/hooks/useRecipes';
 import { RecipeList } from '@authenticated/recipes/components/RecipeList';
 import { RecipeListDataState } from '@authenticated/recipes/components/RecipeListDataState';
+import { filterRecipesByTag } from '@authenticated/recipes/utils/filterRecipesByTag';
+import { getRecentRecipeTags } from '@authenticated/recipes/utils/getRecentRecipeTags';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
@@ -32,11 +34,7 @@ export default function RecipesPage() {
   } = useAuthedSWR('/api/userRoom', userRoomSchema);
 
   const selectedTag = useSearchParams().get('tag');
-
-  // URLタグと一致するレシピを絞り込む
-  const filteredRecipes = selectedTag
-    ? recipes?.filter((recipe) => recipe.tags.includes(selectedTag))
-    : recipes;
+  const filteredRecipes = recipes && filterRecipesByTag(recipes, selectedTag);
 
   if (recipesError) {
     const code = recipesError;
@@ -71,10 +69,7 @@ export default function RecipesPage() {
       return <SideNav />;
     }
 
-    // キーワード抽出
-    const tagArray = recipes.flatMap((recipe) => recipe.tags);
-    const uniqueTags = [...new Set(tagArray)];
-    const displayTags = uniqueTags.slice(0, 8);
+    const displayTags = getRecentRecipeTags(recipes);
 
     return (
       <SideNav>
