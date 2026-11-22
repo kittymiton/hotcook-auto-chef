@@ -8,7 +8,7 @@ type Props = {
 export const RecentRecipeList = ({ recipes }: Props) => {
   return (
     <div className="flex flex-col gap-4">
-      <ul className="flex flex-col gap-3">
+      <ul className="flex flex-col gap-2">
         {recipes.map((recipe) => (
           <li key={recipe.id}>
             <Button href={`/recipes/${recipe.id}`} variant="side-recipe-item">

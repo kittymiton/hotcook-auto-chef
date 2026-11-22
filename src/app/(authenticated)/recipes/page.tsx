@@ -86,13 +86,23 @@ export default function RecipesPage() {
       <main className="min-h-0 flex-1 overflow-y-auto px-8 lg:pl-0 lg:pr-8">
         <div className="mx-auto max-w-3xl">
           <h1 className="mb-6 text-2xl font-bold">あなたのレシピ一覧</h1>
-
           <RecipeListDataState
             recipes={recipes}
             recipesError={recipesError}
             userRoomErrorCode={userRoomErrorCode}
             isRecipesLoading={isRecipesLoading}
           />
+
+          {selectedTag &&
+            filteredRecipes &&
+            (filteredRecipes.length > 0 ? (
+              <h2 className="mb-4 text-lg">
+                「{selectedTag}」のタグがついたレシピ
+              </h2>
+            ) : (
+              <p className="mb-4">該当のレシピがありません</p>
+            ))}
+
           {filteredRecipes && <RecipeList recipes={filteredRecipes} />}
 
           {talkRoomId && (
