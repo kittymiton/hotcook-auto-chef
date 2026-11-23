@@ -1,4 +1,4 @@
-import { type RecipeSummaryList } from '@/lib/schema/recipeSchema';
+import type { RecipeSummaryList } from '@/lib/schema/recipeSchema';
 
 // レシピからタグを抽出
 export const getRecentRecipeTags = (recipes: RecipeSummaryList) => {
