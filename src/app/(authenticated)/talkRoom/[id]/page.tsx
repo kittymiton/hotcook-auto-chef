@@ -7,9 +7,9 @@ import { useSupabaseSession } from '@auth/hooks/useSupabaseSession';
 import { UnauthorizedError } from '@authenticated/components/error/UnauthorizedError';
 import { Loading } from '@authenticated/components/Loading';
 import { MainArea } from '@authenticated/components/MainArea';
+import { RecentRecipeList } from '@authenticated/components/side/RecentRecipeList';
 import { SideArea } from '@authenticated/components/side/SideArea';
 import { SideNav } from '@authenticated/components/side/SideNav';
-import { SideRecipeList } from '@authenticated/components/side/SideRecipeList';
 import { useClickOutside } from '@authenticated/hooks/useClickOutside';
 import { useRecipes } from '@authenticated/hooks/useRecipes';
 import { useTalks } from '@authenticated/hooks/useTalks';
@@ -29,7 +29,8 @@ export default function TalkRoomIdPage() {
   const [isInputFocused, setIsInputFocused] = useState(false);
   const inputRef = useRef<HTMLDivElement>(null);
 
-  const { token } = useSupabaseSession();
+  const { token, session } = useSupabaseSession();
+  const userId = session?.user.id;
 
   const params = useParams();
 
@@ -49,7 +50,8 @@ export default function TalkRoomIdPage() {
   const recipeListUrl = `/api/recipes?take=5`;
   const suggestUrl = `/api/suggest`;
 
-  const run = runMutations(mutate, talkRoomUrl, recipeListUrl);
+  // SWRから取得したmutateを渡す
+  const run = runMutations(mutate, talkRoomUrl, recipeListUrl, userId);
 
   const {
     data: talks,
@@ -129,7 +131,7 @@ export default function TalkRoomIdPage() {
 
     return (
       <SideNav>
-        <SideRecipeList recipes={recipes} />
+        <RecentRecipeList recipes={recipes} />
       </SideNav>
     );
   };

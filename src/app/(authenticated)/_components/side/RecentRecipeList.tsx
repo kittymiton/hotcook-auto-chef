@@ -6,13 +6,13 @@ type Props = {
   showAllRecipesButton?: boolean;
 };
 
-export const SideRecipeList = ({
+export const RecentRecipeList = ({
   recipes,
   showAllRecipesButton = true,
 }: Props) => {
   return (
-    <div className="flex flex-col gap-4">
-      <ul className="flex flex-col gap-3">
+    <div className="mb-8 flex flex-col gap-4">
+      <ul className="flex flex-col gap-2">
         {recipes.map((recipe) => (
           <li key={recipe.id}>
             <Button href={`/recipes/${recipe.id}`} variant="side-recipe-item">

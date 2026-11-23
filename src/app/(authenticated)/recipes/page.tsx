@@ -7,11 +7,14 @@ import { UnauthorizedError } from '@authenticated/components/error/UnauthorizedE
 import { Loading } from '@authenticated/components/Loading';
 import { SideArea } from '@authenticated/components/side/SideArea';
 import { SideNav } from '@authenticated/components/side/SideNav';
-import { SideRecipeList } from '@authenticated/components/side/SideRecipeList';
+import { TagList } from '@authenticated/components/side/TagList';
 import { useAuthedSWR } from '@authenticated/hooks/useAuthedSWR';
 import { useRecipes } from '@authenticated/hooks/useRecipes';
 import { RecipeList } from '@authenticated/recipes/components/RecipeList';
 import { RecipeListDataState } from '@authenticated/recipes/components/RecipeListDataState';
+import { filterRecipesByTag } from '@authenticated/recipes/utils/filterRecipesByTag';
+import { getRecentRecipeTags } from '@authenticated/recipes/utils/getRecentRecipeTags';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
 import { IconWrapper } from '../../../components/ui/IconWrapper';
@@ -29,6 +32,9 @@ export default function RecipesPage() {
     error: userRoomError,
     isLoading: isUserRoomLoading, // 取得中でも本線UIは止めない
   } = useAuthedSWR('/api/userRoom', userRoomSchema);
+
+  const selectedTag = useSearchParams().get('tag');
+  const filteredRecipes = recipes && filterRecipesByTag(recipes, selectedTag);
 
   if (recipesError) {
     const code = recipesError;
@@ -63,9 +69,11 @@ export default function RecipesPage() {
       return <SideNav />;
     }
 
+    const displayTags = getRecentRecipeTags(recipes);
+
     return (
       <SideNav>
-        <SideRecipeList recipes={recipes} showAllRecipesButton={false} />
+        <TagList tags={displayTags} />
       </SideNav>
     );
   };
@@ -84,7 +92,19 @@ export default function RecipesPage() {
             userRoomErrorCode={userRoomErrorCode}
             isRecipesLoading={isRecipesLoading}
           />
-          {recipes && <RecipeList recipes={recipes} />}
+
+          {selectedTag &&
+            filteredRecipes &&
+            (filteredRecipes.length > 0 ? (
+              <h2 className="mb-4 text-lg">
+                「{selectedTag}」のタグがついたレシピ
+              </h2>
+            ) : (
+              <p className="mb-4">該当のレシピがありません</p>
+            ))}
+
+          {filteredRecipes && <RecipeList recipes={filteredRecipes} />}
+
           {talkRoomId && (
             <div className="mt-6">
               <Button href={`/talkRoom/${talkRoomId}`} variant="action-primary">
