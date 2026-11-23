@@ -64,8 +64,23 @@ describe('getRecentRecipeTags', () => {
     expect(result).toEqual(['ピリ辛', 'こんにゃく', 'ピーマン']);
   });
 
-  it('タグが0件の場合、空配列を返す', () => {
+  it('レシピが0件でタグが0件の場合、空配列を返す', () => {
     const mockRecipes: RecipeSummaryList = [];
+
+    const result = getRecentRecipeTags(mockRecipes);
+    expect(result).toEqual([]);
+  });
+
+  it('レシピは存在するがタグが0件の場合、空配列を返す', () => {
+    const mockRecipes = [
+      {
+        id: 1,
+        title: 'こんにゃくとピーマンのピリ辛炒め',
+        point: '豆板醤のピリ辛がこんにゃくに絡んでおいしいです。',
+        talkRoomId: 1,
+        tags: [],
+      },
+    ];
 
     const result = getRecentRecipeTags(mockRecipes);
     expect(result).toEqual([]);
