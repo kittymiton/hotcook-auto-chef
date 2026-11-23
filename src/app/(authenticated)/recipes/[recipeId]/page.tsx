@@ -2,15 +2,20 @@
 
 import { errorCodeMap } from '@/lib/constants/errorCodeMap';
 import { idParamSchema } from '@/lib/schema/paramSchema';
-import { recipeDetailSchema, recipeSchema } from '@/lib/schema/recipeSchema';
+import {
+  recipeDetailSchema,
+  recipeSummaryListSchema,
+} from '@/lib/schema/recipeSchema';
 import { UnauthorizedError } from '@authenticated/components/error/UnauthorizedError';
 import { Loading } from '@authenticated/components/Loading';
 import { RecentRecipeList } from '@authenticated/components/side/RecentRecipeList';
 import { SideArea } from '@authenticated/components/side/SideArea';
 import { SideNav } from '@authenticated/components/side/SideNav';
+import { TagList } from '@authenticated/components/side/TagList';
 import { useRecipes } from '@authenticated/hooks/useRecipes';
 import { RecipeDataState } from '@authenticated/recipes/components/RecipeDataState';
 import { RecipeItem } from '@authenticated/recipes/components/RecipeItem';
+import { getRecentRecipeTags } from '@authenticated/recipes/utils/getRecentRecipeTags';
 import { useParams } from 'next/navigation';
 import { Button } from '../../../../components/ui/Button';
 import { Icon } from '../../../../components/ui/Icon';
@@ -31,7 +36,6 @@ export default function RecipeDetailPage() {
 
   const recipeId = parsedParams.data;
 
-  const recipeDetailUrl = `/api/recipes/${recipeId}`;
   const recipeListUrl = `/api/recipes?take=5`;
 
   // レシピ詳細
@@ -39,14 +43,13 @@ export default function RecipeDetailPage() {
     data: recipe,
     error: recipeError,
     isLoading: isRecipeLoading,
-  } = useRecipes(recipeDetailUrl, recipeDetailSchema);
+  } = useRecipes(`/api/recipes/${recipeId}`, recipeDetailSchema);
 
-  // SideNav用レシピ一覧
   const {
     data: recipes,
     error: recipesError,
     isLoading: isRecipesLoading,
-  } = useRecipes(recipeListUrl, recipeSchema);
+  } = useRecipes(`/api/recipes`, recipeSummaryListSchema);
 
   if (recipeError) {
     const code = recipeError;
@@ -75,9 +78,16 @@ export default function RecipeDetailPage() {
       return <SideNav />;
     }
 
+    const recentRecipes = recipes.slice(0, 5);
+    const displayTags = getRecentRecipeTags(recipes);
+
     return (
       <SideNav>
-        <RecentRecipeList recipes={recipes} />
+        <RecentRecipeList
+          recipes={recentRecipes}
+          showAllRecipesButton={false}
+        />
+        <TagList tags={displayTags} />
       </SideNav>
     );
   };
@@ -93,6 +103,7 @@ export default function RecipeDetailPage() {
           isRecipeLoading={isRecipeLoading}
           recipesError={recipesError}
         />
+
         {recipe && <RecipeItem recipe={recipe} />}
         {talkRoomId && (
           <div className="mt-6">
