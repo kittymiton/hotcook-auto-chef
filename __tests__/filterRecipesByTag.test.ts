@@ -1,7 +1,7 @@
 import { filterRecipesByTag } from '@authenticated/recipes/utils/filterRecipesByTag';
 
 describe('filterRecipesByTag', () => {
-  const mockRecipes = [
+  const recipes = [
     {
       id: 4,
       title: '豆乳とチンゲンサイのささみクリーム煮',
@@ -34,24 +34,40 @@ describe('filterRecipesByTag', () => {
     },
   ];
 
-  it('指定タグを含むレシピを全件返す', () => {
-    const mockSelectedTag = 'チンゲンサイ';
+  it('タグに完全一致するレシピを全件返す', () => {
+    const tag = 'チンゲンサイ';
 
-    const result = filterRecipesByTag(mockRecipes, mockSelectedTag);
-    expect(result).toEqual([mockRecipes[0], mockRecipes[1]]);
+    const result = filterRecipesByTag(recipes, tag);
+    expect(result).toEqual([recipes[0], recipes[1]]);
   });
 
   it('タグが未指定の場合、レシピを全件返す', () => {
-    const mockSelectedTag = null;
+    // URLにtagパラメータがない場合
+    const tag = null;
 
-    const result = filterRecipesByTag(mockRecipes, mockSelectedTag);
-    expect(result).toEqual(mockRecipes);
+    const result = filterRecipesByTag(recipes, tag);
+    expect(result).toEqual(recipes);
   });
 
-  it('指定タグに一致するレシピがない場合、空配列を返す', () => {
-    const mockSelectedTag = '％＆’';
+  it('タグが空文字の場合、レシピを全件返す', () => {
+    // URLにtagパラメータはあるが、検索条件が空の場合
+    const tag = '';
 
-    const result = filterRecipesByTag(mockRecipes, mockSelectedTag);
+    const result = filterRecipesByTag(recipes, tag);
+    expect(result).toEqual(recipes);
+  });
+
+  it('タグに一致するレシピがない場合、空配列を返す', () => {
+    const tag = '存在しないタグ';
+
+    const result = filterRecipesByTag(recipes, tag);
+    expect(result).toEqual([]);
+  });
+
+  it('タグが部分一致するだけの場合、空配列を返す', () => {
+    const tag = 'チンゲン';
+
+    const result = filterRecipesByTag(recipes, tag);
     expect(result).toEqual([]);
   });
 });
